@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="content">
+<style>
+    /* ===== LIGHT VIP DASHBOARD (7-CARD EDITION) ===== */
+    .overview-wrapper {
+        padding: 0;
+        animation: dashboardFadeIn 0.6s ease-out;
+        color: #1e293b;
+    }
+
+    @keyframes dashboardFadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Hero Banner --- */
+    .hero-banner-light {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 28px;
+        padding: 35px 40px;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero-title-light { font-size: 2rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 8px; }
+
+    /* --- Bento Grid Adaptive --- */
+    .bento-grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .bento-card-light {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 140px;
+    }
+
+    .bento-card-light:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+        border-color: #e2e8f0;
+    }
+
+    .bento-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+
+    .bento-icon-box {
+        width: 42px; height: 42px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .bento-value { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1; margin: 10px 0 4px 0; }
+    .bento-label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
+    .bento-trend { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+
+    .bg-light-indigo { background: #eef2ff; color: #4f46e5; }
+    .bg-light-emerald { background: #ecfdf5; color: #10b981; }
+    .bg-light-rose { background: #fff1f2; color: #f43f5e; }
+    .bg-light-amber { background: #fffbeb; color: #f59e0b; }
+    .bg-light-cyan { background: #ecfeff; color: #0891b2; }
+    .bg-light-purple { background: #f5f3ff; color: #8b5cf6; }
+    .bg-light-blue { background: #eff6ff; color: #3b82f6; }
+
+    /* --- Quick Nav --- */
+    .quick-nav-container {
+        background: white; border-radius: 24px; padding: 25px;
+        border: 1px solid #f1f5f9; margin-bottom: 25px;
+    }
+
+    .quick-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px; margin-top: 15px;
+    }
+
+    .quick-nav-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; border-radius: 14px;
+        background: #f8fafc; color: #1e293b;
+        text-decoration: none; font-weight: 700; font-size: 0.8rem;
+        transition: all 0.2s; border: 1px solid transparent;
+    }
+
+    .quick-nav-item:hover {
+        background: white; border-color: #4f46e5; color: #4f46e5;
+        box-shadow: 0 8px 12px -3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* --- Chart Bento --- */
+    .grid-charts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .chart-card {
+        background: white; border-radius: 24px; padding: 25px;
+        border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-note {
+        font-size: 0.75rem; color: #64748b; background: #f8fafc;
+        padding: 10px 15px; border-radius: 12px; margin-top: 15px;
+        border-left: 3px solid #4f46e5;
+    }
+
+    .status-legend {
+        display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;
+    }
+    .legend-item {
+        display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: #475569;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    @media (max-width: 992px) { .grid-charts { grid-template-columns: 1fr; } }
+</style>
+
+<div class="overview-wrapper">
+
+    <!-- HERO SECTION -->
+    <div class="hero-banner-light">
+        <h1 class="hero-title-light">Chào mừng trở lại, <span th:text="${session.name}">Admin</span>!</h1>
+        <p class="hero-subtitle-light" style="margin-bottom: 0; opacity: 0.8;">Hệ thống đang hoạt động ổn định. Dưới đây là các chỉ số vận hành chi tiết.</p>
+    </div>
+
+    <!-- 7 CORE STATS -->
+    <div class="bento-grid-stats">
+        <!-- 1. TỔNG THIẾT BỊ -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-indigo"><i class="fas fa-boxes-stacked"></i></div>
+                <span class="bento-trend bg-light-indigo">Tất cả</span>
+            </div>
+            <div>
+                <div class="bento-label">Tổng thiết bị</div>
+                <div class="bento-value">[[${totalDevices}]]</div>
+            </div>
+        </div>
+
+        <!-- 2. PHÒNG HỌC -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-purple"><i class="fas fa-door-open"></i></div>
+                <span class="bento-trend bg-light-purple">Khu vực</span>
+            </div>
+            <div>
+                <div class="bento-label">Phòng học</div>
+                <div class="bento-value">[[${roomCount}]]</div>
+            </div>
+        </div>
+
+        <!-- 3. THÀNH VIÊN -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-blue"><i class="fas fa-users"></i></div>
+                <span class="bento-trend bg-light-blue">Nhân sự</span>
+            </div>
+            <div>
+                <div class="bento-label">Thành viên</div>
+                <div class="bento-value">[[${userCount}]]</div>
+            </div>
+        </div>
+
+        <!-- 4. TỐT -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-emerald"><i class="fas fa-check-circle"></i></div>
+                <span class="bento-trend bg-light-emerald">Sẵn sàng</span>
+            </div>
+            <div>
+                <div class="bento-label">Thiết bị Tốt</div>
+                <div class="bento-value" style="color: #10b981;">[[${availableCount}]]</div>
+            </div>
+        </div>
+
+        <!-- 5. HỎNG -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-rose"><i class="fas fa-times-circle"></i></div>
+                <span class="bento-trend bg-light-rose">Cần xử lý</span>
+            </div>
+            <div>
+                <div class="bento-label">Thiết bị Hỏng</div>
+                <div class="bento-value" style="color: #f43f5e;">[[${brokenCount}]]</div>
+            </div>
+        </div>
+
+        <!-- 6. CẦN BẢO TRÌ -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-amber"><i class="fas fa-tools"></i></div>
+                <span class="bento-trend bg-light-amber">Chờ bảo trì</span>
+            </div>
+            <div>
+                <div class="bento-label">Cần bảo trì</div>
+                <div class="bento-value" style="color: #f59e0b;">[[${needMaintainCount}]]</div>
+            </div>
+        </div>
+
+        <!-- 7. ĐANG BẢO TRÌ -->
+        <div class="bento-card-light">
+            <div class="bento-header">
+                <div class="bento-icon-box bg-light-cyan"><i class="fas fa-cog fa-spin"></i></div>
+                <span class="bento-trend bg-light-cyan">Đang xử lý</span>
+            </div>
+            <div>
+                <div class="bento-label">Đang bảo trì</div>
+                <div class="bento-value" style="color: #0891b2;">[[${maintainingCount}]]</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK NAVIGATION -->
+    <div class="quick-nav-container">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-paper-plane text-primary"></i>
+            <span class="fw-800 text-uppercase small letter-spacing-1" style="color: #64748b;">Chuyển hướng nhanh</span>
+        </div>
+        <div class="quick-nav-grid">
+            <a href="/devices/list" class="quick-nav-item"><i class="fas fa-laptop text-primary"></i> Thiết bị</a>
+            <a href="/inventory/progress" class="quick-nav-item"><i class="fas fa-qrcode text-success"></i> Kiểm kê</a>
+            <a href="/requests" class="quick-nav-item"><i class="fas fa-clipboard-check text-warning"></i> Yêu cầu</a>
+            <a href="/users" class="quick-nav-item" th:if="${session.role == 'admin'}"><i class="fas fa-user-group text-info"></i> Thành viên</a>
+            <a href="/reports" class="quick-nav-item"><i class="fas fa-chart-pie text-danger"></i> Báo cáo</a>
+        </div>
+    </div>
+
+    <!-- CHARTS GRID -->
+    <div class="grid-charts">
+        <div class="chart-card">
+            <div class="bento-label mb-3">Phân tích tình trạng</div>
+            <div class="status-legend mb-4">
+                <div class="legend-item"><div class="dot" style="background: #10b981;"></div> Tốt</div>
+                <div class="legend-item"><div class="dot" style="background: #f43f5e;"></div> Hỏng</div>
+                <div class="legend-item"><div class="dot" style="background: #f59e0b;"></div> Cần bảo trì</div>
+                <div class="legend-item"><div class="dot" style="background: #0891b2;"></div> Đang bảo trì</div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <canvas id="statusDonutChart" style="max-height: 180px;"></canvas>
+                </div>
+                <div class="col-sm-6">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="small d-flex justify-content-between"><span class="text-muted">Tổng tài sản:</span> <span class="fw-800">[[${totalDevices}]]</span></div>
+                        <div class="small d-flex justify-content-between"><span class="text-muted">Tổng giá trị:</span> <span class="fw-bold text-primary">[[${#numbers.formatDecimal(totalValue ?: 0, 0, 'COMMA', 0, 'POINT')}]] ₫</span></div>
+                    </div>
+                    <div class="chart-note">
+                        <i class="fas fa-info-circle me-1"></i> Tình trạng được cập nhật dựa trên báo cáo mới nhất.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="bento-label mb-4">Phân bổ theo phòng</div>
+            <canvas id="roomBarChart" style="max-height: 180px;"></canvas>
+            <div class="chart-note">
+                <i class="fas fa-chart-bar me-1"></i> Hiển thị số lượng thiết bị tại các khu vực.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    window.chartDataFromServer = [[${chartData}]] || [0, 0, 0, 0, 0];
+    window.roomLabelsFromServer = [[${roomLabels}]] || [];
+    window.roomDataFromServer = [[${roomData}]] || [];
+</script>
+<script th:src="@{/js/dashboard-charts.js}"></script>
+</div>
+</html>

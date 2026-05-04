@@ -1,0 +1,383 @@
+<div th:fragment="content" class="animate__animated animate__fadeIn">
+    <style>
+        .category-card {
+            background: #fff;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .category-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        .btn-add-vip {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-add-vip:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+            color: white;
+        }
+        .action-btn-category {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eef2ff;
+            background: #fff;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .action-btn-category:hover {
+            background: #f8fafc;
+            color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        .action-btn-delete:hover {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        .category-search-box {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+    </style>
+
+    <div class="container-fluid p-0 pb-5">
+        <!-- HEADER SECTION -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h3 class="fw-bold text-dark mb-1"><i class="fas fa-layer-group text-primary me-2"></i>Quản Lý Danh Mục</h3>
+                <p class="text-muted mb-0">Hệ thống phân loại thiết bị thông minh & chuyên nghiệp</p>
+            </div>
+            <button class="btn btn-add-vip shadow-sm" data-bs-toggle="modal" data-bs-target="#categoryModal" id="btnAddCategory">
+                <i class="fas fa-plus-circle me-2"></i> Thêm Danh Mục
+            </button>
+        </div>
+
+        <!-- SEARCH & FILTER -->
+        <div class="category-search-box animate__animated animate__fadeInDown">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                        <span class="input-group-text border-0 bg-white ps-3">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" id="categorySearchInput" class="form-control border-0 py-2 fw-medium" placeholder="Tìm nhanh tên, mã hoặc mô tả danh mục...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">
+                        <i class="fas fa-list-ul me-2 text-primary"></i>Tổng số: <span id="totalCategoryCount" class="text-primary" th:text="${#lists.size(categories)}">0</span> danh mục
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORIES GRID -->
+        <div class="row g-4" id="categoryGrid">
+            <div th:each="c : ${categories}" class="col-xl-4 col-md-6 category-item animate__animated animate__zoomIn" 
+                 th:data-id="${c.id}" 
+                 th:data-name="${c.category_name}" 
+                 th:data-code="${c.category_code}"
+                 th:data-desc="${c.description}">
+                <div class="category-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="category-icon-box" th:style="'background: #eef2ff; color: #4f46e5;'">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0 category-name-text" th:text="${c.category_name}">Tên Danh Mục</h5>
+                                <small class="text-muted">Mã: <span class="fw-bold text-primary" th:text="${c.category_code}">CODE</span></small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="action-btn-category btn-edit-category" title="Chỉnh sửa">
+                                <i class="fas fa-pen small"></i>
+                            </button>
+                            <button class="action-btn-category action-btn-delete btn-delete-category" title="Xóa">
+                                <i class="fas fa-trash-alt small"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted small mb-3 category-desc-text" th:text="${c.description ?: 'Không có mô tả cho danh mục này.'}">Mô tả danh mục...</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-microchip text-muted me-2 small"></i>
+                            <span class="small text-muted">Số lượng thiết bị: </span>
+                            <span class="ms-2 badge rounded-pill bg-primary-subtle text-primary fw-bold" th:text="${c.device_count}">0</span>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1">
+                            <i class="fas fa-check-circle me-1"></i>Hệ thống
+                        </span>
+                        <div class="d-flex gap-2 align-items-center">
+                            <a th:href="@{/devices/list(categoryId=${c.id}, categoryName=${c.category_name}, openAdd=true)}" 
+                               class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold transition-all" 
+                               style="font-size: 0.75rem; border-width: 1.5px;">
+                                <i class="fas fa-plus-circle me-1"></i> Thêm TB
+                            </a>
+                            <a th:href="@{/devices/list(categoryId=${c.id}, categoryName=${c.category_name})}" 
+                               class="btn btn-link btn-sm text-decoration-none p-0 fw-bold transition-all" 
+                               style="color: #4f46e5;">
+                                Xem chi tiết <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div th:if="${#lists.isEmpty(categories)}" class="col-12 text-center py-5 animate__animated animate__fadeIn">
+                <div class="py-5 bg-white rounded-4 shadow-sm border border-dashed">
+                    <div class="mb-4">
+                        <i class="fas fa-folder-open fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Chưa có danh mục nào được khởi tạo</h4>
+                    <p class="text-muted mb-4">Hệ thống đang chờ bạn thiết lập các nhóm thiết bị để bắt đầu quản lý.</p>
+                    <button class="btn btn-primary btn-add-vip rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#categoryModal" style="background: #4f46e5; border: none;">
+                        <i class="fas fa-plus me-2"></i>Tạo danh mục đầu tiên
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORY MODAL -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
+                    <h5 class="modal-title fw-bold" id="categoryModalLabel"><i class="fas fa-plus-circle me-2"></i>Thêm Danh Mục</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="categoryForm" onsubmit="event.preventDefault(); window.saveCategory(); return false;">
+                        <input type="hidden" id="categoryId">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Tên Danh Mục <span class="text-danger">*</span></label>
+                                <input type="text" id="categoryName" class="form-control rounded-3 border-light bg-light py-2" required placeholder="Ví dụ: Máy tính, Thiết bị mạng...">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Mã Danh Mục <span class="text-danger">*</span></label>
+                                <input type="text" id="categoryCode" class="form-control rounded-3 border-light bg-light py-2" required placeholder="Ví dụ: PC, NETWORK...">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Mô tả chi tiết</label>
+                                <textarea id="categoryDescription" class="form-control rounded-3 border-light bg-light" rows="4" placeholder="Nhập mô tả ngắn gọn về danh mục này..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" id="btnSaveCategory" class="btn btn-primary rounded-pill px-5 fw-bold" onclick="window.saveCategory()" style="background: #4f46e5; border: none;">Lưu Danh Mục</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log(">>> CATEGORY INLINE JS: LOADED");
+        window.saveCategory = async function() {
+            console.log(">>> CATEGORY JS: saveCategory() START");
+            const id = document.getElementById('categoryId').value;
+            const isEdit = id !== '';
+            const btn = document.getElementById('btnSaveCategory');
+            
+            const categoryData = {
+                category_name: document.getElementById('categoryName').value.trim(),
+                category_code: document.getElementById('categoryCode').value.trim(),
+                description: document.getElementById('categoryDescription').value.trim() || null
+            };
+
+            if (!categoryData.category_name || !categoryData.category_code) {
+                Swal.fire('Cảnh báo', 'Vui lòng nhập đầy đủ Tên và Mã danh mục!', 'warning');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
+
+                const url = isEdit ? `categories/${id}` : 'categories/add';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                console.log(`>>> CATEGORY JS: Fetching ${method} ${url}`);
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(categoryData)
+                });
+
+                console.log(`>>> CATEGORY JS: Response Status: ${response.status}`);
+                const rawRes = await response.text();
+                console.log(">>> CATEGORY JS: Response Body:", rawRes);
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: isEdit ? 'Đã cập nhật!' : 'Đã thêm mới!',
+                        text: 'Dữ liệu đã được đồng bộ hệ thống.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    let errorMsg = rawRes;
+                    try {
+                        const json = JSON.parse(rawRes);
+                        errorMsg = json.error || json.detail || json.message || rawRes;
+                        
+                        if (typeof errorMsg === 'string' && errorMsg.trim().startsWith('{')) {
+                            try {
+                                const inner = JSON.parse(errorMsg);
+                                errorMsg = inner.detail || inner.error || inner.message || errorMsg;
+                            } catch(e2) {}
+                        }
+                    } catch (e) {}
+                    Swal.fire('Thất bại', `Lỗi (${response.status}): ${errorMsg}`, 'error');
+                }
+            } catch (err) {
+                Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Lưu Danh Mục';
+                }
+            }
+        };
+
+        window.openEditCategoryModal = function(data) {
+            document.getElementById('categoryModalLabel').innerHTML = '<i class="fas fa-edit me-2"></i>Chỉnh Sửa Danh Mục';
+            document.getElementById('categoryId').value = data.id;
+            document.getElementById('categoryName').value = data.name;
+            document.getElementById('categoryCode').value = data.code || '';
+            document.getElementById('categoryDescription').value = data.desc || '';
+            const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+            modal.show();
+        };
+
+        window.confirmDeleteCategory = function(id) {
+            Swal.fire({
+                title: 'Xóa danh mục?',
+                text: "Hành động này không thể hoàn tác và có thể ảnh hưởng đến các thiết bị thuộc danh mục này!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Đúng, xóa nó!',
+                cancelButtonText: 'Hủy',
+                showLoaderOnConfirm: true,
+                preConfirm: async () => {
+                    try {
+                        const response = await fetch(`categories/${id}`, { method: 'DELETE' });
+                        const rawRes = await response.text();
+                        if (!response.ok) {
+                            let errorMsg = rawRes;
+                            try {
+                                const json = JSON.parse(rawRes);
+                                errorMsg = json.error || json.detail || json.message || rawRes;
+                            } catch(e) {}
+                            throw new Error(errorMsg);
+                        }
+                        return true;
+                    } catch (error) {
+                        Swal.showValidationMessage(`Lỗi: ${error.message}`);
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã xóa!',
+                        text: 'Danh mục đã được loại bỏ thành công.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                }
+            });
+        };
+        // Initializations
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log(">>> CATEGORY DOM READY");
+            const searchInput = document.getElementById('categorySearchInput');
+            const categoryGrid = document.getElementById('categoryGrid');
+            
+            if (!categoryGrid) {
+                console.error(">>> CATEGORY JS: categoryGrid NOT FOUND!");
+                return;
+            }
+
+            // Search Logic
+            searchInput?.addEventListener('input', function() {
+                const term = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.category-item');
+                items.forEach(item => {
+                    const name = item.getAttribute('data-name').toLowerCase();
+                    const desc = (item.getAttribute('data-desc') || '').toLowerCase();
+                    item.style.display = (name.includes(term) || desc.includes(term)) ? '' : 'none';
+                });
+            });
+
+            // Event Delegation cho nút Sửa/Xóa
+            categoryGrid.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.btn-edit-category');
+                const deleteBtn = e.target.closest('.btn-delete-category');
+                const row = e.target.closest('.category-item');
+                
+                if (editBtn && row) {
+                    console.log(">>> CATEGORY JS: Edit Clicked");
+                    window.openEditCategoryModal({
+                        id: row.getAttribute('data-id'),
+                        name: row.getAttribute('data-name'),
+                        code: row.getAttribute('data-code'),
+                        desc: row.getAttribute('data-desc')
+                    });
+                } else if (deleteBtn && row) {
+                    console.log(">>> CATEGORY JS: Delete Clicked");
+                    window.confirmDeleteCategory(row.getAttribute('data-id'));
+                }
+            });
+
+            // Modal Reset khi mở để thêm mới
+            const modalEl = document.getElementById('categoryModal');
+            modalEl?.addEventListener('show.bs.modal', function (e) {
+                const trigger = e.relatedTarget;
+                if (trigger && (trigger.id === 'btnAddCategory' || trigger.classList.contains('btn-add-vip'))) {
+                    console.log(">>> CATEGORY JS: Resetting Modal for NEW");
+                    document.getElementById('categoryModalLabel').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Thêm Danh Mục Mới';
+                    document.getElementById('categoryForm').reset();
+                    document.getElementById('categoryId').value = '';
+                }
+            });
+        });
+    </script>
+</div>

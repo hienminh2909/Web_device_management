@@ -1,0 +1,187 @@
+<div th:fragment="content">
+    <style>
+        .notif-container { animation: fadeIn 0.4s ease-out; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .notif-header { 
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 20px; padding: 30px; color: white; margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+        }
+        .notif-full-item {
+            background: white; border-radius: 18px; padding: 25px;
+            border: 1px solid #f1f5f9; transition: all 0.3s;
+            display: flex; gap: 20px; margin-bottom: 15px; cursor: pointer;
+            position: relative;
+        }
+        .notif-full-item:hover { transform: translateY(-3px); border-color: #6366f1; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .notif-full-item.unread { background: #f8faff; border-left: 5px solid #6366f1; }
+        .notif-full-item.unread::before {
+            content: 'NEW'; position: absolute; top: 15px; right: 20px;
+            background: #ef4444; color: white; font-size: 0.6rem; font-weight: 800;
+            padding: 2px 8px; border-radius: 20px;
+        }
+        .notif-circle {
+            width: 50px; height: 50px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .delete-btn-hover { opacity: 0.3; transition: all 0.2s; }
+        .notif-full-item:hover .delete-btn-hover { opacity: 1; }
+        .delete-btn-hover:hover { transform: scale(1.2); color: #dc2626 !important; }
+    </style>
+
+    <div class="notif-container">
+        <div class="notif-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-800 m-0" style="letter-spacing: -1px;">Trung tâm thông báo</h2>
+                <p class="m-0 opacity-75 small">Nơi lưu giữ mọi hoạt động quan trọng của bạn</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-light rounded-pill px-4" onclick="sendTestNotification()">
+                    <i class="fas fa-vial me-2"></i>Gửi thử nghiệm
+                </button>
+                <button class="btn btn-white bg-white text-primary fw-bold rounded-pill px-4 shadow-sm" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double me-2"></i>Đọc tất cả
+                </button>
+            </div>
+        </div>
+
+        <div id="fullNotificationList" class="pb-5">
+            <!-- Notifications will load here -->
+        </div>
+    </div>
+
+    <script th:src="@{/js/settings.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFullNotifications();
+        });
+
+        async function loadFullNotifications() {
+            const list = document.getElementById('fullNotificationList');
+            try {
+                const res = await fetch('/api/notifications');
+                const data = await res.json();
+                
+                if (data.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-4x text-muted opacity-25 mb-3"></i>
+                            <h5 class="fw-bold text-muted">Hộp thư trống rỗng</h5>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = data.map(n => `
+                    <div class="notif-full-item ${n.is_read ? '' : 'unread'}" onclick="markRead(${n.id}, '${n.link}')">
+                        <div class="notif-circle ${n.title.includes('Duyệt') || n.title.includes('PHÊ DUYỆT') ? 'bg-success bg-opacity-10 text-success' : 'bg-primary bg-opacity-10 text-primary'}">
+                            <i class="${getIcon(n.title)}"></i>
+                        </div>
+                        <div class="flex-fill">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h5 class="fw-bold m-0 ${n.is_read ? 'text-dark' : 'text-primary'}" style="font-size: 1.1rem;">${n.title}</h5>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="text-muted small fw-bold">${formatTime(n.created_at)}</span>
+                                    <button class="btn btn-link text-danger p-0 delete-btn-hover" onclick="deleteNotif(event, ${n.id})">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-muted m-0">${n.content}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                list.innerHTML = '<div class="alert alert-danger">Lỗi tải dữ liệu</div>';
+            }
+        }
+
+        function getIcon(title) {
+            if (title.includes('Duyệt') || title.includes('PHÊ DUYỆT')) return 'fas fa-check-circle';
+            if (title.includes('Từ chối') || title.includes('TỪ CHỐI')) return 'fas fa-times-circle';
+            return 'fas fa-bell';
+        }
+
+        function formatTime(isoStr) {
+            if (!isoStr) return '';
+            const date = new Date(isoStr);
+            return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        async function markRead(id, link) {
+            try {
+                await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                if (window.updateBadges) window.updateBadges(); // Cập nhật badge ở sidebar
+                
+                if (link && link !== 'null' && link !== 'undefined' && link !== '') {
+                    window.location.href = link;
+                } else {
+                    loadFullNotifications();
+                }
+            } catch (err) {
+                console.error("Error marking as read:", err);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                await fetch('/api/notifications/read-all', { method: 'POST' });
+                if (window.updateBadges) window.updateBadges();
+                loadFullNotifications();
+                Swal.fire('Thành công', 'Đã đánh dấu tất cả là đã đọc', 'success');
+            } catch (err) {
+                Swal.fire('Lỗi', 'Không thể thực hiện thao tác', 'error');
+            }
+        }
+
+        async function deleteNotif(event, id) {
+            event.stopPropagation(); // Ngăn chặn sự kiện click vào item (markRead)
+            
+            const result = await Swal.fire({
+                title: 'Xóa thông báo?',
+                text: "Bạn không thể hoàn tác thao tác này!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        if (window.updateBadges) window.updateBadges();
+                        loadFullNotifications();
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                } catch (err) {
+                    Swal.fire('Lỗi', 'Không thể xóa thông báo', 'error');
+                }
+            }
+        }
+
+        async function sendTestNotification() {
+            try {
+                const res = await fetch('/api/notifications/test', { method: 'POST' });
+                if (res.ok) {
+                    Swal.fire('Thành công', 'Đã gửi thông báo thử nghiệm!', 'success');
+                    if (window.updateBadges) window.updateBadges();
+                    loadFullNotifications();
+                } else {
+                    Swal.fire('Lỗi', 'Không thể gửi thông báo thử nghiệm', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
+            }
+        }
+    </script>
+</div>

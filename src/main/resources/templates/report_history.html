@@ -1,0 +1,150 @@
+<div th:fragment="content">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        :root { --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); --glass-bg: rgba(255, 255, 255, 0.85); }
+        .history-vip-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .vip-title { font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px; color: #1e293b; }
+        .bento-item { background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+
+        .smart-table-container { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); margin-top: 25px; }
+        .smart-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .smart-table thead th { padding: 12px 15px; font-weight: 700; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; border: none; }
+        .smart-table tbody tr { transition: 0.2s; cursor: pointer; }
+        .smart-table tbody tr:hover { background: #f8fafc; }
+        .smart-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        .history-badge { padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; background: #e0e7ff; color: #4338ca; }
+    </style>
+
+    <div class="history-vip-wrapper">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h1 class="vip-title mb-1">Lịch sử Báo hỏng</h1>
+                <p class="text-muted small m-0">Xem lại toàn bộ hồ sơ thiết bị đã được phê duyệt xử lý</p>
+            </div>
+            <button class="btn btn-dark fw-bold rounded-3 px-4" onclick="exportHistoryExcel()">
+                <i class="fas fa-download me-2"></i>Tải Báo Cáo Chi Tiết
+            </button>
+        </div>
+
+        <div class="bento-item mb-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="position-relative">
+                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="historySearch" class="form-control rounded-pill ps-5 border-light bg-light" placeholder="Tìm theo mã thiết bị, tên hoặc mô tả..." onkeyup="filterHistory()">
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="text-muted small fw-bold">TỔNG SỐ BẢN GHI LỊCH SỬ</div>
+                    <h3 class="fw-bold m-0 text-primary" th:text="${#lists.size(history)}">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="smart-table-container">
+            <div class="table-responsive">
+                <table class="smart-table" id="historyTableVip">
+                    <thead>
+                        <tr>
+                            <th>Ngày ghi nhận</th>
+                            <th>Mã thiết bị</th>
+                            <th>Tên thiết bị</th>
+                            <th>Tình trạng</th>
+                            <th>Mô tả sự cố</th>
+                            <th>Người duyệt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${history}" 
+                            th:attr="data-id=${log.id},
+                                     data-reported-at=${log.reported_at},
+                                     data-device-code=${log.devices?.device_code},
+                                     data-device-name=${log.devices?.device_name},
+                                     data-status=${log.status},
+                                     data-desc=${log.description},
+                                     data-note=${log.note},
+                                     data-user=${log.users?.full_name},
+                                     data-resolver=${log.resolver?.full_name}"
+                            onclick="showLogDetailsVip(this)">
+                            <td class="small fw-bold" th:text="${#strings.substring(log.reported_at, 0, 10)}">Date</td>
+                            <td><span class="text-primary fw-bold" th:text="${log.devices?.device_code ?: 'N/A'}">CODE</span></td>
+                            <td class="fw-bold small">
+                                <span th:text="${log.devices?.device_name ?: 'Thiết bị đã xóa'}">Name</span>
+                                <i class="fas fa-exclamation-triangle text-danger ms-1 small" th:if="${log.devices == null}" title="Thiết bị này không còn tồn tại trong hệ thống"></i>
+                            </td>
+                            <td><span class="history-badge" th:text="${log.status}">Status</span></td>
+                            <td class="small text-muted" th:text="${#strings.abbreviate(log.description ?: 'Không có mô tả', 50)}">Desc</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.6rem;" th:text="${#strings.substring(log.resolver?.full_name ?: 'A', 0, 1)}">A</div>
+                                    <span class="small fw-bold" th:text="${log.resolver?.full_name ?: 'Admin'}">Admin</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterHistory() {
+            const val = document.getElementById('historySearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#historyTableVip tbody tr');
+            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none');
+        }
+
+        function showLogDetailsVip(row) {
+            const d = row.dataset;
+            Swal.fire({
+                title: `Chi tiết bản ghi #${d.id}`,
+                html: `
+                    <div class="text-start p-2" style="font-size: 0.9rem; font-family:'Plus Jakarta Sans'">
+                        <p><strong>Ngày báo cáo:</strong> ${d.reportedAt ? d.reportedAt.replace('T', ' ').substring(0, 16) : 'N/A'}</p>
+                        <p><strong>Thiết bị:</strong> <span class="${!d.deviceCode || d.deviceCode === 'undefined' ? 'text-danger fw-bold' : ''}">${(d.deviceName && d.deviceName !== 'undefined') ? d.deviceName : 'Thiết bị đã xóa'} (${(d.deviceCode && d.deviceCode !== 'undefined') ? d.deviceCode : 'N/A'})</span></p>
+                        <p><strong>Tình trạng:</strong> <span class="badge bg-indigo">${d.status}</span></p>
+                        <p><strong>Ghi chú Admin:</strong> ${d.note || 'N/A'}</p>
+                        <hr>
+                        <p><strong>Mô tả sự cố:</strong><br><span class="text-muted">${d.desc || 'N/A'}</span></p>
+                        <hr>
+                        <p><strong>Người báo cáo:</strong> ${d.user || 'N/A'}</p>
+                        <p><strong>Người phê duyệt:</strong> ${d.resolver || 'Admin'}</p>
+                    </div>
+                `,
+                confirmButtonText: 'Đóng', confirmButtonColor: '#6366f1'
+            });
+        }
+
+        function exportHistoryExcel() {
+            const rows = document.querySelectorAll('#historyTableVip tbody tr');
+            const data = [];
+            data.push(["ID", "Ngày ghi nhận", "Mã thiết bị", "Tên thiết bị", "Tình trạng", "Mô tả sự cố", "Ghi chú Admin", "Người báo cáo", "Người phê duyệt"]);
+            
+            rows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    const d = row.dataset;
+                    data.push([
+                        d.id,
+                        d.reportedAt.replace('T', ' ').substring(0, 16),
+                        d.deviceCode,
+                        d.deviceName,
+                        d.status,
+                        d.desc || "---",
+                        d.note || "---",
+                        d.user || "---",
+                        d.resolver || "Admin"
+                    ]);
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "LichSuBaoHong");
+            XLSX.writeFile(wb, "LichSu_BaoHong_ChiTiet.xlsx");
+        }
+    </script>
+</div>

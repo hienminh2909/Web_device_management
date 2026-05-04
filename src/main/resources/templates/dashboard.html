@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Manager | Dashboard</title>
+    
+    <!-- FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --vip-primary: #4f46e5;
+            --vip-secondary: #7c3aed;
+            --vip-bg: #f8fafc;
+            --sidebar-width: 280px;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--vip-bg);
+            color: #1e293b;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        /* --- Navbar VIP --- */
+        .navbar-vip {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            height: 70px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .navbar-brand-vip {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 800; font-size: 1.3rem; letter-spacing: -1px;
+            color: #0f172a; text-decoration: none;
+        }
+
+        .navbar-brand-vip i {
+            background: linear-gradient(135deg, var(--vip-primary), var(--vip-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+        }
+
+        /* --- Sidebar VIP --- */
+        .sidebar-vip {
+            position: fixed; top: 70px; left: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 25px 15px;
+            display: flex; flex-direction: column; gap: 5px;
+            z-index: 900; transition: all 0.3s ease;
+        }
+
+        .nav-group-label {
+            font-size: 0.7rem; font-weight: 800; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            margin: 20px 0 10px 15px;
+        }
+
+        .nav-link-vip {
+            display: flex; align-items: center; gap: 15px;
+            padding: 12px 18px; border-radius: 14px;
+            color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link-vip i { font-size: 1.1rem; width: 24px; text-align: center; transition: all 0.2s; }
+
+        .nav-link-vip:hover {
+            color: var(--vip-primary);
+            background: #f1f5f9;
+        }
+
+        .nav-link-vip.active {
+            color: var(--vip-primary);
+            background: #eef2ff;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: var(--sidebar-width); margin-top: 70px;
+            padding: 40px; min-height: calc(100vh - 70px);
+            background-color: var(--vip-bg);
+        }
+
+        /* --- User Profile Dropdown --- */
+        .user-profile-btn {
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+            padding: 6px 16px; border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .user-profile-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .dropdown-menu-vip {
+            background: white; border: 1px solid #e2e8f0;
+            border-radius: 16px; padding: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            margin-top: 10px !important; border: none;
+        }
+
+        .dropdown-item-vip {
+            color: #475569; padding: 10px 15px; border-radius: 10px;
+            font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+        }
+
+        .dropdown-item-vip:hover {
+            background: #f1f5f9; color: var(--vip-primary);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-vip">
+    <a href="/dashboard" class="navbar-brand-vip">
+        <i class="fas fa-shield-halved"></i>
+        <span>VIP MANAGER</span>
+    </a>
+
+    <div class="d-flex align-items-center gap-4">
+        <!-- User Profile Dropdown -->
+        <div class="dropdown">
+            <div class="user-profile-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="text-end d-none d-sm-block">
+                    <div class="fw-bold" style="font-size: 0.85rem; color: #0f172a;" th:text="${session.name}">Admin User</div>
+                    <div class="text-muted" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--vip-primary) !important;" th:text="${session.role}">SUPER ADMIN</div>
+                </div>
+                <div class="avatar-circle" style="width: 38px; height: 38px; border-radius: 50%; background: #eef2ff; display: flex; align-items: center; justify-content: center; color: var(--vip-primary); border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-vip">
+                <li><a class="dropdown-item dropdown-item-vip" href="/settings"><i class="fas fa-user-gear me-2"></i> Cài đặt tài khoản</a></li>
+                <li><a class="dropdown-item dropdown-item-vip" href="/notifications"><i class="fas fa-bell me-2"></i> Thông báo</a></li>
+                <li><hr class="dropdown-divider opacity-50"></li>
+                <li><a class="dropdown-item dropdown-item-vip text-danger" href="/login?logout"><i class="fas fa-arrow-right-from-bracket me-2"></i> Đăng xuất</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="sidebar-vip">
+    <div class="nav-group-label">Hệ thống</div>
+    <a href="/dashboard" class="nav-link-vip" th:classappend="${view == null ? 'active' : ''}">
+        <i class="fas fa-chart-pie"></i> Tổng quan
+    </a>
+    <a href="/notifications" class="nav-link-vip" th:classappend="${view == 'notification_list' ? 'active' : ''}">
+        <i class="fas fa-bell"></i> Thông báo
+        <span id="sidebarNotifBadge" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
+    </a>
+
+    <div class="nav-group-label">Quản lý</div>
+    <a href="/devices/list" class="nav-link-vip" th:classappend="${view == 'device_list' ? 'active' : ''}">
+        <i class="fas fa-boxes-stacked"></i> Danh sách thiết bị
+    </a>
+    <a href="/rooms" class="nav-link-vip" th:classappend="${view == 'room_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-door-open"></i> Quản lý phòng
+    </a>
+    <a href="/categories" class="nav-link-vip" th:classappend="${view == 'category_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-tags"></i> Danh mục
+    </a>
+    <a href="/users" class="nav-link-vip" th:classappend="${view == 'user_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-users-cog"></i> Người dùng
+    </a>
+
+    <div class="nav-group-label">Kho & Sự cố</div>
+    <a href="/inventory/progress" class="nav-link-vip" th:classappend="${view == 'inventory_progress' || view == 'inventory_details' ? 'active' : ''}">
+        <i class="fas fa-qrcode"></i> Tiến độ kiểm kê
+    </a>
+    <a href="/requests" class="nav-link-vip" th:classappend="${view == 'request_list' ? 'active' : ''}">
+        <i class="fas fa-clipboard-list"></i> Quản lý báo cáo
+        <span id="sidebarRequestBadge" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
+    </a>
+    <a href="/reports" class="nav-link-vip" th:classappend="${view == 'report_list' ? 'active' : ''}">
+        <i class="fas fa-history"></i> Lịch sử báo hỏng
+    </a>
+</div>
+
+<main class="main-content">
+    <div th:replace="~{${view == null ? 'overview' : view} :: content}"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function updateBadges() {
+        console.log(">>> SYSTEM: Checking for updates via /api/dashboard/...");
+        try {
+            // Kiểm tra thông báo chưa đọc
+            const notifRes = await fetch('/api/dashboard/unread-notifications-count');
+            const notifData = await notifRes.json();
+            const notifBadge = document.getElementById('sidebarNotifBadge');
+            console.log(">>> SYSTEM: Unread Notifications =", notifData.count);
+            if (notifData.count > 0) {
+                notifBadge.innerText = notifData.count;
+                notifBadge.classList.remove('d-none');
+            } else {
+                notifBadge.classList.add('d-none');
+            }
+
+            // Kiểm tra yêu cầu chờ duyệt
+            const reqRes = await fetch('/api/dashboard/pending-requests-count');
+            const reqData = await reqRes.json();
+            const reqBadge = document.getElementById('sidebarRequestBadge');
+            console.log(">>> SYSTEM: Pending Requests =", reqData.count);
+            if (reqData.count > 0) {
+                reqBadge.innerText = reqData.count;
+                reqBadge.classList.remove('d-none');
+            } else {
+                reqBadge.classList.add('d-none');
+            }
+        } catch (err) {
+            console.error(">>> SYSTEM: Failed to update badges:", err);
+        }
+    }
+    // Export function to window object
+    window.updateBadges = updateBadges;
+    
+    document.addEventListener('DOMContentLoaded', updateBadges);
+    setInterval(updateBadges, 30000);
+</script>
+</body>
+</html>

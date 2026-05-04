@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | VIP Manager</title>
+    
+    <!-- FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --vip-primary: #6366f1;
+            --vip-secondary: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Overlay for background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.5) 100%);
+            z-index: 0;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            animation: loginSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes loginSlideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--vip-primary), var(--vip-secondary));
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .form-floating-vip {
+            position: relative;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-floating-vip i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            transition: color 0.3s;
+        }
+
+        .form-control-vip {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px 20px 14px 52px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control-vip:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--vip-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        .form-control-vip:focus + i {
+            color: var(--vip-primary);
+        }
+
+        .btn-login-vip {
+            width: 100%;
+            background: linear-gradient(135deg, var(--vip-primary), var(--vip-secondary));
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-login-vip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-login-vip:active {
+            transform: translateY(0);
+        }
+
+        .alert-vip {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            padding: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Particles animation effect */
+        .circle-bg {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--vip-primary) 0%, transparent 70%);
+            filter: blur(60px);
+            opacity: 0.3;
+            z-index: 0;
+            animation: float 20s infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated backgrounds -->
+    <div class="circle-bg" style="width: 400px; height: 400px; top: -100px; left: -100px;"></div>
+    <div class="circle-bg" style="width: 300px; height: 300px; bottom: -50px; right: -50px; background: radial-gradient(circle, var(--vip-secondary) 0%, transparent 70%);"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="brand-logo">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h1 class="brand-name">VIP MANAGER</h1>
+            <p class="login-subtitle">Vui lòng đăng nhập để quản trị hệ thống</p>
+
+            <!-- Error message -->
+            <div th:if="${error}" class="alert-vip">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}">Tên đăng nhập hoặc mật khẩu không đúng</span>
+            </div>
+
+            <form action="/do-login" method="post">
+                <div class="form-floating-vip">
+                    <input type="text" name="user" class="form-control-vip" placeholder="Tên đăng nhập" required autofocus>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="form-floating-vip">
+                    <input type="password" name="pass" class="form-control-vip" placeholder="Mật khẩu" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+
+                <button type="submit" class="btn-login-vip">
+                    ĐĂNG NHẬP NGAY <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div class="mt-4 pt-2">
+                <a href="/forgot-password" class="text-decoration-none" style="color: #64748b; font-size: 0.8rem; font-weight: 500;">
+                    Quên mật khẩu? Nhấn để khôi phục
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4" style="color: #64748b; font-size: 0.75rem;">
+            &copy; 2026 VIP Manager System. All rights reserved.
+        </div>
+    </div>
+
+</body>
+</html>

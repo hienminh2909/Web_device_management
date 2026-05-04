@@ -1,0 +1,262 @@
+<div th:fragment="content">
+    <style>
+        /* ===== SOPHISTICATED INVENTORY PROGRESS STYLES ===== */
+        .inventory-wrapper {
+            animation: fadeIn 0.4s ease-out;
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #1e293b;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .glass-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 30px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .premium-card-summary {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .summary-accent {
+            position: absolute;
+            top: 0; left: 0; width: 6px; height: 100%;
+            background: #6366f1;
+        }
+
+        .stats-circle-minimal {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#6366f1 calc(var(--progress) * 1%), #f1f5f9 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .stats-circle-minimal::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .stats-circle-inner {
+            position: relative;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .room-card-minimal {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .room-card-minimal:hover {
+            border-color: #6366f1;
+            box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .room-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 1.1rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .progress-minimal {
+            height: 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            overflow: hidden;
+        }
+
+        .progress-bar-minimal {
+            border-radius: 10px;
+            background: #6366f1;
+            transition: width 1s ease-in-out;
+        }
+
+        .status-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-running { background: #eff6ff; color: #2563eb; }
+        .tag-complete { background: #ecfdf5; color: #059669; }
+
+        .btn-action-minimal {
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-action-minimal:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .filter-pill {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.85rem;
+        }
+    </style>
+
+    <div class="inventory-wrapper">
+        <!-- ====== HEADER ====== -->
+        <div class="glass-header d-flex justify-content-between align-items-center flex-wrap gap-4">
+            <div>
+                <h2 class="fw-bold m-0" style="color: #0f172a; letter-spacing: -1px;">Tiến Độ Kiểm Kê</h2>
+                <p class="text-muted mb-0 small">Tổng quan tình hình kiểm soát tài sản thiết bị</p>
+            </div>
+            
+            <form method="GET" action="/inventory/progress" class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center bg-light rounded-4 px-3 py-1 border">
+                    <i class="far fa-calendar-alt text-muted me-2"></i>
+                    <select name="month" class="form-select border-0 bg-transparent fw-bold small" style="width: 110px;">
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="'Tháng ' + ${m}" th:selected="${m == selectedMonth}"></option>
+                    </select>
+                    <div class="vr mx-2 my-2 opacity-10"></div>
+                    <select name="year" class="form-select border-0 bg-transparent fw-bold small" style="width: 100px;">
+                        <option th:each="y : ${#numbers.sequence(2024, 2030)}" th:value="${y}" th:text="'Năm ' + ${y}" th:selected="${y == selectedYear}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-dark rounded-4 px-4 fw-bold shadow-sm">
+                    Lọc dữ liệu
+                </button>
+            </form>
+        </div>
+
+        <!-- ====== SUMMARY BOX ====== -->
+        <div class="premium-card-summary">
+            <div class="summary-accent"></div>
+            <div class="card-body p-4 p-lg-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <span class="badge bg-indigo-100 text-indigo-700 px-3 py-2 rounded-pill fw-bold mb-3" style="background: #eef2ff; color: #4f46e5; font-size: 0.7rem;">BÁO CÁO HỆ THỐNG</span>
+                        <h3 class="fw-bold text-dark mb-3">Hiệu suất kiểm kê định kỳ</h3>
+                        <p class="text-muted mb-4 fs-6" style="max-width: 500px;">Dưới đây là thống kê tổng hợp dựa trên dữ liệu quét thiết bị thực tế từ các phòng chức năng.</p>
+                        
+                        <div class="d-flex gap-5 mt-2">
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Đã hoàn tất</div>
+                                <div class="fs-3 fw-bold text-dark"><span th:text="${totalSystemChecked}">0</span> <span class="text-muted fs-6 fw-medium">/ <span th:text="${totalSystemDevices}">0</span></span></div>
+                            </div>
+                            <div class="vr opacity-10"></div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Phòng đã quét</div>
+                                <div class="fs-3 fw-bold text-dark" th:text="${#lists.size(progress.?[progress == 100])} + ' / ' + ${#lists.size(progress)}">0 / 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 d-flex justify-content-center mt-4 mt-lg-0">
+                        <div class="stats-circle-minimal" th:style="'--progress: ' + ${systemProgressPercent}">
+                            <div class="stats-circle-inner">
+                                <span th:text="${systemProgressPercent}">0</span><span class="fs-6 opacity-50">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ROOM GRID ====== -->
+        <h5 class="fw-bold mb-4 text-dark d-flex align-items-center gap-2">
+            <i class="fas fa-th-large text-muted" style="font-size: 0.9rem;"></i> Danh sách phòng chức năng
+        </h5>
+        
+        <div class="row g-4 pb-5">
+            <div class="col-md-6 col-lg-4 col-xl-3" th:each="p : ${progress}">
+                <div class="room-card-minimal shadow-sm">
+                    <div class="card-body p-4 d-flex flex-column h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div class="room-icon-box">
+                                <i class="fas fa-chalkboard"></i>
+                            </div>
+                            <span th:if="${p.progress == 100}" class="status-tag tag-complete">Đã xong</span>
+                            <span th:unless="${p.progress == 100}" class="status-tag tag-running">Đang kiểm</span>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-1 text-truncate" th:text="${p.room_name}">Phòng học</h6>
+                        <p class="text-muted small mb-4">ID: <span th:text="${p.room_id}"></span> • <span th:text="${p.total}"></span> thiết bị</p>
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small fw-bold text-muted">Tiến độ</span>
+                                <span class="small fw-bold text-dark" th:text="${p.progress} + '%'">0%</span>
+                            </div>
+                            <div class="progress-minimal mb-4">
+                                <div class="progress-bar-minimal h-100" 
+                                     th:style="'width:' + ${p.progress} + '%'"
+                                     th:classappend="${p.progress == 100 ? 'bg-success' : ''}"></div>
+                            </div>
+
+                            <a th:href="@{/inventory/progress/{id}(id=${p.room_id}, roomName=${p.room_name}, month=${selectedMonth}, year=${selectedYear})}" 
+                               class="btn-action-minimal">
+                                <span>Xem chi tiết</span>
+                                <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Data -->
+            <div class="col-12" th:if="${#lists.isEmpty(progress)}">
+                <div class="py-5 text-center bg-white rounded-4 border border-dashed">
+                    <i class="fas fa-inbox fa-3x text-muted opacity-20 mb-3"></i>
+                    <p class="text-muted fw-medium">Không tìm thấy dữ liệu trong kỳ này</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
