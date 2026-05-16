@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class RoomService(private val restTemplate: RestTemplate) {
-    private val apiUrl = "http://127.0.0.1:8000/api/rooms"
+    private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/rooms"
 
     fun getAllRooms(token: String?): List<RoomModel> {
         val headers = HttpHeaders()

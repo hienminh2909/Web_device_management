@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class RequestService(private val restTemplate: RestTemplate) {
-    private val apiUrl = "http://127.0.0.1:8000/api/requests"
+    private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/requests"
 
     fun getAllRequests(token: String?, status: String? = null): List<RequestModel> {
         val headers = HttpHeaders()

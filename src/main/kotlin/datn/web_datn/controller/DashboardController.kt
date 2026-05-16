@@ -29,4 +29,9 @@ class DashboardController(
         model.addAttribute("view", null)
         return "dashboard"
     }
+
+    @GetMapping("/")
+    fun getRoot(): String {
+        return "redirect:/dashboard"
+    }
 }

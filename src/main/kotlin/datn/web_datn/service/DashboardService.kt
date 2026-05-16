@@ -27,7 +27,7 @@ class DashboardService(
         return try {
             // Gọi API lấy danh sách nhóm thiết bị
             val response = restTemplate.exchange(
-                "http://127.0.0.1:8000/api/devices/summary",
+                (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/summary",
                 HttpMethod.GET,
                 entity,
                 Array<DeviceResponse>::class.java
@@ -92,7 +92,7 @@ class DashboardService(
         
         return try {
             val response = restTemplate.exchange(
-                "http://127.0.0.1:8000/api/dashboard/activity",
+                (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/dashboard/activity",
                 HttpMethod.GET,
                 entity,
                 object : ParameterizedTypeReference<List<Map<String, Any>>>() {}
@@ -116,7 +116,7 @@ class DashboardService(
         
         return try {
             val m = months ?: 6
-            val url = "http://127.0.0.1:8000/api/dashboard/inventory-history?months=$m"
+            val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/dashboard/inventory-history?months=$m"
             
             val response = restTemplate.exchange(
                 url,

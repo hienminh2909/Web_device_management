@@ -10,7 +10,7 @@ import org.springframework.http.MediaType
 
 @Service
 class AuthService {
-    private val baseUrl = "http://127.0.0.1:8000/api/auth"
+    private val baseUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/auth"
 
     fun authenticate(username: String, pass: String): LoginResponse? {
         val restTemplate = RestTemplate()

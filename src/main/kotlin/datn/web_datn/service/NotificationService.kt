@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class NotificationService(private val restTemplate: RestTemplate) {
-    private val apiUrl = "http://127.0.0.1:8000/api/notifications"
+    private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/notifications"
 
     fun getMyNotifications(token: String?): List<Map<String, Any>> {
         val headers = HttpHeaders()

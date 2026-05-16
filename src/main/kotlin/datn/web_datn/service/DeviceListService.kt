@@ -15,8 +15,8 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 @Service
 class DeviceService(private val restTemplate: RestTemplate) {
-    private val apiUrl = "http://127.0.0.1:8000/api/devices/summary"
-    private val fastApiUpdateUrl = "http://127.0.0.1:8000/api/devices/"
+    private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/summary"
+    private val fastApiUpdateUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/"
     
     private fun normalizeName(name: String?): String {
         if (name.isNullOrBlank()) return ""
@@ -82,7 +82,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
         return try {
             // Sử dụng HttpMethod.DELETE
             val response = restTemplate.exchange(
-                "http://127.0.0.1:8000/api/devices/$deviceId",
+                (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/$deviceId",
                 HttpMethod.DELETE,
                 entity,
                 Map::class.java
@@ -102,7 +102,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
         ids.forEach { id ->
             try {
                 restTemplate.exchange(
-                    "http://127.0.0.1:8000/api/devices/$id",
+                    (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/$id",
                     HttpMethod.DELETE,
                     entity,
                     Map::class.java
@@ -227,7 +227,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
         headers.setBearerAuth(token)
         val entity = HttpEntity<Unit>(headers)
         
-        var url = "http://127.0.0.1:8000/api/devices"
+        var url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices"
         if (roomId != null) {
             url += "?room_id=$roomId"
         }
@@ -242,7 +242,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
     }
 
     fun downloadTemplate(response: HttpServletResponse) {
-        val url = "http://127.0.0.1:8000/api/devices/template"
+        val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/template"
         try {
             // Goi FastAPI lay bytes file
             val bytes = restTemplate.getForObject(url, ByteArray::class.java)

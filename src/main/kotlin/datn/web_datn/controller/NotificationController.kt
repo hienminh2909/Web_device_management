@@ -60,7 +60,7 @@ class NotificationController(private val notificationService: NotificationServic
         
         return try {
             val response = org.springframework.web.client.RestTemplate().exchange(
-                "http://127.0.0.1:8000/api/notifications/test",
+                (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/notifications/test",
                 org.springframework.http.HttpMethod.POST,
                 entity,
                 Map::class.java

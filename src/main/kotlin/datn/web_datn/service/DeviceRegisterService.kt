@@ -23,7 +23,7 @@ class DeviceRegisterService(
             .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
     }
 
-    private val fastApiUrl = "http://127.0.0.1:8000/api/devices"
+    private val fastApiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices"
 
     // --- CHỨC NĂNG 1: ĐĂNG KÝ LẺ ---
     fun registerInFastApi(request: DeviceRegisterRequest, token: String?): Map<*, *>? {
@@ -135,14 +135,14 @@ class DeviceRegisterService(
 
     // Giai đoạn 1: Kiểm tra dữ liệu (Validate)
     fun validateExcel(file: MultipartFile, token: String?): Any? {
-        val url = "http://127.0.0.1:8000/api/devices/validate"
+        val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/validate"
         val normalizedFile = normalizeExcelFile(file)
         return forwardMultipartRequest(url, normalizedFile, token, null)
     }
 
     // Giai đoạn 2: Thực thi nhập kho (Execute)
     fun executeImportExcel(file: MultipartFile, token: String?): Any? {
-        val url = "http://127.0.0.1:8000/api/devices/import"
+        val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/import"
         val normalizedFile = normalizeExcelFile(file)
         return forwardMultipartRequest(url, normalizedFile, token, null)
     }
@@ -215,7 +215,7 @@ class DeviceRegisterService(
 
     // --- CHỨC NĂNG 4: UPLOAD ẢNH THIẾT BỊ ---
     fun uploadDeviceImage(file: MultipartFile, deviceIds: String?, deviceName: String?, token: String?): Any? {
-        val url = "http://127.0.0.1:8000/api/devices/upload-image"
+        val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/upload-image"
 
         val headers = HttpHeaders()
         // Để RestTemplate tự động thiết lập Content-Type với Boundary
@@ -248,7 +248,7 @@ class DeviceRegisterService(
     }
 
     fun downloadTemplate(): ByteArray? {
-        val url = "http://127.0.0.1:8000/api/devices/template"
+        val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/template"
         val headers = HttpHeaders()
         headers.setAccept(listOf(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL))
         
