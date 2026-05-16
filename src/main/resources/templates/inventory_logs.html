@@ -1,38 +1,157 @@
-<div th:fragment="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold m-0 text-dark">Lịch Sử Quét Mã</h2>
-            <p class="text-muted mb-0 small">Theo dõi lịch sử kiểm kê thiết bị bằng máy quét</p>
+<div th:fragment="content" class="animate__animated animate__fadeIn">
+    <style>
+        /* ===== VIP PRO INVENTORY LOGS V2 ===== */
+        .logs-wrapper {
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            font-family: var(--font-body);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header --- */
+        .header-glass {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 35px 40px;
+            margin-bottom: 30px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* --- Logs Card --- */
+        .logs-card-vip {
+            background: #ffffff;
+            border-radius: 32px;
+            border: 1px solid #eef2f6;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .table-logs thead th {
+            background: #f8fafc;
+            padding: 20px 25px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+            color: #64748b;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .table-logs tbody td {
+            padding: 22px 25px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .log-row { transition: all 0.2s; }
+        .log-row:hover { background: #fcfdfe; }
+
+        .time-box {
+            display: flex; flex-direction: column; line-height: 1.2;
+        }
+        .time-main { font-weight: 800; color: var(--text-main); font-size: 0.95rem; }
+        .time-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+
+        .device-code-vip {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-pill-log {
+            padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .status-good-log { background: #f0fdf4; color: #15803d; }
+        .status-warn-log { background: #fffbeb; color: #b45309; }
+
+        .handheld-badge {
+            background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b;
+            padding: 4px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem;
+        }
+    </style>
+
+    <div class="logs-wrapper container-fluid p-0 pb-5">
+        
+        <!-- HEADER -->
+        <div class="header-glass d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: var(--font-display); letter-spacing: -1.5px; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem;">NHẬT KÝ KIỂM KÊ</h2>
+                <p class="text-muted fw-semibold small m-0">Lịch sử chi tiết các phiên quét mã và trạng thái tài sản.</p>
+            </div>
+            <div class="d-none d-md-flex align-items-center gap-3">
+                <div class="p-3 rounded-4 bg-white border shadow-sm text-center" style="min-width: 120px;">
+                    <div class="x-small text-muted fw-bold">TỔNG LƯỢT QUÉT</div>
+                    <div class="fs-4 fw-bold text-primary" th:text="${#lists.size(logs)}">0</div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="bg-white p-4 rounded-4 shadow-sm border-0">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Thời gian quét</th>
-                    <th>Tên thiết bị</th>
-                    <th>Mã định danh (Code)</th>
-                    <th>Trạng thái lúc quét</th>
-                    <th>Thiết bị quét (Handheld)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="log : ${logs}">
-                    <td th:text="${#strings.replace(log.inventory_at, 'T', ' ').substring(0, 19)}"></td>
-                    <td class="fw-bold text-primary" th:text="${log.devices?.device_name}"></td>
-                    <td th:text="${log.devices?.device_code}"></td>
-                    <td>
-                        <span class="badge rounded-pill" 
-                              th:classappend="${log.status_at_scan == 'Tốt' ? 'bg-success' : 'bg-warning'}"
-                              th:text="${log.status_at_scan}">
-                        </span>
-                    </td>
-                    <td th:text="${log.handheld_name ?: 'Web/App'}"></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(logs)}">
-                    <td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu kiểm kê</td>
-                </tr>
-            </tbody>
-        </table>
+
+        <!-- LOGS TABLE -->
+        <div class="logs-card-vip animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 table-logs align-middle">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Thời gian</th>
+                            <th>Thiết bị tài sản</th>
+                            <th>Mã số (Code)</th>
+                            <th>Trạng thái ghi nhận</th>
+                            <th class="text-end pe-4">Nguồn quét</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log, stat : ${logs}" class="log-row animate__animated animate__fadeInRight" 
+                            th:style="'animation-delay: ' + (${stat.index} * 0.05) + 's;'">
+                            <td class="ps-4">
+                                <div class="time-box">
+                                    <span class="time-main format-date-full" th:text="${log.inventory_at}">00:00</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 40px; height: 40px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                    <div class="fw-bold text-dark" th:text="${log.devices?.device_name}">Tên thiết bị</div>
+                                </div>
+                            </td>
+                            <td><span class="device-code-vip" th:text="${log.devices?.device_code}">CODE-123</span></td>
+                            <td>
+                                <span class="status-pill-log" 
+                                      th:classappend="${log.status_at_scan == 'Tốt' ? 'status-good-log' : 'status-warn-log'}">
+                                    <i class="fas" th:classappend="${log.status_at_scan == 'Tốt' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                    <span th:text="${log.status_at_scan}">Tốt</span>
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <span class="handheld-badge">
+                                    <i class="fas fa-mobile-alt me-1"></i>
+                                    <span th:text="${log.handheld_name ?: 'Web Portal'}">Handheld-01</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(logs)}">
+                            <td colspan="5" class="text-center py-5">
+                                <div class="py-5">
+                                    <div class="mb-3 opacity-20"><i class="fas fa-history fa-4x"></i></div>
+                                    <h5 class="fw-bold text-muted">Chưa có lịch sử quét mã nào được ghi lại</h5>
+                                    <p class="text-muted small">Các phiên kiểm kê từ máy quét cầm tay sẽ xuất hiện tại đây.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

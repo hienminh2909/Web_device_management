@@ -540,6 +540,84 @@ async function handleBulkDelete() {
     const selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => parseInt(cb.value));
     if (selectedIds.length === 0) return;
 
+    const rawRole = (window.userRole || 'teacher').toString().toLowerCase();
+    const isAdmin = rawRole.indexOf('admin') !== -1;
+
+    if (!isAdmin) {
+        // Ẩn modal chi tiết để hiện popup nhập lý do
+        const detailModalEl = document.getElementById('detailModal');
+        const bsModal = bootstrap.Modal.getInstance(detailModalEl);
+        if (bsModal) bsModal.hide();
+
+        const { value: reason, isDismissed } = await Swal.fire({
+            title: 'Gửi yêu cầu xóa',
+            html: `Bạn đang gửi yêu cầu xóa <strong>${selectedIds.length}</strong> thiết bị.`,
+            input: 'textarea',
+            inputPlaceholder: 'Nhập lý do xóa...',
+            showCancelButton: true,
+            confirmButtonText: 'Gửi yêu cầu',
+            cancelButtonText: 'Hủy',
+            inputValidator: (value) => { if (!value) return 'Bạn phải nhập lý do!'; }
+        });
+
+        if (isDismissed || !reason) {
+            if (bsModal) bsModal.show();
+            return;
+        }
+
+        Swal.fire({ title: 'Đang gửi yêu cầu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            const apiUrl = window.location.origin + '/requests/api/advanced';
+            
+            // Lặp qua từng ID để gửi yêu cầu 
+            const promises = selectedIds.map(async (id) => {
+                const cb = document.querySelector(`.item-checkbox[value="${id}"]`);
+                let code = 'N/A';
+                if (cb) {
+                    const tr = cb.closest('tr');
+                    if (tr) {
+                        const codeTd = tr.querySelectorAll('td')[2];
+                        if (codeTd) code = codeTd.innerText.trim();
+                    }
+                }
+
+                const devicePayload = {
+                    device_name: currentGroupData.name || 'N/A',
+                    device_code: code,
+                    room_name: currentGroupData.room || 'N/A',
+                    status: currentGroupData.status || 'N/A',
+                    category: currentGroupData.category || 'N/A',
+                    description: currentGroupData.desc || ''
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        device_id: id, 
+                        description: reason, 
+                        request_type: 'DELETE',
+                        update_payload: devicePayload 
+                    })
+                });
+                
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Gửi thất bại cho thiết bị: " + code);
+                }
+            });
+
+            await Promise.all(promises);
+
+            await Swal.fire("Thành công", `Đã gửi ${selectedIds.length} yêu cầu xóa tới Admin.`, "success");
+            location.reload();
+        } catch (error) {
+            Swal.fire("Lỗi", error.message, "error");
+        }
+        return;
+    }
+
     const result = await Swal.fire({
         title: 'Xóa hàng loạt?',
         text: `Xóa vĩnh viễn ${selectedIds.length} thiết bị?`,

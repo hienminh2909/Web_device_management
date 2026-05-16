@@ -1,367 +1,394 @@
-<div th:fragment="content">
+<div th:fragment="content" class="animate__animated animate__fadeIn">
     <style>
-        :root {
-            --room-primary: #0ea5e9;
-            --room-secondary: #6366f1;
-            --room-bg: #f8fafc;
-            --room-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        /* ===== VIP PRO ROOM LIST V2 ===== */
+        .room-wrapper {
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            font-family: var(--font-body);
         }
 
-        .room-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            border-radius: 1.25rem;
-            background: white;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header & Stats --- */
+        .header-glass {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 35px 40px;
+            margin-bottom: 30px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .room-stat-pill {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 10px 20px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* --- Search Area --- */
+        .search-area-vip {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 15px 25px;
+            margin-bottom: 35px;
+            border: var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input-vip {
+            background: transparent !important;
+            border: none !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            color: var(--text-main) !important;
+            padding: 10px 0 !important;
+        }
+        .search-input-vip:focus { outline: none; box-shadow: none !important; }
+
+        /* --- Room Cards --- */
+        .room-card-vip {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 30px;
+            border: 1px solid #eef2f6;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
             overflow: hidden;
-        }
-
-        .room-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .room-icon-box {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            height: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            margin-right: 1rem;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        .action-btn-room {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            background: #f1f5f9;
-            color: #64748b;
+        .room-card-vip:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            border-color: var(--primary-light);
+        }
+
+        .room-icon-container {
+            width: 64px; height: 64px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 20px;
+            background: #f0f9ff; color: #0ea5e9;
+            transition: all 0.3s;
+        }
+        .room-card-vip:hover .room-icon-container {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: #ffffff;
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .room-badge {
+            font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 8px; letter-spacing: 1px;
+            background: #f0f9ff; color: #0ea5e9;
+        }
+
+        .room-device-count {
+            background: #f0fdf4; color: #15803d;
+            padding: 6px 16px; border-radius: 12px;
+            font-weight: 800; font-family: var(--font-mono);
+        }
+
+        /* --- Actions --- */
+        .room-action-group {
+            display: flex; gap: 8px; opacity: 0; transform: translateX(10px);
+            transition: all 0.3s;
+        }
+        .room-card-vip:hover .room-action-group { opacity: 1; transform: translateX(0); }
+
+        .btn-room-action {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #e2e8f0; background: #fff; color: #64748b;
             transition: all 0.2s;
         }
+        .btn-room-action:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+        .btn-room-delete:hover { color: var(--danger); border-color: var(--danger); background: #fff1f2; }
 
-        .action-btn-room:hover {
-            background: #e2e8f0;
-            color: var(--room-primary);
-        }
-
-        .action-btn-delete:hover {
-            background: #fee2e2;
-            color: #ef4444;
-        }
-
-        .search-container-room {
-            position: relative;
-            max-width: 400px;
-        }
-
-        .search-container-room i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-
-        .search-container-room input {
-            padding-left: 45px;
-            border-radius: 50px;
-            border: 1.5px solid #e2e8f0;
+        .btn-add-main {
+            background: var(--primary-gradient); color: #fff;
+            padding: 12px 28px; border-radius: 16px; border: none;
+            font-weight: 800; font-size: 0.9rem; letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
             transition: all 0.3s;
         }
+        .btn-add-main:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(15, 118, 110, 0.3); color: #fff; }
 
-        .search-container-room input:focus {
-            border-color: var(--room-primary);
-            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-        }
-
-        .btn-add-vip {
-            background: linear-gradient(135deg, var(--room-primary), var(--room-secondary));
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.4);
-        }
-
-        .btn-add-vip:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.5);
-            color: white;
-        }
+        /* Modal Custom */
+        .modal-vip { border-radius: 32px !important; overflow: hidden; border: none !important; }
+        .modal-vip .modal-header { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; padding: 30px; border: none; }
+        .modal-vip .modal-body { padding: 40px; }
+        .modal-vip .form-label { font-weight: 700; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .modal-vip .form-control { border-radius: 14px; padding: 12px 18px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.3s; }
+        .modal-vip .form-control:focus { background: #fff; border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
     </style>
 
-    <!-- HEADER & SEARCH -->
-    <div class="row align-items-center g-3 mb-5 animate__animated animate__fadeIn">
-        <div class="col-md-4">
-            <h2 class="fw-bold m-0 text-dark">Quản Lý Phòng</h2>
-            <p class="text-muted mb-0 small">Hệ thống phân bổ & quản lý vị trí thiết bị</p>
-        </div>
-        <div class="col-md-5">
-            <div class="search-container-room">
-                <i class="fas fa-search"></i>
-                <input type="text" id="roomSearchInput" class="form-control" placeholder="Tìm kiếm tên phòng hoặc mô tả...">
+    <div class="room-wrapper container-fluid p-0 pb-5">
+        
+        <!-- TOP HEADER & STATS -->
+        <div class="header-glass d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: var(--font-display); letter-spacing: -1.5px; background: linear-gradient(135deg, #0ea5e9, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QUẢN LÝ PHÒNG HỌC</h2>
+                <p class="text-muted fw-semibold small m-0">Hệ thống phân bổ & theo dõi vị trí tài sản.</p>
             </div>
-        </div>
-        <div class="col-md-3 text-md-end">
-            <button class="btn btn-add-vip shadow-sm ms-auto" id="btnAddRoom" data-bs-toggle="modal" data-bs-target="#roomModal">
-                <i class="fas fa-plus-circle"></i> Thêm Phòng Mới
-            </button>
-        </div>
-    </div>
-
-    <!-- ROOMS GRID -->
-    <div class="row g-4" id="roomGrid">
-        <div th:each="r : ${rooms}" class="col-xl-4 col-md-6 room-item animate__animated animate__zoomIn" 
-             th:data-id="${r.id}" 
-             th:data-name="${r.room_name}" 
-             th:data-desc="${r.description}">
-            <div class="room-card p-4 h-100 d-flex flex-column shadow-sm">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div class="d-flex align-items-center">
-                        <div class="room-icon-box" style="background: #f0f9ff; color: #0ea5e9;">
-                            <i class="fas fa-door-open"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold text-dark mb-0 room-name-text" th:text="${r.room_name}">Tên Phòng</h5>
-                            <small class="text-muted">ID: <span class="fw-bold text-primary" th:text="${r.id}">001</span></small>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button class="action-btn-room btn-edit-room" title="Chỉnh sửa">
-                            <i class="fas fa-pen small"></i>
-                        </button>
-                        <button class="action-btn-room action-btn-delete btn-delete-room" title="Xóa">
-                            <i class="fas fa-trash-alt small"></i>
-                        </button>
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+                <div class="room-stat-pill">
+                    <div style="color: #0ea5e9; font-size: 1.2rem;"><i class="fas fa-door-open"></i></div>
+                    <div>
+                        <div class="small text-muted fw-bold" style="font-size: 0.6rem; text-transform: uppercase;">Tổng số</div>
+                        <div class="fw-bold" style="line-height: 1;" th:text="${#lists.size(rooms)}">0</div>
                     </div>
                 </div>
-                <div class="flex-grow-1">
-                    <p class="text-muted small mb-3 room-desc-text" th:text="${r.description ?: 'Không có mô tả cho phòng này.'}">Mô tả phòng...</p>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-hdd text-muted me-2 small"></i>
-                        <span class="small text-muted">Thiết bị hiện có: </span>
-                        <span class="ms-2 badge rounded-pill bg-info-subtle text-info fw-bold" th:text="${r.device_count}">0</span>
-                    </div>
-                </div>
-                <div class="mt-auto pt-3 border-top d-flex justify-content-end">
-                    <a th:href="@{/devices/list(roomId=${r.id}, roomName=${r.room_name})}" 
-                       class="btn btn-link btn-sm text-decoration-none p-0 fw-bold transition-all" 
-                       style="color: var(--room-primary);">
-                        Quản lý thiết bị <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- EMPTY STATE -->
-        <div th:if="${#lists.isEmpty(rooms)}" class="col-12 text-center py-5 animate__animated animate__fadeIn">
-            <div class="py-5 bg-white rounded-4 shadow-sm border border-dashed">
-                <div class="mb-4">
-                    <i class="fas fa-door-closed fa-4x text-muted opacity-25"></i>
-                </div>
-                <h4 class="fw-bold text-dark">Chưa có phòng nào</h4>
-                <p class="text-muted">Hãy bắt đầu bằng việc tạo phòng học hoặc kho chứa mới.</p>
-                <button class="btn btn-add-vip mx-auto" data-bs-toggle="modal" data-bs-target="#roomModal">
-                    Tạo phòng đầu tiên
+                <button class="btn btn-add-main" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);" data-bs-toggle="modal" data-bs-target="#roomModal" id="btnAddRoom">
+                    <i class="fas fa-plus-circle me-2"></i> THÊM PHÒNG MỚI
                 </button>
             </div>
         </div>
+
+        <!-- MODERN SEARCH BAR -->
+        <div class="search-area-vip animate__animated animate__fadeIn">
+            <i class="fas fa-search text-muted fs-5 ms-2"></i>
+            <input type="text" id="roomSearchInput" class="form-control search-input-vip" placeholder="Tìm nhanh theo tên phòng hoặc ghi chú...">
+            <div class="d-none d-md-block border-start ps-3 ms-auto">
+                <span class="text-muted small fw-bold">NHẤN <kbd class="bg-light text-dark border">/</kbd> ĐỂ TÌM KIẾM NHANH</span>
+            </div>
+        </div>
+
+        <!-- ROOMS GRID -->
+        <div class="row g-4" id="roomGrid">
+            <div th:each="r : ${rooms}" class="col-xl-4 col-lg-6 room-item animate__animated animate__zoomIn" 
+                 th:data-id="${r.id}" 
+                 th:data-name="${r.room_name}" 
+                 th:data-desc="${r.description}"
+                 th:data-created="${r.created_at}"
+                 th:data-updated="${r.updated_at}">
+                <div class="room-card-vip">
+                    <!-- Card Top: Icon & Actions -->
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="room-icon-container">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div class="room-action-group">
+                            <button class="btn-room-action btn-edit-room" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
+                            <button class="btn-room-action btn-room-delete btn-delete-room" title="Xóa"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Card Body: Info -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="room-badge">ROOM ID #<span th:text="${r.id}">00</span></span>
+                            <span class="small text-muted fw-bold room-card-date" th:text="${r.created_at}">01/01/2024</span>
+                        </div>
+                        <h4 class="fw-bold mb-2 room-name-text" th:text="${r.room_name}" style="letter-spacing: -0.5px;">Tên Phòng</h4>
+                        <p class="text-muted small mb-0 room-desc-text line-clamp-2" th:text="${r.description ?: 'Không có ghi chú chi tiết cho địa điểm này.'}" style="min-height: 40px;">Mô tả...</p>
+                    </div>
+
+                    <!-- Card Bottom: Stats & Links -->
+                    <div class="mt-auto pt-4 border-top d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="room-device-count" th:text="${r.device_count}">0</div>
+                            <span class="small text-muted fw-bold">Thiết bị</span>
+                        </div>
+                        <a th:href="@{/devices/list(roomId=${r.id}, roomName=${r.room_name})}" 
+                           class="btn btn-link btn-sm text-decoration-none p-0 fw-bold transition-all" style="color: #0ea5e9;">
+                            QUẢN LÝ <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div th:if="${#lists.isEmpty(rooms)}" class="col-12 text-center py-5 animate__animated animate__fadeIn">
+                <div class="py-5 bg-white rounded-5 shadow-sm border border-2 border-dashed">
+                    <div class="mb-4 text-muted opacity-25">
+                        <i class="fas fa-door-closed fa-5x"></i>
+                    </div>
+                    <h3 class="fw-bold">Chưa có phòng học nào</h3>
+                    <p class="text-muted mb-4">Hãy khởi tạo các phòng ban hoặc lớp học để bắt đầu quản lý tài sản.</p>
+                    <button class="btn btn-add-main px-5 py-3" style="background: #0ea5e9;" data-bs-toggle="modal" data-bs-target="#roomModal">
+                        <i class="fas fa-plus me-2"></i> TẠO PHÒNG ĐẦU TIÊN
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ROOM MODAL -->
+    <!-- PREMIUM ROOM MODAL -->
     <div class="modal fade" id="roomModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, var(--room-primary), var(--room-secondary));">
-                    <h5 class="modal-title fw-bold" id="roomModalLabel"><i class="fas fa-plus-circle me-2"></i>Thêm Phòng Mới</h5>
+            <div class="modal-content modal-vip shadow-floating">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 45px; height: 45px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-door-open fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold" id="roomModalLabel">Thêm Phòng Mới</h5>
+                            <div class="small opacity-75">Định nghĩa không gian lưu trữ tài sản</div>
+                        </div>
+                    </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <form id="roomForm" onsubmit="event.preventDefault(); window.saveRoom(); return false;">
+                <div class="modal-body">
+                    <form id="roomForm">
                         <input type="hidden" id="roomId">
-                        <div class="row g-3">
+                        <div class="row g-4">
                             <div class="col-12">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Tên Phòng Học / Kho <span class="text-danger">*</span></label>
-                                <input type="text" id="roomName" class="form-control rounded-3 border-light bg-light py-2" required placeholder="Ví dụ: Phòng 402, Kho A...">
+                                <label class="form-label">Tên phòng học / Kho lưu trữ</label>
+                                <input type="text" id="roomName" class="form-control" required placeholder="Ví dụ: Phòng Thực hành 01, Kho Thiết bị A...">
                             </div>
                             <div class="col-12">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Ghi chú / Mô tả</label>
-                                <textarea id="roomDescription" class="form-control rounded-3 border-light bg-light" rows="4" placeholder="Nhập ghi chú chi tiết về phòng này..."></textarea>
+                                <label class="form-label">Ghi chú chi tiết</label>
+                                <textarea id="roomDescription" class="form-control" rows="4" placeholder="Nhập ghi chú về vị trí, người quản lý hoặc đặc điểm của phòng..."></textarea>
+                            </div>
+                            <div id="roomTimestamps" class="col-12 d-none">
+                                <div class="p-3 rounded-4 border border-dashed bg-light">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <span class="x-small text-muted fw-bold d-block mb-1">NGÀY TẠO</span>
+                                            <div id="displayCreatedAt" class="small fw-bold text-dark">--</div>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <span class="x-small text-muted fw-bold d-block mb-1">CẬP NHẬT</span>
+                                            <div id="displayUpdatedAt" class="small fw-bold text-dark">--</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" id="btnSaveRoom" class="btn btn-primary rounded-pill px-5 fw-bold" onclick="window.saveRoom()" style="background: var(--room-primary); border: none;">Lưu Thông Tin</button>
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="button" id="btnSaveRoom" class="btn btn-add-main px-5" style="background: #0ea5e9;" onclick="window.saveRoom()">LƯU THÔNG TIN</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- INLINE JS FOR ROOMS -->
     <script>
-        console.log(">>> ROOM JS: LOADED");
+        (function() {
+            window.saveRoom = async function() {
+                const id = document.getElementById('roomId').value;
+                const isEdit = id !== '';
+                const btn = document.getElementById('btnSaveRoom');
+                
+                const roomData = {
+                    room_name: document.getElementById('roomName').value.trim(),
+                    description: document.getElementById('roomDescription').value.trim() || null
+                };
 
-        window.saveRoom = async function() {
-            console.log(">>> ROOM JS: saveRoom() START");
-            const id = document.getElementById('roomId').value;
-            const isEdit = id !== '';
-            const btn = document.getElementById('btnSaveRoom');
-            
-            const roomData = {
-                room_name: document.getElementById('roomName').value.trim(),
-                description: document.getElementById('roomDescription').value.trim() || null
+                if (!roomData.room_name) {
+                    Swal.fire('Cảnh báo', 'Vui lòng nhập tên phòng!', 'warning');
+                    return;
+                }
+
+                try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG LƯU...';
+
+                    const url = isEdit ? `rooms/${id}` : 'rooms/add';
+                    const method = isEdit ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(roomData)
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({ icon: 'success', title: 'Thành công!', timer: 1500, showConfirmButton: false }).then(() => location.reload());
+                    } else {
+                        const raw = await response.text();
+                        Swal.fire('Thất bại', `Lỗi: ${raw}`, 'error');
+                    }
+                } catch (err) { Swal.fire('Lỗi', 'Không thể kết nối máy chủ', 'error'); }
+                finally { btn.disabled = false; btn.innerText = 'LƯU THÔNG TIN'; }
             };
 
-            if (!roomData.room_name) {
-                Swal.fire('Cảnh báo', 'Vui lòng nhập tên phòng!', 'warning');
-                return;
-            }
-
-            try {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
-
-                const url = isEdit ? `rooms/${id}` : 'rooms/add';
-                const method = isEdit ? 'PUT' : 'POST';
+            window.openEditRoomModal = function(data) {
+                document.getElementById('roomModalLabel').innerText = 'Cập Nhật Thông Tin Phòng';
+                document.getElementById('roomId').value = data.id;
+                document.getElementById('roomName').value = data.name;
+                document.getElementById('roomDescription').value = data.desc || '';
                 
-                const response = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(roomData)
-                });
+                const tsDiv = document.getElementById('roomTimestamps');
+                if (data.created && data.created !== 'null') {
+                    tsDiv.classList.remove('d-none');
+                    document.getElementById('displayCreatedAt').innerText = data.created;
+                    document.getElementById('displayUpdatedAt').innerText = data.updated || data.created;
+                } else tsDiv.classList.add('d-none');
+                
+                const modal = new bootstrap.Modal(document.getElementById('roomModal'));
+                modal.show();
+            };
 
-                const rawRes = await response.text();
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: isEdit ? 'Đã cập nhật!' : 'Đã thêm mới!',
-                        text: 'Dữ liệu phòng đã được đồng bộ.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => location.reload());
-                } else {
-                    let errorMsg = rawRes;
-                    try {
-                        const json = JSON.parse(rawRes);
-                        errorMsg = json.error || json.detail || json.message || rawRes;
-                    } catch(e) {}
-                    Swal.fire('Thất bại', `Lỗi: ${errorMsg}`, 'error');
-                }
-            } catch (err) {
-                Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ', 'error');
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = 'Lưu Thông Tin';
-                }
-            }
-        };
-
-        window.openEditRoomModal = function(data) {
-            document.getElementById('roomModalLabel').innerHTML = '<i class="fas fa-edit me-2"></i>Chỉnh Sửa Thông Tin Phòng';
-            document.getElementById('roomId').value = data.id;
-            document.getElementById('roomName').value = data.name;
-            document.getElementById('roomDescription').value = data.desc || '';
-            const modal = new bootstrap.Modal(document.getElementById('roomModal'));
-            modal.show();
-        };
-
-        window.confirmDeleteRoom = function(id) {
-            Swal.fire({
-                title: 'Xóa phòng?',
-                text: "Lưu ý: Bạn chỉ có thể xóa phòng trống (không có thiết bị).",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Đúng, xóa nó!',
-                cancelButtonText: 'Hủy',
-                showLoaderOnConfirm: true,
-                preConfirm: async () => {
-                    try {
-                        const response = await fetch(`rooms/${id}`, { method: 'DELETE' });
-                        const rawRes = await response.text();
-                        if (!response.ok) {
-                            let errorMsg = rawRes;
-                            try {
-                                const json = JSON.parse(rawRes);
-                                errorMsg = json.error || json.detail || json.message || rawRes;
-                            } catch(e) {}
-                            throw new Error(errorMsg);
-                        }
-                        return true;
-                    } catch (error) {
-                        Swal.showValidationMessage(`Lỗi: ${error.message}`);
+            window.confirmDeleteRoom = function(id) {
+                Swal.fire({
+                    title: 'Xác nhận xóa?',
+                    text: "Chỉ có thể xóa phòng chưa có thiết bị nào.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'XÓA NGAY'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        const res = await fetch(`rooms/${id}`, { method: 'DELETE' });
+                        if (res.ok) Swal.fire('Đã xóa!', '', 'success').then(() => location.reload());
+                        else Swal.fire('Lỗi', 'Không thể xóa phòng đang có thiết bị', 'error');
                     }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Đã xóa!',
-                        text: 'Phòng đã được loại bỏ thành công.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => location.reload());
-                }
-            });
-        };
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log(">>> ROOM DOM READY");
-            const searchInput = document.getElementById('roomSearchInput');
-            const roomGrid = document.getElementById('roomGrid');
-            
-            if (!roomGrid) return;
-
-            searchInput?.addEventListener('input', function() {
-                const term = this.value.toLowerCase().trim();
-                const items = document.querySelectorAll('.room-item');
-                items.forEach(item => {
-                    const name = item.getAttribute('data-name').toLowerCase();
-                    const desc = (item.getAttribute('data-desc') || '').toLowerCase();
-                    item.style.display = (name.includes(term) || desc.includes(term)) ? '' : 'none';
                 });
-            });
+            };
 
-            roomGrid.addEventListener('click', (e) => {
-                const editBtn = e.target.closest('.btn-edit-room');
-                const deleteBtn = e.target.closest('.btn-delete-room');
-                const row = e.target.closest('.room-item');
-                
-                if (editBtn && row) {
-                    window.openEditRoomModal({
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('roomSearchInput');
+                searchInput?.addEventListener('input', function() {
+                    const term = this.value.toLowerCase().trim();
+                    document.querySelectorAll('.room-item').forEach(item => {
+                        const name = item.getAttribute('data-name').toLowerCase();
+                        const desc = (item.getAttribute('data-desc') || '').toLowerCase();
+                        item.style.display = (name.includes(term) || desc.includes(term)) ? '' : 'none';
+                    });
+                });
+
+                document.getElementById('roomGrid')?.addEventListener('click', (e) => {
+                    const editBtn = e.target.closest('.btn-edit-room');
+                    const deleteBtn = e.target.closest('.btn-delete-room');
+                    const row = e.target.closest('.room-item');
+                    if (editBtn && row) window.openEditRoomModal({
                         id: row.getAttribute('data-id'),
                         name: row.getAttribute('data-name'),
-                        desc: row.getAttribute('data-desc')
+                        desc: row.getAttribute('data-desc'),
+                        created: row.getAttribute('data-created'),
+                        updated: row.getAttribute('data-updated')
                     });
-                } else if (deleteBtn && row) {
-                    window.confirmDeleteRoom(row.getAttribute('data-id'));
-                }
-            });
+                    else if (deleteBtn && row) window.confirmDeleteRoom(row.getAttribute('data-id'));
+                });
 
-            const modalEl = document.getElementById('roomModal');
-            modalEl?.addEventListener('show.bs.modal', function (e) {
-                const trigger = e.relatedTarget;
-                if (trigger && (trigger.id === 'btnAddRoom' || trigger.classList.contains('btn-add-vip'))) {
-                    document.getElementById('roomModalLabel').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Thêm Phòng Mới';
-                    document.getElementById('roomForm').reset();
-                    document.getElementById('roomId').value = '';
-                }
+                document.getElementById('roomModal')?.addEventListener('show.bs.modal', function (e) {
+                    if (e.relatedTarget?.id === 'btnAddRoom') {
+                        document.getElementById('roomModalLabel').innerText = 'Thêm Phòng Mới';
+                        document.getElementById('roomForm').reset();
+                        document.getElementById('roomId').value = '';
+                        document.getElementById('roomTimestamps').classList.add('d-none');
+                    }
+                });
             });
-        });
+        })();
     </script>
 </div>

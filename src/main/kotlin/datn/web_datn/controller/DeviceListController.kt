@@ -57,9 +57,12 @@ class DeviceController(
 
     @GetMapping("/api/devices/all")
     @ResponseBody
-    fun getAllDevicesJson(session: HttpSession): ResponseEntity<Any> {
+    fun getAllDevicesJson(
+        @RequestParam(required = false) roomId: Int?,
+        session: HttpSession
+    ): ResponseEntity<Any> {
         val token = session.getAttribute("token") as? String ?: return ResponseEntity.status(401).body("Unauthorized")
-        val devices = deviceService.getRawDevices(token)
+        val devices = deviceService.getRawDevices(token, roomId)
         return ResponseEntity.ok(devices)
     }
 

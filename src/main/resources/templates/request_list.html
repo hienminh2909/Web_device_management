@@ -1,160 +1,450 @@
 <div th:fragment="content">
     <style>
-        :root { --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
-        .report-vip-wrapper { animation: fadeIn 0.5s ease-out; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .vip-title { font-weight: 800; letter-spacing: -1px; color: #1e293b; }
-        .filter-nav { display: flex; gap: 10px; background: white; padding: 8px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .filter-tab { border: none; background: transparent; padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; color: #64748b; transition: all 0.3s; }
-        .filter-tab:hover { background: #f8fafc; color: #1e293b; }
-        .filter-tab.active { background: white; color: #6366f1; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12); }
+        .report-vip-wrapper { 
+            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            font-family: var(--font-body); 
+            color: var(--text-main);
+            width: 100%;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HEADER & TITLES --- */
+        .vip-title-container {
+            position: relative;
+            display: inline-block;
+        }
+        .vip-title { 
+            font-family: var(--font-display); 
+            font-weight: 800; 
+            letter-spacing: -1px; 
+            color: var(--text-main);
+            text-transform: uppercase;
+            margin: 0;
+            background: linear-gradient(90deg, var(--primary) 0%, #00b3b3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .vip-subtitle {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-vip-primary {
+            background: linear-gradient(135deg, var(--primary), #008080);
+            border: none;
+            color: white !important;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(0, 102, 102, 0.25);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-vip-primary::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 100% { left: 200%; } }
+        .btn-vip-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 102, 102, 0.35);
+        }
         
-        .bento-item { background: white; border-radius: 20px; border: 1px solid #f1f5f9; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-        .table-vip { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        .table-vip th { padding: 12px 20px; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; border: none; }
-        .table-vip tbody tr { background: white; transition: all 0.2s; cursor: pointer; border-radius: 12px; }
-        .table-vip tbody tr:hover { transform: scale(1.01); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
-        .table-vip td { padding: 16px 20px; vertical-align: middle; border-top: 1px solid #f8fafc; border-bottom: 1px solid #f8fafc; }
-        .table-vip td:first-child { border-left: 1px solid #f8fafc; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .table-vip td:last-child { border-right: 1px solid #f8fafc; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        .btn-vip-outline {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0, 102, 102, 0.2);
+            color: var(--primary) !important;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .btn-vip-outline:hover {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(0, 102, 102, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* --- PREMIUM SEGMENTED TABS (Main Filter) --- */
+        .segmented-control {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 8px;
+            border-radius: 24px;
+            border: var(--glass-border, 1px solid rgba(255,255,255,0.8));
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05), 0 4px 15px rgba(0,0,0,0.02);
+            backdrop-filter: blur(20px);
+            position: relative;
+            gap: 8px;
+        }
+        .seg-tab {
+            border: none;
+            background: transparent;
+            padding: 12px 36px;
+            border-radius: 18px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #64748b;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .seg-tab:hover {
+            color: var(--primary);
+            background: rgba(255,255,255,0.5);
+        }
+        .seg-tab.active {
+            background: var(--primary-gradient, linear-gradient(135deg, var(--primary), #008080));
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(15, 118, 110, 0.3);
+            transform: translateY(-3px);
+        }
+        .seg-tab.active .badge {
+            background: #ffffff !important;
+            color: var(--primary) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- BENTO CARD (Premium Surface) --- */
+        .bento-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 28px;
+            border: var(--glass-border, 1px solid #e2e8f0);
+            padding: 24px;
+            box-shadow: var(--shadow-md, 0 10px 30px -5px rgba(0, 0, 0, 0.08));
+            backdrop-filter: blur(20px);
+            margin-bottom: 24px;
+        }
+
+        /* --- PREMIUM STATUS FILTERS --- */
+        .filter-status {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.9) !important;
+            color: #64748b !important;
+            border-radius: 16px !important;
+            font-weight: 800 !important;
+            padding: 12px 24px !important;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-status:hover {
+            background: #ffffff !important;
+            color: var(--primary) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06) !important;
+        }
+        .filter-status.active {
+            background: #ffffff !important;
+            color: var(--primary) !important;
+            border: 2px solid var(--primary) !important;
+            box-shadow: 0 8px 25px rgba(15, 118, 110, 0.15) !important;
+            transform: translateY(-3px);
+            padding: 11px 23px !important; /* Compensate for 2px border vs 1px */
+        }
+        .filter-status.active .badge {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+        }
         
-        .status-tag { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .status-pending { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
-        .status-approved { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-        .status-rejected { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        /* --- SEARCH GLASS --- */
+        .search-glass {
+            background: rgba(255,255,255,0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 16px !important;
+            color: var(--text-main) !important;
+            font-weight: 600;
+            padding: 15px 20px 15px 45px !important;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .search-glass:focus {
+            background: #ffffff !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1) !important;
+            outline: none;
+        }
+
+        /* --- PREMIUM TABLE --- */
+        .table-vip { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
+        .table-vip th { 
+            padding: 0 24px 12px 24px; font-size: 0.75rem; font-weight: 800; 
+            color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; border: none; 
+        }
+        .table-vip tbody tr { 
+            background: #ffffff; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            border-radius: 16px;
+        }
+        .table-vip tbody tr:hover { 
+            transform: translateY(-4px) scale(1.005); 
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06); 
+            z-index: 10; position: relative;
+        }
+        .table-vip td { padding: 20px 24px; vertical-align: middle; border: none; color: var(--text-main); }
+        .table-vip td:first-child { border-radius: 16px 0 0 16px; border-left: 4px solid transparent; }
+        .table-vip td:last-child { border-radius: 0 16px 16px 0; }
         
-        .dev-status-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; }
-        .bg-status-tot { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-        .bg-status-hong { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
-        .bg-status-baotri { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+        /* Row status indicators */
+        .table-vip tbody tr[data-status="pending"] td:first-child { border-left-color: var(--warning); }
+        .table-vip tbody tr[data-status="approved"] td:first-child { border-left-color: var(--success); }
+        .table-vip tbody tr[data-status="rejected"] td:first-child { border-left-color: var(--danger); }
+
+        /* --- BADGES --- */
+        .badge-type { 
+            font-weight: 800; 
+            font-size: 0.7rem; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase; 
+            white-space: nowrap; 
+            display: inline-flex; 
+            align-items: center;
+        }
+        .type-report { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+        .type-update { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .type-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        .status-tag { display: inline-flex; align-items: center; padding: 6px 16px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pending { background: rgba(254, 153, 0, 0.1); color: #d97706; border: 1px solid rgba(254, 153, 0, 0.2); }
+        .status-approved { background: rgba(0, 166, 61, 0.1); color: #059669; border: 1px solid rgba(0, 166, 61, 0.2); }
+        .status-rejected { background: rgba(255, 33, 87, 0.1); color: #e11d48; border: 1px solid rgba(255, 33, 87, 0.2); }
+        
+        .dev-status-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(0,0,0,0.05); }
+        .bg-status-tot { background: #f0fdf4 !important; color: #166534 !important; border-color: #bbf7d0 !important; }
+        .bg-status-hong { background: #fef2f2 !important; color: #991b1b !important; border-color: #fecaca !important; }
+        .bg-status-baotri { background: #fffbeb !important; color: #b45309 !important; border-color: #fef3c7 !important; }
+        .bg-status-dangbaotri { background: #ecfeff !important; color: #0e7490 !important; border-color: #cffafe !important; }
+
+        .device-code-chip {
+            background: #f1f5f9; padding: 2px 8px; border-radius: 6px;
+            font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; color: #475569;
+        }
+
+        /* --- MODAL STYLING --- */
+        .modal-content-vip {
+            border: none; border-radius: 24px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .modal-header-vip {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background: linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+        }
+        .modal-title-vip { font-weight: 800; color: var(--primary); font-family: var(--font-display); }
+        
+        /* Modal Info Card (Detail) */
+        .info-card {
+            background: #f8fafc; border-radius: 16px; padding: 20px;
+            border: 1px solid #e2e8f0; height: 100%;
+        }
+        .info-card-label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+        /* Action buttons in row */
+        .action-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 800; transition: all 0.2s; border: none; }
+        .action-approve { background: rgba(0, 166, 61, 0.1); color: #059669; }
+        .action-approve:hover { background: #059669; color: white; transform: scale(1.1); }
+        .action-reject { background: rgba(255, 33, 87, 0.1); color: #e11d48; }
+        .action-reject:hover { background: #e11d48; color: white; transform: scale(1.1); }
+        
+        /* Select & Input override for modal */
+        .form-vip {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-weight: 500 !important;
+            color: #334155 !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02) !important;
+            transition: all 0.2s !important;
+        }
+        .form-vip:focus {
+            background: #fff !important; border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(0, 102, 102, 0.1) !important;
+        }
     </style>
 
     <div class="report-vip-wrapper">
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <div>
-                <h1 class="vip-title mb-1">Quản lý Báo cáo</h1>
-                <p class="text-muted small m-0">Theo dõi và phê duyệt tình trạng thiết bị</p>
+        <!-- HEADER SECTION -->
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+            <div class="vip-title-container">
+                <h1 class="vip-title"><i class="fas fa-clipboard-check me-2"></i>QUẢN LÝ BÁO CÁO</h1>
+                <p class="vip-subtitle mb-0">Theo dõi, kiểm duyệt và quản lý trạng thái thiết bị toàn hệ thống.</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary fw-bold rounded-3" onclick="exportToExcel()"><i class="fas fa-file-excel me-2"></i>Xuất Excel</button>
-                <button class="btn btn-primary fw-bold rounded-3 px-4" data-bs-toggle="modal" data-bs-target="#createRequestModalVip" style="background: var(--primary-gradient); border: none;">
-                    <i class="fas fa-plus me-2"></i>Báo cáo sự cố
+                <button class="btn-vip-outline d-flex align-items-center gap-2" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel text-success"></i><span>Xuất Excel</span>
+                </button>
+                <button class="btn-vip-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createRequestModalVip">
+                    <i class="fas fa-plus-circle"></i><span>Báo cáo sự cố</span>
                 </button>
             </div>
         </div>
 
-        <div class="mb-4">
-            <div class="filter-nav" style="padding: 6px; background: #f1f5f9;">
-                <button class="filter-tab active px-4 py-2 position-relative" id="mainTabReport" onclick="setMainTab('REPORT', this)">
-                    <i class="fas fa-tools me-2"></i>BÁO CÁO HỎNG HÓC
-                    <span id="badgeReport" class="badge rounded-pill bg-danger d-none" style="font-size: 0.6rem; vertical-align: top; margin-left: 5px;">0</span>
+        <!-- MAIN TABS -->
+        <div class="mb-4 text-center text-md-start">
+            <div class="segmented-control">
+                <button class="seg-tab active" id="mainTabReport" onclick="setMainTab('REPORT', this)">
+                    <i class="fas fa-tools me-2"></i>Báo hỏng
+                    <span id="badgeReport" class="badge bg-danger rounded-pill ms-1 d-none" style="font-size: 0.6rem; vertical-align: middle;">0</span>
                 </button>
-                <button class="filter-tab px-4 py-2 position-relative" id="mainTabAdvanced" onclick="setMainTab('ADVANCED', this)">
-                    <i class="fas fa-edit me-2"></i>SỬA ĐỔI / XÓA THIẾT BỊ
-                    <span id="badgeAdvanced" class="badge rounded-pill bg-danger d-none" style="font-size: 0.6rem; vertical-align: top; margin-left: 5px;">0</span>
+                <button class="seg-tab" id="mainTabAdvanced" onclick="setMainTab('ADVANCED', this)">
+                    <i class="fas fa-edit me-2"></i>Sửa / Xóa TB
+                    <span id="badgeAdvanced" class="badge bg-danger rounded-pill ms-1 d-none" style="font-size: 0.6rem; vertical-align: middle;">0</span>
                 </button>
             </div>
         </div>
 
-        <div class="bento-item mb-4">
-            <div class="row g-3">
-                <div class="col-md-8 d-flex gap-2">
-                    <button class="btn btn-light btn-sm fw-bold px-3 active filter-status" onclick="setStatusFilter('all', this)">Tất cả</button>
-                    <button class="btn btn-light btn-sm fw-bold px-3 filter-status" onclick="setStatusFilter('pending', this)">Đang chờ</button>
-                    <button class="btn btn-light btn-sm fw-bold px-3 filter-status" onclick="setStatusFilter('approved', this)">Đã duyệt</button>
-                    <button class="btn btn-light btn-sm fw-bold px-3 filter-status" onclick="setStatusFilter('rejected', this)">Từ chối</button>
+        <!-- FILTER BAR -->
+        <div class="bento-card mb-4" style="padding: 16px 24px;">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-8 d-flex flex-wrap gap-2">
+                    <button class="btn filter-status active" onclick="setStatusFilter('all', this)">
+                        Tất cả <span id="badgeStatusAll" class="badge bg-secondary rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
+                    </button>
+                    <button class="btn filter-status" onclick="setStatusFilter('pending', this)">
+                        Đang chờ <span id="badgeStatusPending" class="badge bg-danger rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
+                    </button>
+                    <button class="btn filter-status" onclick="setStatusFilter('approved', this)">
+                        Đã duyệt <span id="badgeStatusApproved" class="badge bg-success rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
+                    </button>
+                    <button class="btn filter-status" onclick="setStatusFilter('rejected', this)">
+                        Từ chối <span id="badgeStatusRejected" class="badge bg-dark rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
+                    </button>
                 </div>
                 <div class="col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" id="reqSearch" class="form-control border-start-0" placeholder="Tìm kiếm mã, tên, phòng..." onkeyup="masterFilter()">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0 position-absolute z-3 text-muted" style="left: 5px; top: 3px;"><i class="fas fa-search"></i></span>
+                        <input type="text" id="reqSearch" class="form-control search-glass ps-5" placeholder="Tìm kiếm mã, thiết bị, phòng..." onkeyup="masterFilter()">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bento-item">
-            <div class="table-responsive">
-                <table class="table-vip">
-                    <thead>
-                        <tr>
-                            <th>Loại</th>
-                            <th>Thiết bị / Vị trí</th>
-                            <th>Người gửi</th>
-                            <th>Ngày gửi</th>
-                            <th>Trạng thái</th>
-                            <th>Xử lý bởi</th>
-                            <th class="text-end">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="requestTableBody">
-                        <tr th:each="req : ${requests}" 
-                            th:data-id="${req.id}"
-                            th:data-type="${req.request_type ?: 'REPORT'}"
-                            th:data-status="${(req.status_resolve == null or req.status_resolve == 'pending') ? 'pending' : req.status_resolve}"
-                            th:data-device-name="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}"
-                            th:data-device-code="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}"
-                            th:data-room-name="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}"
-                            th:data-resolver="${req.resolver?.full_name}"
-                            th:data-resolved-at="${req.resolved_at}"
-                            th:data-status-device="${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
-                            th:data-desc="${req.description}"
-                            th:data-user-name="${req.users?.full_name}"
-                            th:data-created-at="${req.created_at}"
-                            th:data-payload="${req.json_payload}"
-                            onclick="showDetailVip(this)">
-                            <td>
-                                <span th:if="${req.request_type == 'REPORT' || req.request_type == null}" class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1 small">Báo cáo</span>
-                                <span th:if="${req.request_type == 'UPDATE'}" class="badge bg-primary bg-opacity-10 text-primary border px-2 py-1 small">Sửa đổi</span>
-                                <span th:if="${req.request_type == 'DELETE'}" class="badge bg-danger bg-opacity-10 text-danger border px-2 py-1 small">Xóa TB</span>
-                            </td>
-                             <td>
-                                 <div class="fw-bold small" th:text="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}">Device</div>
-                                 <div class="text-primary fw-bold" style="font-size: 0.7rem;" th:text="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}">CODE</div>
-                                 <div class="mt-1 d-flex gap-1 align-items-center">
-                                     <span class="badge bg-light text-dark border" style="font-size: 0.65rem;" th:text="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}">Room</span>
-                                    <span class="dev-status-badge" style="font-size: 0.6rem; padding: 2px 6px;"
-                                          th:with="sd=${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
-                                          th:classappend="${sd == 'Tốt' ? 'bg-status-tot' : (sd == 'Hỏng' || sd == 'Mất' ? 'bg-status-hong' : 'bg-status-baotri')}"
-                                          th:text="${sd ?: 'Chưa rõ'}"></span>
-                                </div>
-                            </td>
-                            <td><div class="fw-bold small" th:text="${req.users?.full_name}">User</div></td>
-                            <td class="small text-muted" th:text="${req.created_at != null ? #strings.substring(req.created_at, 0, 10) : 'N/A'}">Date</td>
-                            <td>
-                                <div class="status-tag" th:classappend="'status-' + (${(req.status_resolve == null or req.status_resolve == 'pending') ? 'pending' : req.status_resolve})">
-                                    <span th:text="${(req.status_resolve == null or req.status_resolve == 'pending') ? 'Đang chờ' : (req.status_resolve == 'approved' ? (req.request_type == 'DELETE' ? 'Đã xóa' : 'Đã duyệt') : 'Từ chối')}"></span>
-                                </div>
-                            </td>
-                            <td>
-                                <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}" class="small">
-                                    <div class="fw-bold text-dark" style="font-size: 0.8rem;" th:text="${req.resolver?.full_name ?: 'Hệ thống'}">Admin</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;" th:text="${req.resolved_at != null ? #strings.substring(req.resolved_at, 0, 10) : ''}">Time</div>
-                                </div>
-                                <div th:if="${req.status_resolve == null or req.status_resolve == 'pending'}" class="text-muted small italic">Chưa xử lý</div>
-                            </td>
-                            <td class="text-end" onclick="event.stopPropagation()">
-                                <div th:if="${(req.status_resolve == null or req.status_resolve == 'pending') and #strings.toLowerCase(session.role) == 'admin'}" class="d-flex gap-1 justify-content-end">
-                                    <button class="btn btn-sm btn-primary rounded-3 px-3 fw-bold" th:attr="onclick=|processAction(${req.id}, 'approved')|">Duyệt</button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-3 fw-bold" th:attr="onclick=|processAction(${req.id}, 'rejected')|">X</button>
-                                </div>
-                                <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}" class="text-muted small">
-                                    <i class="fas fa-check-circle text-success" th:if="${req.status_resolve == 'approved'}"></i>
-                                    <i class="fas fa-times-circle text-danger" th:if="${req.status_resolve == 'rejected'}"></i>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- TABLE SECTION -->
+        <div class="table-responsive" style="overflow-y: hidden; padding-bottom: 20px;">
+            <table class="table-vip">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Loại</th>
+                        <th style="width: 25%;">Thiết bị / Vị trí</th>
+                        <th style="width: 15%;">Người gửi</th>
+                        <th style="width: 15%;">Trạng thái</th>
+                        <th style="width: 20%;">Xử lý bởi</th>
+                        <th style="width: 15%;" class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="requestTableBody">
+                    <tr th:each="req : ${requests}" 
+                        th:data-id="${req.id}"
+                        th:data-type="${req.request_type ?: 'REPORT'}"
+                        th:data-status="${(req.status_resolve == null or req.status_resolve == 'pending') ? 'pending' : req.status_resolve}"
+                        th:data-device-name="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}"
+                        th:data-device-code="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}"
+                        th:data-room-name="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}"
+                        th:data-resolver="${req.resolver?.full_name}"
+                        th:data-resolved-at="${req.resolved_at}"
+                        th:data-status-device="${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
+                        th:data-desc="${req.description}"
+                        th:data-user-name="${req.users?.full_name}"
+                        th:data-created-at="${req.created_at}"
+                        th:data-payload="${req.json_payload}"
+                        onclick="showDetailVip(this)">
+                        
+                        <!-- Loại Yêu cầu -->
+                        <td>
+                            <span th:if="${req.request_type == 'REPORT' || req.request_type == null}" class="badge-type type-report"><i class="fas fa-tools me-1"></i>Báo hỏng</span>
+                            <span th:if="${req.request_type == 'UPDATE'}" class="badge-type type-update"><i class="fas fa-pen me-1"></i>Sửa đổi</span>
+                            <span th:if="${req.request_type == 'DELETE'}" class="badge-type type-delete"><i class="fas fa-trash me-1"></i>Xóa TB</span>
+                        </td>
+                        
+                        <!-- Thiết bị & Vị trí -->
+                        <td>
+                            <div class="fw-bold mb-1" style="font-size: 0.95rem; color: #0f172a;" th:text="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}">Device</div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="device-code-chip"><i class="fas fa-barcode me-1 text-muted"></i><span th:text="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}">CODE</span></span>
+                                <span class="badge bg-light text-dark border"><i class="fas fa-door-open me-1 text-primary"></i><span th:text="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}">Room</span></span>
+                                <span class="dev-status-badge"
+                                      th:with="sd=${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
+                                      th:classappend="${sd == 'Tốt' ? 'bg-status-tot' : (sd == 'Hỏng' || sd == 'Mất' ? 'bg-status-hong' : (sd == 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'))}"
+                                      th:text="${sd ?: 'Chưa rõ'}"></span>
+                            </div>
+                        </td>
+                        
+                        <!-- Người gửi & Thời gian -->
+                        <td>
+                            <div class="fw-bold" style="font-size: 0.85rem;" th:text="${req.users?.full_name}">User</div>
+                            <div class="text-muted format-date mt-1" style="font-size: 0.75rem;" th:text="${req.created_at}">Date</div>
+                        </td>
+                        
+                        <!-- Trạng thái Phiếu -->
+                        <td>
+                            <div class="status-tag" th:classappend="'status-' + (${(req.status_resolve == null or req.status_resolve == 'pending') ? 'pending' : req.status_resolve})">
+                                <i th:if="${req.status_resolve == null or req.status_resolve == 'pending'}" class="fas fa-hourglass-half me-2"></i>
+                                <i th:if="${req.status_resolve == 'approved'}" class="fas fa-check-circle me-2"></i>
+                                <i th:if="${req.status_resolve == 'rejected'}" class="fas fa-times-circle me-2"></i>
+                                <span th:text="${(req.status_resolve == null or req.status_resolve == 'pending') ? 'Đang chờ' : (req.status_resolve == 'approved' ? (req.request_type == 'DELETE' ? 'Đã xóa' : 'Đã duyệt') : 'Từ chối')}"></span>
+                            </div>
+                        </td>
+                        
+                        <!-- Người xử lý -->
+                        <td>
+                            <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}">
+                                <div class="fw-bold" style="font-size: 0.85rem; color: #334155;" th:text="${req.resolver?.full_name ?: 'Hệ thống'}">Admin</div>
+                                <div class="text-muted format-date-full mt-1" style="font-size: 0.75rem;" th:text="${req.resolved_at}">Time</div>
+                            </div>
+                            <div th:if="${req.status_resolve == null or req.status_resolve == 'pending'}" class="text-muted" style="font-size: 0.8rem; font-style: italic;">
+                                Chưa xử lý
+                            </div>
+                        </td>
+                        
+                        <!-- Thao tác -->
+                        <td class="text-end" onclick="event.stopPropagation()">
+                            <div th:if="${(req.status_resolve == null or req.status_resolve == 'pending') and #strings.toLowerCase(session.role) == 'admin'}" class="d-flex gap-2 justify-content-end">
+                                <button class="action-btn action-approve" title="Duyệt" th:attr="onclick=|processAction(${req.id}, 'approved')|"><i class="fas fa-check"></i></button>
+                                <button class="action-btn action-reject" title="Từ chối" th:attr="onclick=|processAction(${req.id}, 'rejected')|"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}" class="text-muted d-flex justify-content-end pe-2">
+                                <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;" th:if="${req.status_resolve == 'approved'}"></i>
+                                <i class="fas fa-times-circle" style="color: #f43f5e; font-size: 1.2rem;" th:if="${req.status_resolve == 'rejected'}"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- Modal Xem chi tiết Vip -->
     <div class="modal fade" id="detailModalVip" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rounded-4 border-0 shadow-lg">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-800 text-primary">Chi tiết yêu cầu</h5>
+            <div class="modal-content modal-content-vip">
+                <div class="modal-header modal-header-vip">
+                    <h5 class="modal-title modal-title-vip"><i class="fas fa-file-invoice me-2"></i>CHI TIẾT YÊU CẦU</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4" id="detailBodyVip">
@@ -166,48 +456,49 @@
 
     <!-- Modal Tạo phiếu mới Vip -->
     <div class="modal fade" id="createRequestModalVip" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0 shadow-lg">
-                <div class="modal-header border-0 bg-primary bg-opacity-10 py-3">
-                    <h5 class="modal-title fw-800 text-primary"><i class="fas fa-plus-circle me-2"></i>Tạo phiếu báo hỏng</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-content-vip">
+                <div class="modal-header modal-header-vip bg-light">
+                    <h5 class="modal-title modal-title-vip"><i class="fas fa-tools me-2"></i>TẠO PHIẾU BÁO SỰ CỐ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form id="createRequestFormVip">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">1. CHỌN PHÒNG</label>
-                            <select id="reqRoom" class="form-select rounded-3 border-light bg-light" onchange="onRoomChange(this.value)">
-                                <option value="">-- Chọn phòng --</option>
-                                <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.room_name}">Room</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">2. CHỌN THIẾT BỊ</label>
-                            <div class="input-group mb-2 shadow-sm rounded-3 overflow-hidden" style="border: 1px solid #f1f5f9;">
-                                <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted small"></i></span>
-                                <input type="text" id="modalDeviceSearch" class="form-control border-0 bg-white small" 
-                                       placeholder="Nhập tên hoặc mã thiết bị để tìm nhanh..." onkeyup="filterModalDevices()">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">1. CHỌN PHÒNG <span class="text-danger">*</span></label>
+                                <select id="reqRoom" class="form-select form-vip" onchange="onRoomChange(this.value)">
+                                    <option value="">-- Vui lòng chọn phòng --</option>
+                                    <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.room_name}">Room</option>
+                                </select>
                             </div>
-                            <select id="reqDevice" class="form-select rounded-3 border-light bg-light">
-                                <option value="">-- Vui lòng chọn phòng trước --</option>
-                            </select>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">3. TRẠNG THÁI HIỆN TẠI <span class="text-danger">*</span></label>
+                                <select id="reqStatus" class="form-select form-vip">
+                                    <option value="Hỏng">Hỏng</option>
+                                    <option value="Cần bảo trì">Cần bảo trì</option>
+                                    <option value="Đang bảo trì">Đang bảo trì</option>
+                                    <option value="Tốt">Tốt</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">2. CHỌN THIẾT BỊ <span class="text-danger">*</span></label>
+                                <div class="position-relative mb-2">
+                                    <span class="position-absolute text-muted" style="left: 15px; top: 12px;"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="modalDeviceSearch" class="form-control form-vip ps-5" placeholder="Tìm nhanh thiết bị bằng mã hoặc tên..." onkeyup="filterModalDevices()">
+                                </div>
+                                <select id="reqDevice" class="form-select form-vip" size="3" style="min-height: 120px;">
+                                    <option value="" disabled>-- Vui lòng chọn phòng để tải thiết bị --</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">4. MÔ TẢ CHI TIẾT <span class="text-danger">*</span></label>
+                                <textarea id="reqDesc" class="form-control form-vip" rows="4" placeholder="Nhập lý do báo hỏng hoặc yêu cầu bảo trì..."></textarea>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">3. TRẠNG THÁI THIẾT BỊ</label>
-                            <select id="reqStatus" class="form-select rounded-3 border-light bg-light">
-                                <option value="Tốt">Tốt</option>
-                                <option value="Hỏng">Hỏng</option>
-                                <option value="Cần bảo trì">Cần bảo trì</option>
-                                <option value="Đang bảo trì">Đang bảo trì</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">4. MÔ TẢ TÌNH TRẠNG</label>
-                            <textarea id="reqDesc" class="form-control rounded-3 border-light bg-light" rows="4" placeholder="Mô tả chi tiết hỏng hóc hoặc vấn đề..."></textarea>
-                        </div>
-                        <div class="text-end mt-4">
-                            <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">Hủy</button>
-                            <button type="button" class="btn btn-primary fw-bold px-4 ms-2" onclick="submitRequestVip()" style="background: var(--primary-gradient); border: none;">Gửi báo cáo</button>
+                        <div class="text-end mt-4 pt-3 border-top">
+                            <button type="button" class="btn btn-vip-outline me-2" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="button" class="btn btn-vip-primary" onclick="submitRequestVip()">Gửi Phiếu Báo Cáo <i class="fas fa-paper-plane ms-2"></i></button>
                         </div>
                     </form>
                 </div>
@@ -215,71 +506,47 @@
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
         let currentStatusTab = 'all';
         let currentMainTab = 'REPORT'; 
-        let modalDevices = []; // Lưu trữ danh sách thiết bị của phòng đang chọn
+        let modalDevices = [];
 
         function setMainTab(type, btn) {
-            console.log(">>> Switching Main Tab to:", type);
-            document.querySelectorAll('#mainTabReport, #mainTabAdvanced').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
             currentMainTab = type;
             masterFilter();
+            updateTabBadges();
         }
 
         async function onRoomChange(roomId) {
-            console.log(">>> [onRoomChange] RoomID selected:", roomId);
             const devSelect = document.getElementById('reqDevice');
             if (!roomId) {
-                devSelect.innerHTML = '<option value="">-- Vui lòng chọn phòng trước --</option>';
+                devSelect.innerHTML = '<option value="" disabled>-- Vui lòng chọn phòng trước --</option>';
                 return;
             }
-            
-            devSelect.innerHTML = '<option value="">Đang tải thiết bị...</option>';
+            devSelect.innerHTML = '<option value="" disabled>Đang tải dữ liệu thiết bị...</option>';
             try {
-                const res = await fetch('/api/devices/all');
-                if (!res.ok) throw new Error("API Error: " + res.status);
+                const res = await fetch(`/api/devices/all?roomId=${roomId}`);
+                if (!res.ok) throw new Error("API Error");
+                let filtered = await res.json();
+                if (!Array.isArray(filtered)) filtered = filtered.data || [];
                 
-                let allDevices = await res.json();
-                console.log(">>> [onRoomChange] Data received:", allDevices);
-
-                // Đảm bảo allDevices là một mảng
-                if (!Array.isArray(allDevices)) {
-                    if (allDevices.data && Array.isArray(allDevices.data)) allDevices = allDevices.data;
-                    else throw new Error("Data format error");
-                }
-                
-                const rIdStr = String(roomId);
-                const filtered = allDevices.filter(d => {
-                    // So sánh linh hoạt cả string và number
-                    return String(d.room_id) === rIdStr;
-                });
-                
-                console.log(">>> [onRoomChange] Filtered results:", filtered.length);
-                
-                if (filtered.length === 0) {
-                    modalDevices = [];
-                    devSelect.innerHTML = '<option value="">Không có thiết bị khả dụng tại phòng này</option>';
-                } else {
-                    modalDevices = filtered;
-                    renderModalDevices(filtered);
-                }
+                modalDevices = filtered;
+                renderModalDevices(filtered);
             } catch (e) {
-                console.error(">>> [onRoomChange] Error:", e);
-                modalDevices = [];
-                devSelect.innerHTML = '<option value="">Lỗi: Không thể tải danh sách thiết bị</option>';
+                devSelect.innerHTML = '<option value="" disabled>Lỗi: Không thể tải danh sách thiết bị</option>';
             }
         }
 
         function renderModalDevices(devices) {
             const devSelect = document.getElementById('reqDevice');
             if (devices.length === 0) {
-                devSelect.innerHTML = '<option value="">Không tìm thấy thiết bị phù hợp</option>';
+                devSelect.innerHTML = '<option value="" disabled>Phòng này không có thiết bị nào</option>';
                 return;
             }
-            devSelect.innerHTML = `<option value="">-- Chọn thiết bị (${devices.length}) --</option>` + 
-                devices.map(d => `<option value="${d.id}">${d.device_name} [${d.device_code}]</option>`).join('');
+            devSelect.innerHTML = devices.map(d => `<option value="${d.id}" class="py-2 fw-bold text-dark">${d.device_name} &nbsp; [Mã: ${d.device_code}]</option>`).join('');
         }
 
         function filterModalDevices() {
@@ -289,12 +556,6 @@
                 d.device_code.toLowerCase().includes(search)
             );
             renderModalDevices(filtered);
-            
-            // Nếu chỉ có 1 kết quả duy nhất và người dùng nhập mã chính xác, tự động chọn luôn
-            const exactMatch = modalDevices.find(d => d.device_code.toLowerCase() === search);
-            if (exactMatch) {
-                document.getElementById('reqDevice').value = exactMatch.id;
-            }
         }
 
         async function submitRequestVip() {
@@ -303,11 +564,11 @@
             const status = document.getElementById('reqStatus').value;
             
             if (!deviceId || !desc) {
-                Swal.fire("Lỗi", "Vui lòng chọn thiết bị và nhập mô tả", "warning");
+                Swal.fire({ title: "Thiếu thông tin", text: "Vui lòng chọn thiết bị và nhập mô tả!", icon: "warning", customClass: { popup: 'rounded-4' } });
                 return;
             }
 
-            Swal.fire({ title: 'Đang gửi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
                 const res = await fetch('/requests/api/create', {
@@ -317,12 +578,12 @@
                 });
                 
                 if (res.ok) {
-                    Swal.fire("Thành công", "Phiếu báo hỏng đã được gửi!", "success").then(() => location.reload());
+                    Swal.fire({ title: "Thành công!", text: "Phiếu yêu cầu đã được gửi lên hệ thống.", icon: "success", customClass: { popup: 'rounded-4' } }).then(() => location.reload());
                 } else {
                     throw new Error("Lỗi máy chủ");
                 }
             } catch (e) {
-                Swal.fire("Lỗi", "Không thể gửi yêu cầu", "error");
+                Swal.fire("Lỗi hệ thống", "Không thể gửi yêu cầu lúc này, vui lòng thử lại.", "error");
             }
         }
 
@@ -343,62 +604,78 @@
                 const text = row.innerText.toLowerCase();
                 
                 let show = true;
-                if (currentMainTab === 'REPORT') {
-                    if (type !== 'REPORT') show = false;
-                } else {
-                    if (type === 'REPORT') show = false;
-                }
+                if (currentMainTab === 'REPORT' && type !== 'REPORT') show = false;
+                if (currentMainTab === 'ADVANCED' && type === 'REPORT') show = false;
                 if (currentStatusTab !== 'all' && status !== currentStatusTab) show = false;
                 if (search && !text.includes(search)) show = false;
+                
                 row.style.display = show ? '' : 'none';
             });
         }
 
         function updateTabBadges() {
             const rows = document.querySelectorAll('#requestTableBody tr');
-            let countReport = 0;
-            let countAdvanced = 0;
+            let countReport = 0, countAdvanced = 0;
+            let sAll = 0, sPending = 0, sApproved = 0, sRejected = 0;
+
             rows.forEach(row => {
                 const type = row.getAttribute('data-type');
                 const status = row.getAttribute('data-status');
+                
                 if (status === 'pending') {
                     if (type === 'REPORT') countReport++;
                     else if (type === 'UPDATE' || type === 'DELETE') countAdvanced++;
                 }
+
+                let belongsToTab = false;
+                if (currentMainTab === 'REPORT' && type === 'REPORT') belongsToTab = true;
+                if (currentMainTab === 'ADVANCED' && (type === 'UPDATE' || type === 'DELETE')) belongsToTab = true;
+
+                if (belongsToTab) {
+                    sAll++;
+                    if (status === 'pending') sPending++;
+                    else if (status === 'approved') sApproved++;
+                    else if (status === 'rejected') sRejected++;
+                }
             });
+
             const bReport = document.getElementById('badgeReport');
             const bAdvanced = document.getElementById('badgeAdvanced');
-            if (bReport) {
-                bReport.textContent = countReport;
-                countReport > 0 ? bReport.classList.remove('d-none') : bReport.classList.add('d-none');
-            }
-            if (bAdvanced) {
-                bAdvanced.textContent = countAdvanced;
-                countAdvanced > 0 ? bAdvanced.classList.remove('d-none') : bAdvanced.classList.add('d-none');
-            }
+            if (bReport) { bReport.textContent = countReport; countReport > 0 ? bReport.classList.remove('d-none') : bReport.classList.add('d-none'); }
+            if (bAdvanced) { bAdvanced.textContent = countAdvanced; countAdvanced > 0 ? bAdvanced.classList.remove('d-none') : bAdvanced.classList.add('d-none'); }
+
+            const updateBadge = (id, count) => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = count; count > 0 ? el.classList.remove('d-none') : el.classList.add('d-none'); }
+            };
+            updateBadge('badgeStatusAll', sAll);
+            updateBadge('badgeStatusPending', sPending);
+            updateBadge('badgeStatusApproved', sApproved);
+            updateBadge('badgeStatusRejected', sRejected);
         }
 
         async function processAction(id, action) {
             const result = await Swal.fire({
-                title: action === 'approved' ? 'Phê duyệt?' : 'Từ chối?',
-                text: "Thao tác này không thể hoàn tác!",
-                icon: 'warning',
+                title: action === 'approved' ? 'Phê duyệt yêu cầu?' : 'Từ chối yêu cầu?',
+                text: "Thao tác này sẽ ghi nhận vào lịch sử hệ thống.",
+                icon: action === 'approved' ? 'question' : 'warning',
                 showCancelButton: true,
-                confirmButtonColor: action === 'approved' ? '#6366f1' : '#ef4444',
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Hủy'
+                confirmButtonColor: action === 'approved' ? '#059669' : '#e11d48',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+                customClass: { popup: 'rounded-4' }
             });
 
             if (result.isConfirmed) {
                 try {
                     const res = await fetch(`/requests/${id}/resolve?status=${action}`, { method: 'POST' });
                     if (res.ok) {
-                        Swal.fire('Thành công!', 'Đã cập nhật trạng thái yêu cầu.', 'success').then(() => location.reload());
+                        Swal.fire({ title: 'Thành công!', text: 'Đã cập nhật hệ thống.', icon: 'success', customClass: { popup: 'rounded-4' } }).then(() => location.reload());
                     } else {
                         throw new Error('Lỗi server');
                     }
                 } catch (e) {
-                    Swal.fire('Lỗi', 'Không thể thực hiện thao tác.', 'error');
+                    Swal.fire('Lỗi', 'Không thể thực hiện thao tác này.', 'error');
                 }
             }
         }
@@ -409,99 +686,144 @@
             const status = data.status;
             const payload = JSON.parse(data.payload || '{}');
             
-            let content = `
-                <div class="row g-3">
-                    <div class="col-md-12 d-flex justify-content-between align-items-center bg-light p-2 px-3 rounded-3 mb-2">
-                        <span class="small text-muted fw-bold">ID YÊU CẦU: #${data.id}</span>
-                        <span class="status-tag status-${status}">${status === 'pending' ? 'Đang chờ' : (status === 'approved' ? (type === 'DELETE' ? 'Đã xóa' : 'Đã duyệt') : 'Từ chối')}</span>
-                    </div>
-                    
-                    <div class="col-md-6 border-bottom pb-2">
-                        <label class="text-muted small fw-bold text-uppercase">Thông tin thiết bị</label>
-                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">${data.deviceName}</div>
-                        <div class="small fw-bold text-secondary">Mã hiệu: ${data.deviceCode}</div>
-                        <div class="small mt-1"><i class="fas fa-microchip me-1 text-muted"></i>Trạng thái: <span class="dev-status-badge ${data.statusDevice === 'Tốt' ? 'bg-status-tot' : 'bg-status-hong'}">${data.statusDevice || 'N/A'}</span></div>
-                    </div>
-                    
-                    <div class="col-md-6 border-bottom pb-2 text-md-end">
-                        <label class="text-muted small fw-bold text-uppercase">Nguồn gửi & Thời gian</label>
-                        <div class="fw-bold">Phòng: ${data.roomName}</div>
-                        <div class="small">Người gửi: <span class="fw-bold text-dark">${data.userName}</span></div>
-                        <div class="small text-muted mt-1"><i class="far fa-clock me-1"></i>${formatTime(data.createdAt)}</div>
-                    </div>
+            // Generate Badges for Status & Type
+            let statusBadge = '';
+            if(status === 'pending') statusBadge = '<span class="status-tag status-pending"><i class="fas fa-hourglass-half me-1"></i> Đang chờ duyệt</span>';
+            else if(status === 'approved') statusBadge = `<span class="status-tag status-approved"><i class="fas fa-check-circle me-1"></i> ${type === 'DELETE' ? 'Đã Xóa' : 'Đã Duyệt'}</span>`;
+            else statusBadge = '<span class="status-tag status-rejected"><i class="fas fa-times-circle me-1"></i> Từ chối</span>';
 
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold text-uppercase">Mô tả / Lý do yêu cầu</label>
-                        <div class="p-3 bg-light rounded-3 mt-1 border-start border-4 border-primary" style="min-height: 50px; font-style: italic;">
-                            "${data.desc || 'Không có mô tả chi tiết từ người gửi'}"
+            let typeBadge = '';
+            if(type === 'REPORT') typeBadge = '<span class="badge-type type-report">Báo Hỏng</span>';
+            else if(type === 'UPDATE') typeBadge = '<span class="badge-type type-update">Sửa Đổi</span>';
+            else typeBadge = '<span class="badge-type type-delete">Xóa Thiết Bị</span>';
+            
+            let devStatusClass = data.statusDevice === 'Tốt' ? 'bg-status-tot' : 'bg-status-hong';
+
+            let content = `
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                    <div>
+                        <div class="text-muted fw-bold" style="font-size: 0.8rem;">YÊU CẦU TICKET #${data.id}</div>
+                        <div class="mt-1">${typeBadge}</div>
+                    </div>
+                    <div>${statusBadge}</div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Column 1: Device Info -->
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-microchip me-1"></i> THÔNG TIN THIẾT BỊ</div>
+                            <h5 class="fw-bold text-dark mb-1 mt-2">${data.deviceName}</h5>
+                            <div class="device-code-chip d-inline-block mb-3">Mã: ${data.deviceCode}</div>
+                            
+                            <div class="d-flex justify-content-between border-top pt-2">
+                                <span class="text-muted small">Trạng thái TB:</span>
+                                <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Column 2: Context Info -->
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-map-marker-alt me-1"></i> NGUỒN GỬI</div>
+                            <div class="fw-bold text-primary mb-3 mt-2"><i class="fas fa-door-open me-2 text-muted"></i>${data.roomName}</div>
+                            
+                            <div class="d-flex justify-content-between border-top pt-2 mb-2">
+                                <span class="text-muted small">Người báo cáo:</span>
+                                <span class="fw-bold text-dark small">${data.userName}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Thời gian:</span>
+                                <span class="text-muted small fw-bold"><i class="far fa-clock me-1"></i>${formatTime(data.createdAt)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             `;
 
-            // Nếu đã phê duyệt/từ chối, hiện thông tin người xử lý
+            // Description Box
+            content += `
+                <div class="mb-4">
+                    <div class="info-card-label"><i class="fas fa-align-left me-1"></i> NỘI DUNG / LÝ DO</div>
+                    <div class="p-3 rounded-3" style="background: #f1f5f9; border-left: 4px solid var(--primary); font-style: italic; color: #334155;">
+                        "${data.desc || 'Không có mô tả chi tiết từ người gửi'}"
+                    </div>
+                </div>
+            `;
+
+            // Resolver Info if resolved
             if (status !== 'pending' && data.resolver) {
+                let resolveColor = status === 'approved' ? '#059669' : '#e11d48';
+                let resolveBg = status === 'approved' ? '#f0fdf4' : '#fff1f2';
+                let resolveBorder = status === 'approved' ? '#bbf7d0' : '#fecdd3';
+                
                 content += `
-                    <div class="col-12 mt-2">
-                        <div class="p-2 px-3 bg-success bg-opacity-10 border border-success border-opacity-20 rounded-3 d-flex justify-content-between align-items-center">
-                            <div class="small"><i class="fas fa-user-check me-2 text-success"></i>Người xử lý: <span class="fw-bold">${data.resolver}</span></div>
-                            <div class="small text-muted">${formatTime(data.resolvedAt)}</div>
+                    <div class="p-3 rounded-3 mb-4 d-flex justify-content-between align-items-center" style="background: ${resolveBg}; border: 1px solid ${resolveBorder};">
+                        <div>
+                            <div class="small fw-bold mb-1" style="color: ${resolveColor}; text-transform: uppercase;">THÔNG TIN PHÊ DUYỆT</div>
+                            <div class="text-dark fw-bold"><i class="fas fa-user-shield me-2" style="color: ${resolveColor}"></i>${data.resolver}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="small text-muted mb-1">Thời gian xử lý</div>
+                            <div class="small fw-bold">${formatTime(data.resolvedAt)}</div>
                         </div>
                     </div>
                 `;
             }
 
-            if (type === 'UPDATE' && Object.keys(payload).length > 0) {
+            // Payload Info for Update/Delete
+            if ((type === 'UPDATE' || type === 'DELETE') && Object.keys(payload).length > 0) {
+                let payloadTitle = type === 'UPDATE' ? 'Dữ liệu thay đổi đề xuất' : 'Dữ liệu thiết bị tại thời điểm xóa';
+                let payloadIcon = type === 'UPDATE' ? 'fa-exchange-alt' : 'fa-trash-alt';
+                let payloadColor = type === 'UPDATE' ? 'var(--primary)' : '#e11d48';
+                
                 content += `
-                    <div class="col-12 mt-3 p-3 border rounded-3 shadow-sm" style="background: #fdfaff;">
-                        <h6 class="fw-bold text-primary mb-3"><i class="fas fa-exchange-alt me-2"></i>Dữ liệu thay đổi đề xuất</h6>
-                        <div class="row g-3">
-                            ${Object.entries(payload).map(([k, v]) => `
-                                <div class="col-md-4">
-                                    <div class="text-muted" style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">${k}</div>
-                                    <div class="fw-bold text-dark">${v}</div>
+                    <div class="info-card-label mt-4" style="color: ${payloadColor};"><i class="fas ${payloadIcon} me-1"></i> ${payloadTitle}</div>
+                    <div class="row g-3 mt-1">
+                        ${Object.entries(payload).map(([k, v]) => `
+                            <div class="col-md-4">
+                                <div class="p-2 rounded-3 border" style="background: #fff;">
+                                    <div class="text-muted" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">${k}</div>
+                                    <div class="fw-bold text-dark mt-1" style="font-size: 0.9rem;">${v}</div>
                                 </div>
-                            `).join('')}
-                        </div>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
-
-            if (type === 'DELETE' && Object.keys(payload).length > 0) {
-                content += `
-                    <div class="col-12 mt-3 p-3 border rounded-3 shadow-sm" style="background: #fff5f5;">
-                        <h6 class="fw-bold text-danger mb-3"><i class="fas fa-trash-alt me-2"></i>Dữ liệu thiết bị tại thời điểm yêu cầu xóa</h6>
-                        <div class="row g-3">
-                            ${Object.entries(payload).map(([k, v]) => `
-                                <div class="col-md-4">
-                                    <div class="text-muted" style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">${k}</div>
-                                    <div class="fw-bold text-dark">${v}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            content += `</div>`;
             
+            // Show Modal
             Swal.fire({
                 title: '',
                 html: content,
-                width: '700px',
-                confirmButtonText: 'Đóng cửa sổ',
-                confirmButtonColor: '#6366f1',
-                customClass: { popup: 'rounded-4' }
+                width: '750px',
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: { popup: 'rounded-4 shadow-lg' }
             });
         }
 
         function formatTime(isoStr) {
-            if (!isoStr || isoStr === 'null' || isoStr === 'N/A') return 'N/A';
+            if (!isoStr || isoStr === 'null' || isoStr === 'N/A' || isoStr === 'undefined') return 'N/A';
             const date = new Date(isoStr);
-            return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            if (isNaN(date.getTime())) return isoStr;
+            return date.toLocaleString('vi-VN', { 
+                timeZone: 'Asia/Ho_Chi_Minh',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
         }
 
         function exportToExcel() {
-            window.location.href = '/requests/export';
+            const search = document.getElementById('reqSearch').value.trim();
+            const url = new URL(window.location.origin + '/requests/export');
+            url.searchParams.append('tab', currentMainTab);
+            url.searchParams.append('status', currentStatusTab);
+            if (search) {
+                url.searchParams.append('search', search);
+            }
+            window.location.href = url.toString();
         }
 
         document.addEventListener('DOMContentLoaded', () => {

@@ -4,5 +4,7 @@ data class RoomModel(
     val id: Int? = null,
     val room_name: String,
     val description: String? = null,
+    val created_at: String? = null,
+    val updated_at: String? = null,
     val device_count: Int = 0
 )

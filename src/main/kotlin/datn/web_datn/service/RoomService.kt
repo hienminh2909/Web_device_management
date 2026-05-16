@@ -28,6 +28,16 @@ class RoomService(private val restTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
+        // VALIDATION: Check for duplicate name
+        val newName = payload["room_name"]?.toString()?.trim() ?: ""
+        if (newName.isNotEmpty()) {
+            val allRooms = getAllRooms(token)
+            if (allRooms.any { it.room_name.equals(newName, ignoreCase = true) }) {
+                println(">>> ROOM SERVICE: VALIDATION FAILED - Room name '$newName' already exists")
+                return mapOf("error" to "Tên phòng '$newName' đã tồn tại trong hệ thống")
+            }
+        }
+
         val entity = HttpEntity(payload, headers)
         println(">>> ROOM SERVICE: [POST] $apiUrl - Payload: $payload")
         
@@ -49,6 +59,16 @@ class RoomService(private val restTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
+        // VALIDATION: Check for duplicate name (excluding itself)
+        val newName = payload["room_name"]?.toString()?.trim() ?: ""
+        if (newName.isNotEmpty()) {
+            val allRooms = getAllRooms(token)
+            if (allRooms.any { it.room_name.equals(newName, ignoreCase = true) && it.id != id }) {
+                println(">>> ROOM SERVICE: VALIDATION FAILED - Room name '$newName' already exists in another record")
+                return mapOf("error" to "Tên phòng '$newName' đã tồn tại ở phòng khác")
+            }
+        }
+
         val entity = HttpEntity(payload, headers)
         println(">>> ROOM SERVICE: [PUT] $apiUrl/$id - Payload: $payload")
         

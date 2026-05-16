@@ -92,20 +92,24 @@ function initUserManagement() {
                 fullname: row.getAttribute('data-fullname'),
                 role: row.getAttribute('data-role'),
                 phone: row.getAttribute('data-phone'),
-                roomId: row.getAttribute('data-room'),
-                email: row.getAttribute('data-email')
+                roomId: row.getAttribute('data-roomid'),
+                email: row.getAttribute('data-email'),
+                handheldName: row.getAttribute('data-handheld')
             });
         } else if (deleteBtn) {
             e.stopPropagation();
             confirmDeleteUser(row.getAttribute('data-id'));
         } else if (row) {
             openDetailModal({
+                id: row.getAttribute('data-id'),
                 fullname: row.getAttribute('data-fullname'),
                 username: row.getAttribute('data-username'),
                 role: row.getAttribute('data-role'),
                 phone: row.getAttribute('data-phone'),
-                roomName: row.querySelector('.text-slate-600').innerText,
-                email: row.getAttribute('data-email')
+                roomName: row.getAttribute('data-room'),
+                email: row.getAttribute('data-email'),
+                created: row.getAttribute('data-created'),
+                handheldName: row.getAttribute('data-handheld')
             });
         }
     });
@@ -141,6 +145,7 @@ function confirmResetPassword(id, name) {
 let userModalInstance, detailModalInstance;
 
 function openEditUserModal(data) {
+    console.log("DEBUG: Edit User Data ->", data);
     if (!userModalInstance) userModalInstance = new bootstrap.Modal(document.getElementById('userModal'));
     
     document.getElementById('userModalLabel').innerText = 'Chỉnh Sửa Thành Viên';
@@ -150,6 +155,7 @@ function openEditUserModal(data) {
     document.getElementById('phone').value = data.phone || '';
     document.getElementById('roomId').value = data.roomId || '';
     document.getElementById('email').value = data.email || '';
+    document.getElementById('handheldName').value = data.handheldName || '';
     
     document.getElementById('usernameSection').style.display = 'none';
     document.getElementById('passwordSection').style.display = 'none';
@@ -160,6 +166,7 @@ function openEditUserModal(data) {
 }
 
 function openDetailModal(data) {
+    console.log("DEBUG: Detail User Data ->", data);
     if (!detailModalInstance) detailModalInstance = new bootstrap.Modal(document.getElementById('userDetailModal'));
     
     document.getElementById('detailFullName').innerText = data.fullname;
@@ -167,6 +174,12 @@ function openDetailModal(data) {
     document.getElementById('detailPhone').innerText = data.phone || 'Chưa cập nhật';
     document.getElementById('detailEmail').innerText = data.email || 'Chưa cập nhật';
     document.getElementById('detailRoom').innerText = data.roomName;
+    document.getElementById('detailId').innerText = '#' + data.id;
+    
+    // Format creation date
+    const dateStr = data.created ? data.created.replace('T', ' ').substring(0, 16) : 'Chưa rõ';
+    document.getElementById('detailCreatedAt').innerText = dateStr;
+    document.getElementById('detailHandheld').innerText = (data.handheldName && data.handheldName !== 'null' && data.handheldName !== '') ? data.handheldName : 'Chưa gán thiết bị';
     
     const badge = document.getElementById('detailRoleBadge');
     badge.innerText = data.role.toUpperCase();
@@ -189,6 +202,7 @@ async function saveUser() {
         role: document.getElementById('role').value,
         phone: document.getElementById('phone').value || null,
         email: document.getElementById('email').value || null,
+        handheld_name: document.getElementById('handheldName').value || null,
         room_id: document.getElementById('roomId').value ? parseInt(document.getElementById('roomId').value) : null
     };
 

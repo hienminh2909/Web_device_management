@@ -1,193 +1,144 @@
 <div th:fragment="content">
     <style>
+        /* ===== VIP PRO INVENTORY DETAILS V2 ===== */
         .detail-wrapper {
-            animation: slideUp 0.4s ease-out;
-            font-family: 'Inter', sans-serif;
+            animation: detailFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: var(--text-main);
         }
 
-        @keyframes slideUp {
+        @keyframes detailFadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #64748b;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            margin-bottom: 12px;
+            display: inline-flex; align-items: center; gap: 12px;
+            color: #64748b; text-decoration: none; font-weight: 800;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px;
+            transition: all 0.3s; margin-bottom: 24px; padding: 8px 16px;
+            background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;
+        }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); background: #fff; border-color: var(--primary); }
+
+        .glass-title-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.8) 100%);
+            backdrop-filter: blur(20px); border-radius: 32px; padding: 40px;
+            border: var(--glass-border); margin-bottom: 30px; box-shadow: var(--shadow-md);
         }
 
-        .back-link:hover {
-            color: #4f46e5;
-            transform: translateX(-5px);
+        .glass-title-card h2 {
+            font-family: var(--font-display); font-weight: 800;
+            background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -1px; font-size: 2rem;
         }
 
-        .room-title-card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px 30px;
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-            margin-bottom: 24px;
+        .search-container-vip {
+            background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 24px;
+            border: var(--glass-border); margin-bottom: 30px; box-shadow: var(--shadow-sm);
         }
 
-        .search-box-vip {
-            background: #f1f5f9;
-            border: 1px solid transparent;
-            border-radius: 14px;
-            padding: 12px 20px;
-            transition: all 0.2s;
-            font-weight: 500;
+        .input-vip {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px;
+            padding: 16px 24px; color: var(--text-main); font-weight: 600; width: 100%;
+            transition: all 0.3s;
         }
+        .input-vip:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15,118,110,0.1); outline: none; }
 
-        .search-box-vip:focus {
-            background: white;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            outline: none;
+        /* Table */
+        .table-container-vip {
+            background: #ffffff; border-radius: 28px; border: var(--glass-border);
+            overflow: hidden; box-shadow: var(--shadow-md);
         }
-
         .table-vip thead th {
-            background: #f8fafc;
-            color: #64748b;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            padding: 16px;
-            border-top: none;
+            background: #f8fafc; color: #64748b; font-weight: 800;
+            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;
+            padding: 24px; border-bottom: 1px solid #e2e8f0;
         }
+        .table-vip tbody td { padding: 24px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .table-vip tbody tr:hover { background: #f8fafc; }
 
-        .table-vip tbody td {
-            padding: 16px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
+        .status-pill-vip {
+            padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 8px;
         }
+        .pill-done { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .pill-warn { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
 
-        .table-vip tbody tr:hover {
-            background: #f8fafc;
-        }
+        .badge-id-vip { background: #f1f5f9; color: #475569; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 0.65rem; border: 1px solid #e2e8f0; }
 
-        .status-pill {
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .btn-utility {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 10px 20px; font-weight: 800; font-size: 0.75rem; color: #64748b;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px;
         }
-
-        .pill-checked { background: #dcfce7; color: #15803d; }
-        .pill-missing { background: #fee2e2; color: #b91c1c; }
-        
-        .device-id-badge {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.75rem;
-        }
+        .btn-utility:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--primary); color: var(--primary); }
     </style>
 
     <div class="detail-wrapper">
         <a th:href="@{/inventory/progress(month=${selectedMonth}, year=${selectedYear})}" class="back-link">
-            <i class="fas fa-arrow-left"></i> Quay lại danh sách phòng
+            <i class="fas fa-chevron-left"></i> Danh sách phòng
         </a>
 
-        <div class="room-title-card d-flex justify-content-between align-items-center flex-wrap gap-4">
+        <div class="glass-title-card d-flex justify-content-between align-items-center flex-wrap gap-4">
             <div>
-                <h2 class="fw-bold m-0" style="color: #0f172a; letter-spacing: -1px;">
-                    Phòng: <span class="text-primary" id="roomNameDisplay" th:text="${roomName}"></span>
-                </h2>
-                <p class="text-muted mb-0 mt-1">
-                    Kỳ kiểm kê: <span class="fw-bold text-dark" th:text="'Tháng ' + ${selectedMonth} + '/' + ${selectedYear}"></span>
-                </p>
+                <h2 class="m-0">Phòng: <span th:text="${roomName}"></span></h2>
+                <p class="text-muted mb-0 fw-medium mt-1">Kỳ kiểm kê: Tháng [[${selectedMonth}]]/[[${selectedYear}]]</p>
             </div>
             
-            <div class="d-flex gap-3 align-items-center">
-                <div class="text-end me-3 d-none d-sm-block">
-                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Trạng thái phòng</div>
-                    <div class="fw-bold text-dark fs-5" th:text="${#lists.size(details.?[is_checked])} + ' / ' + ${#lists.size(details)}">0 / 0</div>
-                </div>
-                <div class="btn-group shadow-sm rounded-pill overflow-hidden">
-                    <button class="btn btn-light fw-bold px-4 border-end" onclick="window.print()">
-                        <i class="fas fa-print me-2 text-secondary"></i>In
-                    </button>
-                    <a th:href="@{/inventory/export-room/{id}(id=${roomId ?: id}, roomName=${roomName}, month=${selectedMonth}, year=${selectedYear})}" 
-                       class="btn btn-success fw-bold px-4" style="background: #10b981; border: none;">
-                        <i class="fas fa-file-excel me-2"></i>Xuất Excel
-                    </a>
-                </div>
+            <div class="d-flex gap-3">
+                <button class="btn-utility" onclick="window.print()"><i class="fas fa-print"></i> In danh sách</button>
+                <a th:href="@{/inventory/export-room/{id}(id=${roomId ?: id}, roomName=${roomName}, month=${selectedMonth}, year=${selectedYear})}" 
+                   class="btn-utility" style="color: #15803d; border-color: #bbf7d0;">
+                    <i class="fas fa-file-excel"></i> Xuất Excel
+                </a>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-            <div class="card-header bg-white border-0 p-4">
-                <div class="position-relative">
-                    <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" class="search-box-vip w-100 ps-5" id="deviceSearch" placeholder="Tìm kiếm theo tên thiết bị, mã QR hoặc ID hệ thống...">
-                </div>
+        <div class="search-container-vip">
+            <div class="position-relative">
+                <i class="fas fa-search position-absolute top-50 translate-middle-y ms-4 text-muted"></i>
+                <input type="text" class="input-vip ps-5" id="deviceSearch" placeholder="Tìm tên thiết bị, mã QR hoặc ID...">
             </div>
+        </div>
+
+        <div class="table-container-vip">
             <div class="table-responsive">
                 <table class="table table-vip mb-0 align-middle">
                     <thead>
                         <tr>
-                            <th class="ps-4">Thiết bị</th>
+                            <th class="ps-5">Thiết bị</th>
                             <th>Mã QR</th>
-                            <th>Mã ID</th>
+                            <th>Hệ thống ID</th>
                             <th>Trạng thái máy</th>
-                            <th>Lần quét cuối cùng</th>
-                            <th class="text-center">Kết quả kiểm kê</th>
+                            <th>Cập nhật cuối</th>
+                            <th class="text-center">Kết quả</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryDetailTable">
                         <tr th:each="d : ${details}">
-                            <td class="ps-4">
-                                <div class="fw-bold text-dark" th:text="${d.device_name}">Tên thiết bị</div>
+                            <td class="ps-5">
+                                <div class="fw-bold text-dark" th:text="${d.device_name}"></div>
+                            </td>
+                            <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold" th:text="${d.device_code}"></span></td>
+                            <td><span class="badge-id-vip">#[[${d.id}]]</span></td>
+                            <td>
+                                <span th:with="s=${d.status}" 
+                                      th:class="'status-badge-vip ' + (${s == 'Tốt' ? 'badge-done' : 'badge-pending'})"
+                                      th:text="${s}"></span>
                             </td>
                             <td>
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold" style="font-size: 0.7rem;" th:text="${d.device_code}"></span>
-                            </td>
-                            <td>
-                                <span class="device-id-badge" th:text="${d.id}">#ID</span>
-                            </td>
-                            <td>
-                                <div th:with="s=${d.status}" 
-                                     class="badge rounded-pill px-3 py-2 fw-bold"
-                                     th:classappend="${s == 'Tốt' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'}"
-                                     th:text="${s}">Trạng thái</div>
-                            </td>
-                            <td>
-                                <div class="text-muted" th:if="${d.last_check != null}">
-                                    <i class="far fa-clock me-1"></i>
-                                    <span th:text="${#strings.replace(d.last_check, 'T', ' ').substring(0, 16)}"></span>
+                                <div class="text-muted small" th:if="${d.last_check != null}">
+                                    <i class="far fa-clock me-1"></i> <span class="format-date-full" th:text="${d.last_check}"></span>
                                 </div>
                                 <div class="text-danger small fw-bold" th:unless="${d.last_check != null}">
-                                    <i class="fas fa-exclamation-triangle me-1"></i> Chưa từng quét
+                                    <i class="fas fa-times me-1"></i> Chưa quét
                                 </div>
                             </td>
                             <td class="text-center">
-                                <span th:if="${d.is_checked}" class="status-pill pill-checked">
-                                    <i class="fas fa-check-circle"></i> ĐÃ KIỂM KÊ
+                                <span th:class="'status-pill-vip ' + (${d.is_checked} ? 'pill-done' : 'pill-warn')">
+                                    <i th:class="${d.is_checked} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                                    [[${d.is_checked} ? 'Đã kiểm' : 'Chưa kiểm']]
                                 </span>
-                                <span th:unless="${d.is_checked}" class="status-pill pill-missing">
-                                    <i class="fas fa-times-circle"></i> CHƯA KIỂM KÊ
-                                </span>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(details)}">
-                            <td colspan="6" class="text-center text-muted py-5">
-                                <div class="py-4">
-                                    <i class="fas fa-box-open fa-3x opacity-20 mb-3"></i>
-                                    <p class="mb-0">Phòng này hiện chưa có thiết bị nào trong hệ thống.</p>
-                                </div>
                             </td>
                         </tr>
                     </tbody>

@@ -64,8 +64,25 @@ function filterDevices() {
             (cat === "" || (item.dataset.category || '').toLowerCase().includes(cat)) &&
             (status === "" || (item.dataset.status || '').toLowerCase() === status);
 
-        item.classList.toggle('d-none', !matches);
-        if (tableRows[index]) tableRows[index].classList.toggle('d-none', !matches);
+        if (!matches) {
+            item.classList.add('d-none');
+            item.classList.remove('fade-in-scale');
+        } else {
+            if (item.classList.contains('d-none')) {
+                item.classList.remove('d-none');
+                // Force reflow
+                void item.offsetWidth;
+                item.classList.add('fade-in-scale');
+            }
+        }
+        
+        if (tableRows[index]) {
+            if (!matches) {
+                tableRows[index].classList.add('d-none');
+            } else {
+                tableRows[index].classList.remove('d-none');
+            }
+        }
         
         if (matches) {
             const qty = parseInt(item.dataset.quantity || 0);
@@ -95,17 +112,29 @@ function switchView(mode) {
     if (mode === 'table') {
         gridEl.style.display = 'none';
         tableEl.style.display = 'block';
-        btnGrid.style.background = '#f1f5f9';
+        
+        btnGrid.style.background = 'transparent';
         btnGrid.style.color = '#64748b';
-        btnTable.style.background = '#6366f1';
+        btnGrid.style.boxShadow = 'none';
+        btnGrid.style.transform = 'none';
+        
+        btnTable.style.background = 'var(--primary-gradient, linear-gradient(135deg, var(--primary), #008080))';
         btnTable.style.color = 'white';
+        btnTable.style.boxShadow = '0 4px 10px rgba(15, 118, 110, 0.2)';
+        btnTable.style.transform = 'translateY(-1px)';
     } else {
         gridEl.style.display = '';
         tableEl.style.display = 'none';
-        btnGrid.style.background = '#6366f1';
+        
+        btnGrid.style.background = 'var(--primary-gradient, linear-gradient(135deg, var(--primary), #008080))';
         btnGrid.style.color = 'white';
-        btnTable.style.background = '#f1f5f9';
+        btnGrid.style.boxShadow = '0 4px 10px rgba(15, 118, 110, 0.2)';
+        btnGrid.style.transform = 'translateY(-1px)';
+        
+        btnTable.style.background = 'transparent';
         btnTable.style.color = '#64748b';
+        btnTable.style.boxShadow = 'none';
+        btnTable.style.transform = 'none';
     }
 }
 

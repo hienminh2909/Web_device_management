@@ -21,14 +21,49 @@ class RequestController(
 ) {
 
     @GetMapping("/export")
-    fun exportRequests(session: HttpSession, response: jakarta.servlet.http.HttpServletResponse) {
+    fun exportRequests(
+        @RequestParam(required = false) tab: String?,
+        @RequestParam(required = false) status: String?,
+        @RequestParam(required = false) search: String?,
+        session: HttpSession, 
+        response: jakarta.servlet.http.HttpServletResponse
+    ) {
         val token = session.getAttribute("token") as String? ?: return
         val role = session.getAttribute("role")?.toString()?.lowercase() ?: ""
         
-        val requests = if (role == "admin") {
+        var requests = if (role == "admin") {
             requestService.getAllRequests(token)
         } else {
             requestService.getMyRequests(token)
+        }
+
+        val mainTab = tab ?: "REPORT"
+        val filterStatus = status ?: "all"
+        val searchQuery = search?.lowercase() ?: ""
+
+        requests = requests.filter { req ->
+            val reqType = req.request_type ?: "REPORT"
+            val reqStatus = if (req.status_resolve.isNullOrEmpty() || req.status_resolve == "pending") "pending" else req.status_resolve
+            
+            var show = true
+            if (mainTab == "REPORT") {
+                if (reqType != "REPORT") show = false
+            } else {
+                if (reqType == "REPORT") show = false
+            }
+
+            if (filterStatus != "all" && reqStatus != filterStatus) show = false
+            
+            if (searchQuery.isNotEmpty()) {
+                val devName = req.devices?.device_name?.lowercase() ?: (req.update_payload?.get("device_name") as? String)?.lowercase() ?: ""
+                val devCode = req.devices?.device_code?.lowercase() ?: (req.update_payload?.get("device_code") as? String)?.lowercase() ?: ""
+                val roomName = req.devices?.rooms?.room_name?.lowercase() ?: (req.update_payload?.get("room_name") as? String)?.lowercase() ?: ""
+                
+                if (!devName.contains(searchQuery) && !devCode.contains(searchQuery) && !roomName.contains(searchQuery)) {
+                    show = false
+                }
+            }
+            show
         }
         
         requestExportService.exportToExcel(requests, response)

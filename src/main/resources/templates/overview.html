@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="content">
 <style>
-    /* ===== LIGHT VIP DASHBOARD (7-CARD EDITION) ===== */
+    /* ===== VIP PRO OVERVIEW V2 - ASYNC LOADING ===== */
     .overview-wrapper {
         padding: 0;
-        animation: dashboardFadeIn 0.6s ease-out;
-        color: #1e293b;
+        animation: dashboardFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        color: var(--text-main);
     }
 
     @keyframes dashboardFadeIn {
@@ -15,273 +13,425 @@
     }
 
     /* --- Hero Banner --- */
-    .hero-banner-light {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-radius: 28px;
-        padding: 35px 40px;
-        margin-bottom: 25px;
+    .hero-banner-vip {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.8) 100%);
+        backdrop-filter: blur(20px);
+        border-radius: 32px;
+        padding: 40px 50px;
+        margin-bottom: 30px;
         position: relative;
         overflow: hidden;
-        color: white;
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        border: var(--glass-border);
+        box-shadow: var(--shadow-md);
     }
     
-    .hero-title-light { font-size: 2rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 8px; }
-
-    /* --- Bento Grid Adaptive --- */
-    .bento-grid-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
+    .hero-banner-vip::before {
+        content: ''; position: absolute; right: -50px; top: -100px;
+        width: 300px; height: 300px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(15,118,110,0.1) 0%, transparent 70%);
+        z-index: 0; pointer-events: none;
     }
 
-    .bento-card-light {
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        border: 1px solid #f1f5f9;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s;
+    .hero-title-vip { 
+        font-family: var(--font-display);
+        font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; 
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* --- Bento Grid Stats --- */
+    .bento-grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .bento-card-vip {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 24px;
+        border: var(--glass-border);
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 140px;
+        min-height: 160px;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
     }
 
-    .bento-card-light:hover {
+    .bento-card-vip:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
-        border-color: #e2e8f0;
+        box-shadow: var(--shadow-lg);
+        background: #ffffff !important;
     }
-
-    .bento-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 
     .bento-icon-box {
-        width: 42px; height: 42px; border-radius: 12px;
+        width: 48px; height: 48px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
     }
 
-    .bento-value { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1; margin: 10px 0 4px 0; }
-    .bento-label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
-    .bento-trend { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-
-    .bg-light-indigo { background: #eef2ff; color: #4f46e5; }
-    .bg-light-emerald { background: #ecfdf5; color: #10b981; }
-    .bg-light-rose { background: #fff1f2; color: #f43f5e; }
-    .bg-light-amber { background: #fffbeb; color: #f59e0b; }
-    .bg-light-cyan { background: #ecfeff; color: #0891b2; }
-    .bg-light-purple { background: #f5f3ff; color: #8b5cf6; }
-    .bg-light-blue { background: #eff6ff; color: #3b82f6; }
-
-    /* --- Quick Nav --- */
-    .quick-nav-container {
-        background: white; border-radius: 24px; padding: 25px;
-        border: 1px solid #f1f5f9; margin-bottom: 25px;
+    .bento-value { 
+        font-family: var(--font-mono);
+        font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin: 15px 0 6px 0; 
+        letter-spacing: -1px;
+    }
+    .bento-label { 
+        font-size: 0.7rem; font-weight: 800; color: #94a3b8; 
+        text-transform: uppercase; letter-spacing: 1px; 
+    }
+    .bento-trend { 
+        font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 8px;
+        text-transform: uppercase; letter-spacing: 0.5px;
     }
 
-    .quick-nav-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 15px; margin-top: 15px;
-    }
+    /* Colors */
+    .stat-indigo { color: #6366f1; background: #e0e7ff !important; }
+    .stat-emerald { color: #10b981; background: #d1fae5 !important; }
+    .stat-rose { color: #e11d48; background: #ffe4e6 !important; }
+    .stat-amber { color: #d97706; background: #fef3c7 !important; }
+    .stat-cyan { color: #0891b2; background: #cffafe !important; }
 
-    .quick-nav-item {
-        display: flex; align-items: center; gap: 12px;
-        padding: 12px 16px; border-radius: 14px;
-        background: #f8fafc; color: #1e293b;
-        text-decoration: none; font-weight: 700; font-size: 0.8rem;
-        transition: all 0.2s; border: 1px solid transparent;
+    /* --- Skeleton Loading Animation --- */
+    .skeleton {
+        background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+        border-radius: 4px;
+        display: inline-block;
     }
-
-    .quick-nav-item:hover {
-        background: white; border-color: #4f46e5; color: #4f46e5;
-        box-shadow: 0 8px 12px -3px rgba(79, 70, 229, 0.1);
-        transform: translateY(-2px);
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
     }
+    .skeleton-text { height: 1.2rem; width: 60%; }
+    .skeleton-value { height: 2rem; width: 40%; margin-top: 10px; }
+    .skeleton-circle { height: 40px; width: 40px; border-radius: 50%; }
 
-    /* --- Chart Bento --- */
-    .grid-charts {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-
+    /* --- Charts --- */
     .chart-card {
-        background: white; border-radius: 24px; padding: 25px;
-        border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 24px;
+        border: var(--glass-border);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 24px; height: 100%;
     }
 
-    .chart-note {
-        font-size: 0.75rem; color: #64748b; background: #f8fafc;
-        padding: 10px 15px; border-radius: 12px; margin-top: 15px;
-        border-left: 3px solid #4f46e5;
+    .activity-container {
+        background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 24px;
+        border: var(--glass-border);
+        box-shadow: var(--shadow-sm);
+        height: 100%;
     }
 
-    .status-legend {
-        display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;
+    .activity-item {
+        display: flex; gap: 15px; padding: 15px 0;
+        border-bottom: 1px dashed #e2e8f0;
     }
-    .legend-item {
-        display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: #475569;
-    }
-    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .activity-item:last-child { border-bottom: none; }
 
-    @media (max-width: 992px) { .grid-charts { grid-template-columns: 1fr; } }
+    .activity-dot {
+        width: 10px; height: 10px; border-radius: 50%; margin-top: 6px;
+        flex-shrink: 0; box-shadow: 0 0 0 4px rgba(255,255,255,0.8);
+    }
+
+    .activity-content { flex-grow: 1; }
+    .activity-time { font-size: 0.7rem; color: #94a3b8; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+    .activity-text { font-size: 0.85rem; color: var(--text-main); font-weight: 600; }
+
+    .asset-box {
+        background: #ffffff; border-radius: 16px; padding: 16px 24px;
+        border: 1px solid #e2e8f0; box-shadow: var(--shadow-sm);
+        display: inline-flex; align-items: center; gap: 16px;
+    }
+
+    .quick-nav-container {
+        background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 24px;
+        border: var(--glass-border); margin-bottom: 30px;
+        box-shadow: var(--shadow-sm);
+    }
+    .action-card {
+        background: rgba(255, 255, 255, 0.7); border-radius: 20px; padding: 12px 20px;
+        border: 1px solid rgba(255,255,255,0.8);
+        display: flex; align-items: center; gap: 12px;
+        text-decoration: none; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-sm);
+    }
+    .action-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: var(--shadow-md); border-color: var(--primary); background: #fff; }
+    .action-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
+    .action-label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
 </style>
 
 <div class="overview-wrapper">
-
     <!-- HERO SECTION -->
-    <div class="hero-banner-light">
-        <h1 class="hero-title-light">Chào mừng trở lại, <span th:text="${session.name}">Admin</span>!</h1>
-        <p class="hero-subtitle-light" style="margin-bottom: 0; opacity: 0.8;">Hệ thống đang hoạt động ổn định. Dưới đây là các chỉ số vận hành chi tiết.</p>
+    <div class="hero-banner-vip">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="hero-title-vip">Xin chào, <span th:text="${session.name}">User</span></h1>
+                <p class="hero-subtitle-vip m-0">
+                    Hệ thống quản trị tài sản & thiết bị thông minh. 
+                    <span id="pendingRequestsText">Đang tải dữ liệu...</span>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                <div class="asset-box">
+                    <div class="text-end">
+                        <div class="bento-label mb-1">GIÁ TRỊ TÀI SẢN (VNĐ)</div>
+                        <div class="fw-bold" id="totalAssetValue" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--primary);">0</div>
+                    </div>
+                    <div class="bento-icon-box stat-amber" style="width: 40px; height: 40px;"><i class="fas fa-coins"></i></div>
+                </div>
+            </div>
+
+    <!-- QUICK NAVIGATION BAR - MOVED UP -->
+    <div class="d-flex flex-wrap gap-3 mt-4">
+        <a href="/devices/list?openAdd=true" class="action-card">
+            <div class="action-icon" style="color: #4f46e5;"><i class="fas fa-plus"></i></div>
+            <span class="action-label">Thêm thiết bị</span>
+        </a>
+        <a href="/requests" class="action-card">
+            <div class="action-icon" style="color: #f59e0b;"><i class="fas fa-clipboard-check"></i></div>
+            <span class="action-label">Duyệt yêu cầu</span>
+        </a>
+        <a href="/inventory/progress" class="action-card">
+            <div class="action-icon" style="color: #10b981;"><i class="fas fa-qrcode"></i></div>
+            <span class="action-label">Kiểm kê nhanh</span>
+        </a>
+        <a href="/reports" class="action-card">
+            <div class="action-icon" style="color: #0ea5e9;"><i class="fas fa-file-invoice"></i></div>
+            <span class="action-label">Xuất báo cáo</span>
+        </a>
+    </div>
+        </div>
     </div>
 
-    <!-- 7 CORE STATS -->
+    <!-- 7 BENTO STATS -->
     <div class="bento-grid-stats">
-        <!-- 1. TỔNG THIẾT BỊ -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-indigo"><i class="fas fa-boxes-stacked"></i></div>
-                <span class="bento-trend bg-light-indigo">Tất cả</span>
+        <!-- Totals -->
+        <div class="bento-card-vip" id="stat-total">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-indigo"><i class="fas fa-boxes-stacked"></i></div>
+                <span class="bento-trend stat-indigo">Global</span>
             </div>
-            <div>
+            <div class="mt-3">
                 <div class="bento-label">Tổng thiết bị</div>
-                <div class="bento-value">[[${totalDevices}]]</div>
+                <div class="bento-value"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
-
-        <!-- 2. PHÒNG HỌC -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-purple"><i class="fas fa-door-open"></i></div>
-                <span class="bento-trend bg-light-purple">Khu vực</span>
+        <div class="bento-card-vip" id="stat-rooms">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-indigo"><i class="fas fa-door-open"></i></div>
+                <span class="bento-trend stat-indigo">Areas</span>
             </div>
-            <div>
-                <div class="bento-label">Phòng học</div>
-                <div class="bento-value">[[${roomCount}]]</div>
+            <div class="mt-3">
+                <div class="bento-label">Phòng ban</div>
+                <div class="bento-value"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
-
-        <!-- 3. THÀNH VIÊN -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-blue"><i class="fas fa-users"></i></div>
-                <span class="bento-trend bg-light-blue">Nhân sự</span>
+        <div class="bento-card-vip" id="stat-users">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-cyan"><i class="fas fa-users"></i></div>
+                <span class="bento-trend stat-cyan">Staff</span>
             </div>
-            <div>
-                <div class="bento-label">Thành viên</div>
-                <div class="bento-value">[[${userCount}]]</div>
+            <div class="mt-3">
+                <div class="bento-label">Nhân sự</div>
+                <div class="bento-value"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
-
-        <!-- 4. TỐT -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-emerald"><i class="fas fa-check-circle"></i></div>
-                <span class="bento-trend bg-light-emerald">Sẵn sàng</span>
+        <!-- Statuses -->
+        <div class="bento-card-vip" id="stat-good">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-emerald"><i class="fas fa-check-circle"></i></div>
+                <span class="bento-trend stat-emerald">Active</span>
             </div>
-            <div>
-                <div class="bento-label">Thiết bị Tốt</div>
-                <div class="bento-value" style="color: #10b981;">[[${availableCount}]]</div>
-            </div>
-        </div>
-
-        <!-- 5. HỎNG -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-rose"><i class="fas fa-times-circle"></i></div>
-                <span class="bento-trend bg-light-rose">Cần xử lý</span>
-            </div>
-            <div>
-                <div class="bento-label">Thiết bị Hỏng</div>
-                <div class="bento-value" style="color: #f43f5e;">[[${brokenCount}]]</div>
+            <div class="mt-3">
+                <div class="bento-label">Hoạt động tốt</div>
+                <div class="bento-value" style="color: #059669;"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
-
-        <!-- 6. CẦN BẢO TRÌ -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-amber"><i class="fas fa-tools"></i></div>
-                <span class="bento-trend bg-light-amber">Chờ bảo trì</span>
+        <div class="bento-card-vip" id="stat-broken">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-rose"><i class="fas fa-times-circle"></i></div>
+                <span class="bento-trend stat-rose">Alert</span>
             </div>
-            <div>
+            <div class="mt-3">
+                <div class="bento-label">Thiết bị hỏng</div>
+                <div class="bento-value" style="color: #e11d48;"><span class="skeleton skeleton-value"></span></div>
+            </div>
+        </div>
+        <div class="bento-card-vip" id="stat-maintain">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-amber"><i class="fas fa-tools"></i></div>
+                <span class="bento-trend stat-amber">Maintain</span>
+            </div>
+            <div class="mt-3">
                 <div class="bento-label">Cần bảo trì</div>
-                <div class="bento-value" style="color: #f59e0b;">[[${needMaintainCount}]]</div>
+                <div class="bento-value" style="color: #d97706;"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
-
-        <!-- 7. ĐANG BẢO TRÌ -->
-        <div class="bento-card-light">
-            <div class="bento-header">
-                <div class="bento-icon-box bg-light-cyan"><i class="fas fa-cog fa-spin"></i></div>
-                <span class="bento-trend bg-light-cyan">Đang xử lý</span>
+        <div class="bento-card-vip" id="stat-progress">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="bento-icon-box stat-cyan"><i class="fas fa-cog fa-spin"></i></div>
+                <span class="bento-trend stat-cyan">Progress</span>
             </div>
-            <div>
+            <div class="mt-3">
                 <div class="bento-label">Đang bảo trì</div>
-                <div class="bento-value" style="color: #0891b2;">[[${maintainingCount}]]</div>
+                <div class="bento-value" style="color: #0891b2;"><span class="skeleton skeleton-value"></span></div>
             </div>
         </div>
     </div>
 
-    <!-- QUICK NAVIGATION -->
-    <div class="quick-nav-container">
-        <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-paper-plane text-primary"></i>
-            <span class="fw-800 text-uppercase small letter-spacing-1" style="color: #64748b;">Chuyển hướng nhanh</span>
-        </div>
-        <div class="quick-nav-grid">
-            <a href="/devices/list" class="quick-nav-item"><i class="fas fa-laptop text-primary"></i> Thiết bị</a>
-            <a href="/inventory/progress" class="quick-nav-item"><i class="fas fa-qrcode text-success"></i> Kiểm kê</a>
-            <a href="/requests" class="quick-nav-item"><i class="fas fa-clipboard-check text-warning"></i> Yêu cầu</a>
-            <a href="/users" class="quick-nav-item" th:if="${session.role == 'admin'}"><i class="fas fa-user-group text-info"></i> Thành viên</a>
-            <a href="/reports" class="quick-nav-item"><i class="fas fa-chart-pie text-danger"></i> Báo cáo</a>
-        </div>
-    </div>
-
-    <!-- CHARTS GRID -->
-    <div class="grid-charts">
-        <div class="chart-card">
-            <div class="bento-label mb-3">Phân tích tình trạng</div>
-            <div class="status-legend mb-4">
-                <div class="legend-item"><div class="dot" style="background: #10b981;"></div> Tốt</div>
-                <div class="legend-item"><div class="dot" style="background: #f43f5e;"></div> Hỏng</div>
-                <div class="legend-item"><div class="dot" style="background: #f59e0b;"></div> Cần bảo trì</div>
-                <div class="legend-item"><div class="dot" style="background: #0891b2;"></div> Đang bảo trì</div>
-            </div>
-            <div class="row align-items-center">
-                <div class="col-sm-6">
-                    <canvas id="statusDonutChart" style="max-height: 180px;"></canvas>
-                </div>
-                <div class="col-sm-6">
-                    <div class="d-flex flex-column gap-2">
-                        <div class="small d-flex justify-content-between"><span class="text-muted">Tổng tài sản:</span> <span class="fw-800">[[${totalDevices}]]</span></div>
-                        <div class="small d-flex justify-content-between"><span class="text-muted">Tổng giá trị:</span> <span class="fw-bold text-primary">[[${#numbers.formatDecimal(totalValue ?: 0, 0, 'COMMA', 0, 'POINT')}]] ₫</span></div>
+    <div class="row g-4 mb-4">
+        <!-- CHARTS SECTION -->
+        <div class="col-xl-8">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="bento-label mb-3">Tỷ trọng trạng thái</div>
+                        <div class="chart-container" style="position: relative; height: 250px;">
+                            <canvas id="statusDonutChart"></canvas>
+                        </div>
                     </div>
-                    <div class="chart-note">
-                        <i class="fas fa-info-circle me-1"></i> Tình trạng được cập nhật dựa trên báo cáo mới nhất.
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="bento-label mb-4">Phân bổ theo phòng ban</div>
+                        <div class="chart-container" style="position: relative; height: 250px;">
+                            <canvas id="roomBarChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- INVENTORY PROGRESS CHART -->
+            <div class="chart-card mt-4">
+                <div class="bento-label mb-4">Tiến độ kiểm kê (6 tháng gần đây)</div>
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="inventoryProgressChart"></canvas>
+                </div>
+            </div>
+
         </div>
 
-        <div class="chart-card">
-            <div class="bento-label mb-4">Phân bổ theo phòng</div>
-            <canvas id="roomBarChart" style="max-height: 180px;"></canvas>
-            <div class="chart-note">
-                <i class="fas fa-chart-bar me-1"></i> Hiển thị số lượng thiết bị tại các khu vực.
+        <!-- RECENT ACTIVITY SECTION -->
+        <div class="col-xl-4">
+            <div class="activity-container">
+                <div class="bento-label mb-4">HOẠT ĐỘNG GẦN ĐÂY</div>
+                <div class="activity-list" id="activityList">
+                    <!-- Skeleton Activity -->
+                    <div class="activity-item"><div class="skeleton skeleton-circle"></div><div class="activity-content"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 80%;"></div></div></div>
+                    <div class="activity-item"><div class="skeleton skeleton-circle"></div><div class="activity-content"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 80%;"></div></div></div>
+                </div>
+                <a href="/reports" class="btn btn-light w-100 mt-4 fw-bold small" style="border-radius: 12px; color: var(--primary);">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
         </div>
     </div>
-
 </div>
 
-<script th:inline="javascript">
-    window.chartDataFromServer = [[${chartData}]] || [0, 0, 0, 0, 0];
-    window.roomLabelsFromServer = [[${roomLabels}]] || [];
-    window.roomDataFromServer = [[${roomData}]] || [];
+<script>
+    (function() {
+        async function fetchQuickStats() {
+            try {
+                const res = await fetch('/api/dashboard/quick-stats');
+                if (!res.ok) return;
+                const stats = await res.json();
+                
+                document.querySelector('#stat-total .bento-value').innerText = stats.total || 0;
+                document.querySelector('#stat-rooms .bento-value').innerText = stats.roomLabels?.length || 0;
+                document.querySelector('#stat-users .bento-value').innerText = stats.userCount || 0;
+                document.querySelector('#stat-good .bento-value').innerText = stats.available || 0;
+                document.querySelector('#stat-broken .bento-value').innerText = stats.broken || 0;
+                document.querySelector('#stat-maintain .bento-value').innerText = stats.needMaintain || 0;
+                document.querySelector('#stat-progress .bento-value').innerText = stats.maintaining || stats.maintainingCount || 0;
+                
+                if (stats.totalValue) {
+                    document.getElementById('totalAssetValue').innerText = stats.totalValue.toLocaleString('vi-VN');
+                }
+
+                window.chartDataFromServer = [stats.available || 0, stats.broken || 0, stats.needMaintain || 0, stats.maintaining || stats.maintainingCount || 0, stats.other || 0];
+                window.roomLabelsFromServer = stats.roomLabels || [];
+                window.roomDataFromServer = stats.roomData || [];
+
+                if (window.initDashboardCharts) window.initDashboardCharts();
+            } catch (e) { console.error("Stats Error:", e); }
+        }
+
+        async function fetchRecentActivity() {
+            try {
+                const res = await fetch('/api/dashboard/recent-activity');
+                if (!res.ok) return;
+                const activities = await res.json();
+                renderActivities(activities);
+            } catch (e) { console.error("Activity Error:", e); }
+        }
+
+        async function fetchInventoryHistory() {
+            try {
+                const res = await fetch('/api/dashboard/inventory-history?months=6');
+                if (!res.ok) return;
+                const history = await res.json();
+                window.inventoryLabels = history.labels || [];
+                window.inventoryTotal = history.total || [];
+                window.inventoryChecked = history.checked || [];
+                if (window.initDashboardCharts) window.initDashboardCharts();
+            } catch (e) { console.error("History Error:", e); }
+        }
+
+        async function fetchPendingRequests() {
+            try {
+                const res = await fetch('/api/dashboard/pending-requests-count');
+                if (!res.ok) return;
+                const data = await res.json();
+                const count = data.count || 0;
+                const el = document.getElementById('pendingRequestsText');
+                if (el) el.innerHTML = `Bạn có <span class="fw-bold text-danger">${count}</span> yêu cầu cần duyệt.`;
+            } catch (e) { console.error("Requests Error:", e); }
+        }
+
+        function renderActivities(list) {
+            const container = document.getElementById('activityList');
+            if (!container) return;
+            if (!list || list.length === 0) {
+                container.innerHTML = `<div class="text-center py-5 opacity-50"><p class="small fw-bold">Chưa có hoạt động</p></div>`;
+                return;
+            }
+            container.innerHTML = list.slice(0, 8).map(act => {
+                const color = act.type === 'report' ? '#e11d48' : (act.type === 'inventory' ? '#10b981' : '#0ea5e9');
+                const text = act.content || act.description || act.title || 'Hoạt động mới';
+                const time = act.time || act.created_at || 'Vừa xong';
+                return `
+                    <div class="activity-item">
+                        <div class="activity-dot" style="background: ${color}"></div>
+                        <div class="activity-content">
+                            <div class="activity-time">${time}</div>
+                            <div class="activity-text">${text}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function init() {
+            fetchQuickStats();
+            fetchRecentActivity();
+            fetchInventoryHistory();
+            fetchPendingRequests();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
 </script>
 <script th:src="@{/js/dashboard-charts.js}"></script>
 </div>
-</html>
+

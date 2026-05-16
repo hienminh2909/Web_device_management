@@ -16,6 +16,12 @@ class DeviceRegisterService(
     private val userService: UserService,
     private val emailService: EmailService
 ) {
+    private fun normalizeName(name: String?): String {
+        if (name.isNullOrBlank()) return ""
+        return name.trim().split(" ")
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
+    }
 
     private val fastApiUrl = "http://127.0.0.1:8000/api/devices"
 
@@ -31,7 +37,10 @@ class DeviceRegisterService(
             headers.set("Authorization", formattedToken)
         }
 
-        val entity = HttpEntity(request, headers)
+        val normalizedRequest = request.copy(
+            device_name = normalizeName(request.device_name)
+        )
+        val entity = HttpEntity(normalizedRequest, headers)
         return try {
             val response = restTemplate.postForEntity(fastApiUrl, entity, Map::class.java)
             println(">>> DEVICE REGISTER SERVICE: Success - HTTP ${response.statusCode}")
@@ -104,7 +113,7 @@ class DeviceRegisterService(
 
                 // SỬ DỤNG HÀM getCellValueAsString Ở ĐÂY
                 val deviceRequest = DeviceRegisterRequest(
-                    device_name = getCellValueAsString(row.getCell(0)),
+                    device_name = normalizeName(getCellValueAsString(row.getCell(0))),
                     room_name = getCellValueAsString(row.getCell(1)),
                     category_name = getCellValueAsString(row.getCell(2)),
                     status = getCellValueAsString(row.getCell(3)),
@@ -127,13 +136,52 @@ class DeviceRegisterService(
     // Giai đoạn 1: Kiểm tra dữ liệu (Validate)
     fun validateExcel(file: MultipartFile, token: String?): Any? {
         val url = "http://127.0.0.1:8000/api/devices/validate"
-        return forwardMultipartRequest(url, file, token, null)
+        val normalizedFile = normalizeExcelFile(file)
+        return forwardMultipartRequest(url, normalizedFile, token, null)
     }
 
     // Giai đoạn 2: Thực thi nhập kho (Execute)
     fun executeImportExcel(file: MultipartFile, token: String?): Any? {
         val url = "http://127.0.0.1:8000/api/devices/import"
-        return forwardMultipartRequest(url, file, token, null)
+        val normalizedFile = normalizeExcelFile(file)
+        return forwardMultipartRequest(url, normalizedFile, token, null)
+    }
+
+    private fun normalizeExcelFile(file: MultipartFile): MultipartFile {
+        return try {
+            val workbook = XSSFWorkbook(file.inputStream)
+            val sheet = workbook.getSheetAt(0)
+            
+            // Normalize column 0 (Device Name) for all data rows
+            for (i in 1..sheet.lastRowNum) {
+                val row = sheet.getRow(i) ?: continue
+                val cell = row.getCell(0) ?: continue
+                val originalName = getCellValueAsString(cell)
+                if (originalName.isNotBlank()) {
+                    cell.setCellValue(normalizeName(originalName))
+                }
+            }
+            
+            val bos = java.io.ByteArrayOutputStream()
+            workbook.write(bos)
+            val bytes = bos.toByteArray()
+            workbook.close()
+            
+            // Return a wrapper that acts like a MultipartFile
+            object : MultipartFile {
+                override fun getName(): String = file.name
+                override fun getOriginalFilename(): String? = file.originalFilename
+                override fun getContentType(): String? = file.contentType
+                override fun isEmpty(): Boolean = bytes.isEmpty()
+                override fun getSize(): Long = bytes.size.toLong()
+                override fun getBytes(): ByteArray = bytes
+                override fun getInputStream(): java.io.InputStream = java.io.ByteArrayInputStream(bytes)
+                override fun transferTo(dest: java.io.File) = java.nio.file.Files.write(dest.toPath(), bytes).let { }
+            }
+        } catch (e: Exception) {
+            println(">>> ERROR normalizing Excel: ${e.message}")
+            file // Fallback to original if error
+        }
     }
 
     // Hàm dùng chung để forward file tới FastAPI

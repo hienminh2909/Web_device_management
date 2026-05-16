@@ -5,97 +5,283 @@
         console.log(">>> SYSTEM: Initialized with Role =", window.userRole);
     </script>
     <style>
-        /* ===== VIP DEVICE LIST STYLES ===== */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
+        /* ===== VIP PRO DEVICE LIST STYLES ===== */
         .device-wrapper {
-            font-family: 'Inter', sans-serif;
-            animation: fadeIn 0.4s ease-out;
+            font-family: var(--font-body);
+            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: var(--text-main);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- Header & Buttons --- */
         .page-header {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 20px;
-            padding: 24px 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            border: 1px solid rgba(0,0,0,0.04);
-            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px 40px;
+            border: var(--glass-border);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-header h2 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
         }
         
         .btn-vip {
-            border-radius: 12px;
-            font-weight: 600;
-            padding: 10px 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px;
+            font-weight: 800;
+            padding: 12px 24px;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
             border: none;
         }
-        
-        .btn-vip:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
 
-        .btn-add { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
-        .btn-import { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-        .btn-export { background: white; color: #059669; border: 1.5px solid #10b981; }
-        .btn-export:hover { background: #f0fdf4; }
+        .btn-add { background: var(--primary-gradient); color: #fff; box-shadow: 0 8px 15px rgba(15, 118, 110, 0.2); }
+        .btn-add:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(15, 118, 110, 0.3); color: #fff; }
+        
+        .btn-import { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
+        .btn-import:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3); color: #fff; }
+
+        .btn-export { background: #f1f5f9; color: var(--text-main); border: 1px solid #e2e8f0; }
+        .btn-export:hover { background: #e2e8f0; transform: translateY(-2px); }
 
         .total-badge {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            color: white;
-            padding: 12px 24px;
+            background: #f8fafc;
+            color: var(--text-main);
+            padding: 15px 30px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
-            text-align: right;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
         /* --- Filter Section --- */
         .filter-section {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-            border: 1px solid rgba(0,0,0,0.05);
-            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            padding: 24px;
+            border: var(--glass-border, 1px solid rgba(255,255,255,0.8));
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02), inset 0 2px 4px rgba(255,255,255,0.5);
+            backdrop-filter: blur(20px);
         }
 
         .filter-input {
-            background: #f1f5f9;
-            border: 1px solid transparent;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #334155;
-            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 16px !important;
+            padding: 14px 20px !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            color: var(--text-main) !important;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
         }
 
         .filter-input:focus {
-            background: #ffffff;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            outline: none;
+            background: #ffffff !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1) !important;
+            outline: none !important;
+            transform: translateY(-2px);
         }
 
         .input-group-text.search-icon {
-            background: #f1f5f9;
-            border: none;
-            border-radius: 10px 0 0 10px;
-            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-right: none !important;
+            border-radius: 16px 0 0 16px !important;
+            color: #94a3b8 !important;
+            padding-left: 20px !important;
         }
 
-        #searchInput { border-radius: 0 10px 10px 0; border-left: none; }
+        #searchInput { border-radius: 0 16px 16px 0 !important; border-left: none !important; }
+
+        /* ===== VIP PRO CARD STYLES ===== */
+        .card-device {
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            border-radius: 28px !important;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03), inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+            overflow: hidden;
+            z-index: 1;
+        }
         
+        .card-device::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .card-device:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(15, 118, 110, 0.08), inset 0 2px 4px rgba(255, 255, 255, 1) !important;
+            border-color: rgba(15, 118, 110, 0.2) !important;
+        }
+
+        .quantity-badge {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white !important;
+        }
+        
+        .status-tot { background: linear-gradient(135deg, #10b981, #059669) !important; }
+        .status-hong { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
+        .status-baotri { background: linear-gradient(135deg, #f59e0b, #d97706) !important; }
+        .status-khac { background: linear-gradient(135deg, #64748b, #475569) !important; }
+
+        .device-image-container {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.3) 100%);
+            padding: 40px 30px 20px;
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Subtle glow behind image */
+        .device-image-container::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(15, 118, 110, 0.05);
+            filter: blur(40px);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .device-image-container img {
+            height: 170px;
+            width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.08));
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-device:hover .device-image-container img {
+            transform: scale(1.08) translateY(-5px);
+        }
+
+        .device-code-badge {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 10px;
+            background-color: rgba(15, 118, 110, 0.05);
+            border: 1px solid rgba(15, 118, 110, 0.1);
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        
+        .card-device:hover .info-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(15, 118, 110, 0.1);
+        }
+        
+        .info-item.full-width {
+            grid-column: span 2;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(248,250,252,0.6));
+        }
+
+        .info-label { color: #64748b !important; font-size: 0.65rem !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .info-value { color: var(--text-main) !important; font-size: 0.9rem !important; font-weight: 800; }
+        .info-item.full-width .info-label { margin-bottom: 0; }
+        .info-item.full-width .info-value { font-size: 1.1rem !important; }
+
+        /* ===== TABLE VIEW ===== */
+        .table-device th { 
+            background: #f8fafc !important;
+            color: #64748b !important; 
+            font-size: 0.75rem !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            font-family: var(--font-body);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 16px !important;
+        }
+        .table-device td { border-bottom: 1px solid #f1f5f9 !important; vertical-align: middle; padding: 16px !important; }
+        .table-device tbody tr:hover { background: #f8fafc !important; }
+
+        /* Modals VIP */
+        .modal-content { background: #ffffff !important; border: var(--glass-border) !important; border-radius: 28px !important; box-shadow: var(--shadow-floating) !important; }
+        .modal-header { border-bottom: 1px solid #e2e8f0 !important; padding: 25px 30px !important; }
+        .modal-footer { border-top: 1px solid #e2e8f0 !important; background: #f8fafc !important; padding: 20px 30px !important; }
+        .bg-light { background-color: #f8fafc !important; }
     </style>
 
 
@@ -103,19 +289,19 @@
         <!-- ====== PAGE HEADER ====== -->
         <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-4">
             <div>
-                <h2 class="fw-bold m-0" style="color: #0f172a; letter-spacing: -1px;">Kho Thiết Bị</h2>
-                <p class="text-muted mb-0 mt-1" style="font-size: 0.9rem;">Quản lý tập trung mọi tài sản phần cứng</p>
+                <h2 class="fw-bold m-0" style="letter-spacing: -1px;">KHO THIẾT BỊ</h2>
+                <p class="text-muted mb-0 mt-1" style="font-size: 0.9rem;">Quản lý tập trung tài sản phần cứng</p>
             </div>
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
-                <!-- Toggle view -->
-                <div class="btn-group me-1" role="group">
-                    <button id="btnGridView" class="btn btn-sm fw-bold px-3" onclick="switchView('grid')"
-                        style="background:#6366f1;color:white;border-radius:10px 0 0 10px;border:none;">
+                <!-- Toggle view (Segmented Control Style) -->
+                <div class="segmented-control p-1" style="background: rgba(255,255,255,0.6); border-radius: 16px; border: var(--glass-border); box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); display: flex;">
+                    <button id="btnGridView" class="btn btn-sm fw-bold px-3 py-2" onclick="switchView('grid')"
+                        style="background: var(--primary-gradient); color: white; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.2); transition: all 0.3s; transform: translateY(-1px);">
                         <i class="fas fa-th-large"></i>
                     </button>
-                    <button id="btnTableView" class="btn btn-sm fw-bold px-3" onclick="switchView('table')"
-                        style="background:#f1f5f9;color:#64748b;border-radius:0 10px 10px 0;border:none;">
+                    <button id="btnTableView" class="btn btn-sm fw-bold px-3 py-2" onclick="switchView('table')"
+                        style="background: transparent; color: #64748b; border-radius: 12px; border: none; box-shadow: none; transition: all 0.3s;">
                         <i class="fas fa-list"></i>
                     </button>
                 </div>
@@ -174,118 +360,24 @@
         </div>
 
     <style>
-        /* ===== CARD STYLES VIP PRO ===== */
-        .card-device {
-            border: 1px solid rgba(0,0,0,0.05);
-            background: #ffffff;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            position: relative;
-            transform: perspective(1000px) translateZ(0);
-        }
-        .card-device:hover {
-            transform: perspective(1000px) translateZ(10px) translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: rgba(99, 102, 241, 0.35);
-        }
-        .quantity-badge {
-            background: rgba(15,23,42,0.85);
-            backdrop-filter: blur(8px);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .status-tot    { background: linear-gradient(135deg, #10b981, #059669); }
-        .status-hong   { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .status-baotri { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .status-khac   { background: linear-gradient(135deg, #64748b, #475569); }
-
-        .device-image-container {
-            background: radial-gradient(circle at center, #f8fafc 0%, #eef2f7 100%);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            min-height: 200px;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .device-image-container img {
-            height: 160px;
-            width: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1));
-            transition: transform 0.4s ease;
-        }
-        .card-device:hover .device-image-container img { transform: scale(1.08); }
-
-        .device-code-badge {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 6px;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: 6px;
-        }
-        .price-tag {
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: #059669;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            padding: 3px 10px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        .info-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 12px;
-            margin-top: 12px;
-        }
+        /* ===== CARD STYLES NEUMORPHISM REMOVE DUPLICATE ===== */
         .info-item { display: flex; flex-direction: column; }
-        .info-label { font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 3px; }
-        .info-value { font-size: 0.8rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .device-desc { font-size: 0.8rem; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; margin-bottom: 0; }
+        .device-desc { font-size: 0.8rem; color: #788596; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; margin-bottom: 0; }
 
         /* ===== TABLE VIEW ===== */
         #deviceTableWrapper { display: none; }
-        .table-device th { background: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding: 14px 16px; }
-        .table-device td { vertical-align: middle; padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
         .table-device tbody tr { transition: all 0.2s ease; cursor: pointer; }
-        .table-device tbody tr:hover { background: #f8fafc; box-shadow: inset 4px 0 0 #6366f1; }
 
         /* ===== MODAL VIP ===== */
         .detail-info-card {
-            background: #f8fafc;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
             padding: 14px 16px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
             border: 1px solid #e2e8f0;
         }
-        .detail-info-card .d-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-        .detail-info-card .d-value { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+        .detail-info-card .d-label { font-size: 0.7rem; color: #788596; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .detail-info-card .d-value { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
 
         /* --- PREMIUM NOTIFICATION STYLES --- */
         .swal2-premium-popup {
@@ -347,14 +439,14 @@
              th:data-price="${device.device_price}"
              th:data-all-codes="${#strings.listJoin(device.all_devices_detail.![get('device_code')], ',')}">
 
-            <div class="card card-device h-100 rounded-4 overflow-hidden"
+            <div class="card card-device h-100 border-0"
                  onclick="showDeviceDetails(this.closest('.device-item'))"
                  style="cursor: pointer;">
 
                 <div class="position-absolute top-0 start-0 m-3" style="z-index: 10; pointer-events: none;">
                     <div class="quantity-badge">
-                        <span style="font-size: 0.7rem; font-weight: 600; opacity: 0.8;">Kho:</span>
-                        <span style="font-size: 0.9rem; font-weight: 800;">[[${device.quantity}]]</span>
+                        <i class="fas fa-box-open opacity-75"></i>
+                        <span>Kho: <span style="font-size: 1.1rem;">[[${device.quantity}]]</span></span>
                     </div>
                 </div>
 
@@ -368,26 +460,28 @@
                 </div>
 
                 <div class="device-image-container">
-                    <img th:src="${device.image_url ?: 'https://via.placeholder.com/300x200?text=No+Image'}" alt="Device Image">
+                    <img loading="lazy" th:src="${device.image_url ?: 'https://via.placeholder.com/300x200?text=No+Image'}" alt="Device Image">
                 </div>
 
-                <div class="card-body px-4 pt-3 pb-4">
-                    <span class="device-code-badge" th:text="${device.device_code}"></span>
-                    <h5 class="fw-bold text-dark text-truncate mb-1" th:text="${device.device_name}" style="letter-spacing: -0.5px;"></h5>
-                    <div class="device-desc" th:text="${device.description ?: 'Không có mô tả chi tiết.'}"></div>
+                <div class="card-body p-4 bg-white" style="border-radius: 28px 28px 0 0; margin-top: -20px; position: relative; z-index: 2; box-shadow: 0 -10px 20px rgba(0,0,0,0.02);">
+                    <div class="text-center mb-3">
+                        <span class="device-code-badge"><i class="fas fa-barcode me-2"></i><span th:text="${device.device_code}"></span></span>
+                    </div>
+                    <h4 class="fw-bold text-dark text-center text-truncate mb-2" th:text="${device.device_name}" style="letter-spacing: -0.5px; font-family: var(--font-display);"></h4>
+                    <p class="text-muted text-center small mb-4" th:text="${device.description ?: 'Không có mô tả chi tiết.'}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px;"></p>
 
                     <div class="info-grid-3">
                         <div class="info-item">
-                            <span class="info-label"><i class="fas fa-map-marker-alt me-1"></i>Phòng</span>
-                            <span class="info-value" th:text="${device.rooms.room_name}"></span>
+                            <span class="info-label"><i class="fas fa-map-marker-alt me-1 text-primary"></i>Phòng</span>
+                            <span class="info-value text-truncate" th:text="${device.rooms.room_name}"></span>
                         </div>
-                        <div class="info-item" style="border-left:1px solid #e2e8f0;padding-left:8px;">
-                            <span class="info-label"><i class="fas fa-tag me-1"></i>Loại</span>
-                            <span class="info-value" th:text="${device.categories.category_name}"></span>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-tag me-1 text-info"></i>Danh mục</span>
+                            <span class="info-value text-truncate" th:text="${device.categories.category_name}"></span>
                         </div>
-                        <div class="info-item" style="border-left:1px solid #e2e8f0;padding-left:8px;">
-                            <span class="info-label"><i class="fas fa-coins me-1"></i>Giá</span>
-                            <span class="info-value" th:style="${device.device_price != null ? 'color:#059669' : 'color:#94a3b8'}" th:text="${device.device_price ?: '---'}"></span>
+                        <div class="info-item full-width">
+                            <span class="info-label"><i class="fas fa-coins me-1 text-warning"></i>Giá trị</span>
+                            <span class="info-value" th:style="${device.device_price != null ? 'color:#059669' : 'color:#94a3b8'}" th:text="${device.device_price != null ? device.device_price + ' ₫' : 'Chưa cập nhật'}"></span>
                         </div>
                     </div>
                 </div>
@@ -451,72 +545,74 @@
 <!--    NUT DANG KY THIET BI -->
     <div class="modal fade" id="addDeviceModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
-                    <div>
-                        <h4 class="modal-title fw-bold mb-1"><i class="fas fa-laptop-medical me-2"></i>Thêm Thiết Bị Mới</h4>
-                        <p class="mb-0 small opacity-75">Nhập thông tin chi tiết để đăng ký tài sản vào hệ thống</p>
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 text-white p-4 position-relative overflow-hidden" style="background: var(--primary-gradient);">
+                    <div class="position-relative z-1">
+                        <h4 class="modal-title fw-bold mb-1" style="font-family: var(--font-display);"><i class="fas fa-laptop-medical me-2"></i>Thêm Thiết Bị Mới</h4>
+                        <p class="mb-0 small" style="opacity: 0.85;">Nhập thông tin chi tiết để đăng ký tài sản vào hệ thống</p>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white position-relative z-1" data-bs-dismiss="modal"></button>
+                    <!-- Decorative element -->
+                    <div class="position-absolute" style="top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; blur: 20px;"></div>
                 </div>
                 <div class="modal-body p-4 p-lg-5 bg-light">
                     <form id="addDeviceForm">
-                        <div class="row g-4 bg-white p-4 rounded-4 shadow-sm border border-light">
+                        <div class="row g-4 bg-white p-4 rounded-4 shadow-sm border" style="border-color: rgba(226, 232, 240, 0.8) !important;">
                             <div class="col-12">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Tên thiết bị <span class="text-danger">*</span></label>
-                                <input type="text" name="device_name" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" placeholder="Ví dụ: Máy tính Dell Latitude" required>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Tên thiết bị <span class="text-danger">*</span></label>
+                                <input type="text" name="device_name" class="filter-input w-100" placeholder="Ví dụ: Máy tính Dell Latitude" required>
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Phòng học <span class="text-danger">*</span></label>
-                                <select name="room_name" class="form-select form-select-lg bg-light border-0 shadow-none fs-6" required>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Phòng học <span class="text-danger">*</span></label>
+                                <select name="room_name" class="filter-input w-100" required>
                                     <option value="" th:if="${session.role != 'teacher'}">-- Chọn phòng --</option>
                                     <option th:each="room : ${rooms}" th:value="${room}" th:text="${room}" th:selected="${session.role == 'teacher'}"></option>
                                 </select>
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Danh mục <span class="text-danger">*</span></label>
-                                <select name="category_name" class="form-select form-select-lg bg-light border-0 shadow-none fs-6" required>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Danh mục <span class="text-danger">*</span></label>
+                                <select name="category_name" class="filter-input w-100" required>
                                     <option value="">-- Chọn danh mục --</option>
                                     <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
                                 </select>
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Trạng thái</label>
-                                <select name="status" class="form-select form-select-lg bg-light border-0 shadow-none fs-6">
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Trạng thái</label>
+                                <select name="status" class="filter-input w-100">
                                     <option value="Tốt">✅ Tốt (Available)</option>
                                     <option value="Hỏng">❌ Hỏng/Bảo trì</option>
                                 </select>
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Giá tiền (VNĐ) <span class="text-danger">*</span></label>
-                                <input type="text" name="device_price" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" placeholder="VD: 15.000.000" required>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Giá tiền (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="text" name="device_price" class="filter-input w-100" placeholder="VD: 15.000.000" required>
                             </div>
                             
                             <div class="col-md-4">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Số lượng tạo</label>
-                                <input type="number" name="quantity" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" value="1" min="1" max="50">
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Số lượng tạo</label>
+                                <input type="number" name="quantity" class="filter-input w-100" value="1" min="1" max="50">
                             </div>
                             
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Ngày mua <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" required>
+                            <div class="col-md-12">
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Ngày mua <span class="text-danger">*</span></label>
+                                <input type="date" name="purchase_date" class="filter-input w-100" required>
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Mô tả thiết bị <span class="text-danger">*</span></label>
-                                <textarea name="description" class="form-control bg-light border-0 shadow-none rounded-3" rows="3" placeholder="Nhập mô tả chi tiết cho thiết bị..." required></textarea>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Mô tả thiết bị <span class="text-danger">*</span></label>
+                                <textarea name="description" class="filter-input w-100" rows="3" placeholder="Nhập mô tả chi tiết cho thiết bị..." required></textarea>
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-bold text-uppercase small text-muted" style="letter-spacing: 0.5px;">Ảnh thiết bị</label>
+                                <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Ảnh thiết bị</label>
                                 <div class="position-relative">
-                                    <label for="addDeviceImage" class="d-block p-4 text-center rounded-3 border border-2 border-dashed"
-                                           style="cursor:pointer;background:#f8fafc;border-color:#cbd5e1 !important;transition:all 0.3s;">
-                                        <div id="addImagePreview" style="display:none;margin-bottom:8px;">
-                                            <img id="addImagePreviewImg" src="" style="max-height:140px;border-radius:8px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
+                                    <label for="addDeviceImage" class="d-block p-4 text-center rounded-4 border border-2 border-dashed"
+                                           style="cursor:pointer; background:#f8fafc; border-color:#cbd5e1 !important; transition:all 0.3s;" onmouseover="this.style.background='#ffffff'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
+                                        <div id="addImagePreview" style="display:none; margin-bottom:8px;">
+                                            <img id="addImagePreviewImg" src="" style="max-height:140px; border-radius:12px; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.1));">
                                         </div>
                                         <div id="addImagePlaceholder">
                                             <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-2"><i class="fas fa-camera fa-2x"></i></div>
@@ -530,8 +626,8 @@
                         </div>
                         
                         <div class="d-flex justify-content-end gap-3 mt-4">
-                            <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold" data-bs-dismiss="modal">Hủy bỏ</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none;">
+                            <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm text-white" style="background: var(--primary-gradient); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                                 <i class="fas fa-check-circle me-2"></i>Hoàn tất đăng ký
                             </button>
                         </div>
@@ -544,29 +640,31 @@
 <!--    IMPORT EXCEL -->
     <div class="modal fade" id="importExcelModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <div>
-                        <h4 class="modal-title fw-bold mb-1"><i class="fas fa-file-excel me-2"></i>Nhập từ Excel (VIP Preview)</h4>
-                        <p class="mb-0 small opacity-75">Tải lên, kiểm tra dữ liệu và phê duyệt nhập kho</p>
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 text-white p-4 position-relative overflow-hidden" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <div class="position-relative z-1">
+                        <h4 class="modal-title fw-bold mb-1" style="font-family: var(--font-display);"><i class="fas fa-file-excel me-2"></i>Nhập từ Excel (VIP Preview)</h4>
+                        <p class="mb-0 small" style="opacity: 0.85;">Tải lên, kiểm tra dữ liệu và phê duyệt nhập kho</p>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white position-relative z-1" data-bs-dismiss="modal"></button>
+                    <!-- Decorative element -->
+                    <div class="position-absolute" style="top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.15); border-radius: 50%; blur: 20px;"></div>
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <!-- Step 1: Upload -->
                     <div id="importStep1">
                         <div class="mb-4 text-center">
-                            <label for="excelFile" class="form-label d-block p-5 border border-2 border-dashed rounded-4 cursor-pointer" style="background: #ffffff; border-color: #cbd5e1 !important; transition: all 0.3s ease;">
-                                <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex p-4 mb-3">
+                            <label for="excelFile" class="form-label d-block p-5 border border-2 border-dashed rounded-4 cursor-pointer" style="background: #ffffff; border-color: #cbd5e1 !important; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);" onmouseover="this.style.background='#f0fdf4'; this.style.borderColor='#10b981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cbd5e1'; this.style.transform='none'">
+                                <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex p-4 mb-3" style="box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1);">
                                     <i class="fas fa-cloud-upload-alt fa-3x"></i>
                                 </div>
-                                <h5 class="fw-bold text-dark mb-1">Chọn file danh sách thiết bị</h5>
+                                <h5 class="fw-bold text-dark mb-1" style="font-family: var(--font-display);">Chọn file danh sách thiết bị</h5>
                                 <p class="mb-0 text-muted small" id="fileNameDisplay">Hỗ trợ định dạng .xlsx, .xls</p>
                                 <input type="file" id="excelFile" class="d-none" accept=".xlsx, .xls" onchange="handleFilePreview(this)">
                             </label>
                         </div>
                         <div class="text-center">
-                            <a href="javascript:void(0)" onclick="downloadImportTemplate()" class="text-decoration-none small fw-bold">
+                            <a href="javascript:void(0)" onclick="downloadImportTemplate()" class="text-decoration-none small fw-bold" style="color: var(--primary); transition: color 0.3s;" onmouseover="this.style.color='#0f766e'" onmouseout="this.style.color='var(--primary)'">
                                 <i class="fas fa-download me-1"></i>Tải file mẫu chuẩn
                             </a>
                         </div>
@@ -574,49 +672,49 @@
 
                     <!-- Step 2: Preview Area (Hidden initially) -->
                     <div id="importStep2" style="display: none;">
-                        <div class="alert alert-info rounded-3 border-0 shadow-sm mb-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-info-circle fs-4 me-3"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-1">Kết quả phân tích dữ liệu</h6>
-                                    <p class="mb-0 small">Vui lòng kiểm tra kỹ danh sách bên dưới trước khi xác nhận.</p>
-                                </div>
+                        <div class="alert bg-info bg-opacity-10 text-info rounded-4 border-0 shadow-sm mb-4 d-flex align-items-center p-4">
+                            <div class="bg-white text-info rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                <i class="fas fa-info-circle fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Kết quả phân tích dữ liệu</h6>
+                                <p class="mb-0 small" style="opacity: 0.8;">Vui lòng kiểm tra kỹ danh sách bên dưới trước khi xác nhận nhập kho.</p>
                             </div>
                         </div>
                         
                         <div class="row g-3 mb-4">
                             <div class="col-md-4">
-                                <div class="bg-white p-3 rounded-3 text-center border">
-                                    <div class="text-muted small fw-bold">TỔNG THIẾT BỊ</div>
-                                    <div id="previewTotal" class="fs-4 fw-bold text-primary">0</div>
+                                <div class="bg-white p-3 rounded-4 text-center shadow-sm" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                                    <div class="text-muted small fw-bold mb-1" style="letter-spacing: 0.5px;">TỔNG THIẾT BỊ</div>
+                                    <div id="previewTotal" class="fs-3 fw-bold text-primary" style="font-family: var(--font-display);">0</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="bg-white p-3 rounded-3 text-center border">
-                                    <div class="text-muted small fw-bold text-danger">LỖI DỮ LIỆU</div>
-                                    <div id="previewErrors" class="fs-4 fw-bold text-danger">0</div>
+                                <div class="bg-white p-3 rounded-4 text-center shadow-sm" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                                    <div class="text-muted small fw-bold text-danger mb-1" style="letter-spacing: 0.5px;">LỖI DỮ LIỆU</div>
+                                    <div id="previewErrors" class="fs-3 fw-bold text-danger" style="font-family: var(--font-display);">0</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="bg-white p-3 rounded-3 text-center border">
-                                    <div class="text-muted small fw-bold text-success">HỢP LỆ</div>
-                                    <div id="previewValid" class="fs-4 fw-bold text-success">0</div>
+                                <div class="bg-white p-3 rounded-4 text-center shadow-sm" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                                    <div class="text-muted small fw-bold text-success mb-1" style="letter-spacing: 0.5px;">HỢP LỆ</div>
+                                    <div id="previewValid" class="fs-3 fw-bold text-success" style="font-family: var(--font-display);">0</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="table-responsive rounded-3 border bg-white" style="max-height: 300px;">
-                            <table class="table table-sm table-hover mb-0">
-                                <thead class="table-light sticky-top">
+                        <div class="table-responsive rounded-4 shadow-sm bg-white" style="max-height: 300px; border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <table class="table table-sm table-hover mb-0 align-middle">
+                                <thead class="sticky-top" style="background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(10px);">
                                     <tr>
-                                        <th class="ps-3" style="width: 50px;">STT</th>
-                                        <th>Tên thiết bị</th>
-                                        <th>Phòng</th>
-                                        <th>Danh mục</th>
-                                        <th class="text-center">Giá tiền</th>
-                                        <th class="text-center">Ngày mua</th>
-                                        <th class="text-center">Mô tả</th>
-                                        <th class="text-center">Trạng thái</th>
+                                        <th class="ps-4 py-3 text-muted small fw-bold border-0" style="width: 50px;">STT</th>
+                                        <th class="py-3 text-muted small fw-bold border-0">Tên thiết bị</th>
+                                        <th class="py-3 text-muted small fw-bold border-0">Phòng</th>
+                                        <th class="py-3 text-muted small fw-bold border-0">Danh mục</th>
+                                        <th class="text-center py-3 text-muted small fw-bold border-0">Giá tiền</th>
+                                        <th class="text-center py-3 text-muted small fw-bold border-0">Ngày mua</th>
+                                        <th class="text-center py-3 text-muted small fw-bold border-0">Mô tả</th>
+                                        <th class="text-center py-3 text-muted small fw-bold border-0">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody id="previewTableBody">
@@ -626,25 +724,26 @@
                         </div>
 
                         <!-- VIP PRO: Thêm phần chọn ảnh cho lô hàng nhập từ Excel -->
-                        <div class="mt-4 p-4 rounded-4 border border-2 border-dashed bg-white shadow-sm" style="border-color: #e2e8f0 !important;">
+                        <div class="mt-4 p-4 rounded-4 border border-2 border-dashed bg-white shadow-sm" style="border-color: #cbd5e1 !important; transition: border-color 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#cbd5e1'">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3">
+                                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                     <i class="fas fa-image"></i>
                                 </div>
                                 <h6 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.2px;">Ảnh thiết bị cho lô hàng (Tùy chọn)</h6>
                             </div>
                             
                             <div class="row align-items-center">
-                                    <div id="importImagePreviewContainer" class="rounded-3 border overflow-hidden bg-light shadow-sm" style="width: 100px; height: 100px; display: none;">
+                                <div class="col-auto">
+                                    <div id="importImagePreviewContainer" class="rounded-4 border overflow-hidden bg-light shadow-sm" style="width: 100px; height: 100px; display: none;">
                                         <img id="importImagePreview" src="" style="width: 100%; height: 100%; object-fit: contain;">
                                     </div>
-                                    <div id="importImagePlaceholder" class="rounded-3 border border-dashed d-flex flex-column align-items-center justify-content-center text-muted" style="width: 100px; height: 100px; background: #f8fafc; border-color: #cbd5e1 !important;">
+                                    <div id="importImagePlaceholder" class="rounded-4 border border-dashed d-flex flex-column align-items-center justify-content-center text-muted" style="width: 100px; height: 100px; background: #f8fafc; border-color: #cbd5e1 !important;">
                                         <i class="fas fa-camera fa-lg mb-1"></i>
                                         <span style="font-size: 0.6rem; font-weight: 700;">CHƯA CÓ ẢNH</span>
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <input type="file" id="importDeviceImage" class="form-control form-control-sm shadow-none border-0 bg-light rounded-3 py-2" accept="image/*" 
+                                    <input type="file" id="importDeviceImage" class="filter-input w-100 py-2" accept="image/*" 
                                            onchange="previewImage(this, 'importImagePreview', 'importImagePreviewContainer', 'importImagePlaceholder')">
                                     <p class="mb-0 mt-2 text-muted" style="font-size: 0.75rem;">
                                         <i class="fas fa-info-circle me-1 text-info"></i>Ảnh này sẽ được tự động áp dụng cho tất cả thiết bị trong danh sách hợp lệ.
@@ -653,9 +752,9 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="button" class="btn btn-light rounded-pill flex-fill fw-bold" onclick="resetImport()">Chọn file khác</button>
-                            <button type="button" id="btnConfirmImport" class="btn btn-success rounded-pill flex-fill fw-bold py-2 shadow-sm" onclick="executeImport()" style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+                        <div class="d-flex gap-3 mt-4 pt-2">
+                            <button type="button" class="btn btn-light rounded-pill flex-fill fw-bold py-3 shadow-sm" onclick="resetImport()">Chọn file khác</button>
+                            <button type="button" id="btnConfirmImport" class="btn text-white rounded-pill flex-fill fw-bold py-3 shadow-sm" onclick="executeImport()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                                 <i class="fas fa-check-circle me-2"></i>Xác nhận & Nhập kho
                             </button>
                         </div>
@@ -665,29 +764,31 @@
         </div>
     </div>
 
-<!--XEM CHI TIET THIET BI (DANH SACH MA CON)-->
+    <!--XEM CHI TIET THIET BI (DANH SACH MA CON)-->
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 text-white p-4 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
+                    <div class="position-relative z-1">
+                        <h5 class="modal-title fw-bold mb-1" style="font-family: var(--font-display);">
                             <i class="fas fa-boxes me-2"></i>Các mã định danh thuộc: <span id="modalDeviceName" class="text-info"></span>
                         </h5>
-                        <p class="mb-0 small opacity-75">Quản lý các thiết bị con có cùng chung mẫu mã</p>
+                        <p class="mb-0 small" style="opacity: 0.8;">Quản lý các thiết bị con có cùng chung mẫu mã</p>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white position-relative z-1" data-bs-dismiss="modal"></button>
+                    <div class="position-absolute" style="top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; blur: 20px;"></div>
                 </div>
                 <div class="modal-body p-0 bg-light">
                     <div class="table-responsive p-4">
-                        <table class="table table-hover align-middle mb-0 bg-white rounded-4 shadow-sm overflow-hidden border border-light">
-                            <thead class="table-light">
+                        <table class="table table-hover align-middle mb-0 bg-white rounded-4 shadow-sm overflow-hidden" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <thead style="background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(10px);">
                             <tr>
-                                <th class="text-center py-3 border-0" style="width: 45px;">
-                                    <input type="checkbox" class="form-check-input shadow-none" id="selectAllItems">
+                                <th class="text-center py-3 border-0" style="width: 50px;">
+                                    <input type="checkbox" class="form-check-input shadow-none" id="selectAllItems" style="border-radius: 6px; cursor: pointer;">
                                 </th>
-                                <th class="text-center py-3 border-0 fw-bold text-muted text-uppercase small" style="width: 60px;">STT</th>
-                                <th class="py-3 border-0 fw-bold text-muted text-uppercase small">Mã định danh (Barcode/QR Code)</th>
+                                <th class="text-center py-3 border-0 fw-bold text-muted text-uppercase small" style="width: 70px; letter-spacing: 0.5px;">STT</th>
+                                <th class="py-3 border-0 fw-bold text-muted text-uppercase small" style="letter-spacing: 0.5px;">Mã định danh (Barcode/QR Code)</th>
+                                <th class="text-center py-3 border-0 fw-bold text-muted text-uppercase small" style="width: 80px; letter-spacing: 0.5px;">Thao tác</th>
                             </tr>
                             </thead>
                             <tbody id="detailTableBody">
@@ -696,10 +797,10 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-white p-4 d-flex justify-content-between align-items-center">
-                    <small class="text-muted fw-medium"><i class="fas fa-info-circle me-1"></i>Nhấn vào dòng để xem chi tiết, tích để chọn xóa.</small>
-                    <button type="button" class="btn btn-danger rounded-pill px-4 py-2 shadow-sm fw-bold"
-                            id="btnBulkDelete" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none;" onclick="handleBulkDelete()">
+                <div class="modal-footer border-0 bg-white p-4 d-flex justify-content-between align-items-center" style="border-top: 1px solid rgba(226, 232, 240, 0.8) !important;">
+                    <small class="text-muted fw-medium"><i class="fas fa-info-circle me-1 text-primary"></i>Nhấn vào mã định danh để xem chi tiết thông tin thiết bị con.</small>
+                    <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
+                            id="btnBulkDelete" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkDelete()">
                         <i class="fas fa-trash-alt me-2"></i>Xóa (<span id="selectedCounter">0</span>) mục đã chọn
                     </button>
                 </div>
@@ -710,115 +811,106 @@
 
     <div class="modal fade" id="singleDeviceModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 1000px; width: 95vw; margin: auto;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 1050px; width: 95vw; margin: auto; background: #f8fafc;">
                 <div class="modal-body p-0">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="modal" style="z-index: 10; background-color: rgba(255,255,255,0.8); backdrop-filter: blur(5px); border-radius: 50%; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"></button>
                     <div class="row g-0">
                         <!-- Cột Trái: Ảnh -->
-                        <div class="col-md-5 bg-light d-flex align-items-center justify-content-center position-relative" style="min-height: 550px; background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);">
-                            <img id="sdRealImage" src="" class="img-fluid p-4" style="object-fit: contain; max-height: 500px; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); transition: transform 0.3s ease;">
-                            <div class="position-absolute bottom-0 start-0 w-100 p-3 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);">
-                                <span class="badge bg-dark px-3 py-2 rounded-pill" style="backdrop-filter: blur(4px); background: rgba(0,0,0,0.6) !important;">
-                                    <i class="fas fa-camera me-1"></i> Ảnh thực tế
-                                </span>
+                        <div class="col-md-5 d-flex flex-column align-items-center justify-content-center position-relative" style="min-height: 550px; background: rgba(241, 245, 249, 0.5); padding: 40px;">
+                            <div class="device-image-wrapper p-4 w-100 h-100 d-flex align-items-center justify-content-center" style="background: white; border-radius: 30px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; position: relative;">
+                                <img id="sdRealImage" src="" class="img-fluid" style="object-fit: contain; max-height: 400px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.1)); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);">
+                            </div>
+                            <div class="mt-4 text-center w-100">
+                                <div class="p-3 bg-white rounded-4 shadow-sm border" style="display: inline-block;">
+                                    <img id="sdQr" src="" class="img-fluid" style="max-height: 100px; border-radius: 8px;">
+                                </div>
+                                <p class="small fw-bold text-muted mt-3 mb-0" style="letter-spacing: 1px; text-transform: uppercase;">Mã QR Thiết Bị</p>
                             </div>
                         </div>
 
                         <!-- Cột Phải: Thông tin -->
-                        <div class="col-md-7 p-4 p-lg-5 position-relative bg-white">
-                            <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="modal" style="background-color: #f1f5f9; border-radius: 50%; padding: 10px; opacity: 1; transition: all 0.2s;"></button>
-
-                            <div class="mb-4 pb-3 border-bottom">
-                                <h3 id="vName" class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Tên thiết bị</h3>
-                                <div class="d-flex align-items-center gap-3 mt-2">
-                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold">
-                                        <i class="fas fa-barcode me-1"></i> <span id="vCode"></span>
+                        <div class="col-md-7 p-4 p-lg-5 position-relative bg-white" style="border-left: 1px solid #e2e8f0;">
+                            <div class="mb-4 pb-4 border-bottom">
+                                <h2 id="vName" class="fw-bold text-dark mb-2" style="letter-spacing: -0.5px; font-family: var(--font-display);">Tên thiết bị</h2>
+                                <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
+                                    <span class="badge" style="background: var(--primary-gradient); padding: 8px 16px; border-radius: 12px; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.2);">
+                                        <i class="fas fa-barcode me-2"></i><span id="vCode" style="font-family: var(--font-mono); letter-spacing: 1px;"></span>
                                     </span>
-                                    <span class="small text-muted"><i class="fas fa-fingerprint me-1"></i> ID: <span id="sdInternalId"></span></span>
+                                    <span class="badge bg-light text-dark border px-3 py-2" style="border-radius: 12px; font-size: 0.8rem;">
+                                        <i class="fas fa-fingerprint text-muted me-1"></i> ID: <span id="sdInternalId" class="fw-bold text-primary"></span>
+                                    </span>
                                 </div>
                             </div>
 
                             <div id="viewMode">
-                                <div class="row g-4">
+                                <div class="row g-4 mb-4">
                                     <div class="col-sm-6">
-                                        <div class="p-3 rounded-3 bg-light border border-light">
-                                            <label class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">Trạng thái</label>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-heartbeat text-danger me-1"></i> Trạng thái</div>
                                             <span id="vStatus" class="badge px-3 py-2 rounded-pill" style="font-size: 0.85rem;"></span>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
-                                        <div class="p-3 rounded-3 bg-light border border-light">
-                                            <label class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">Giá trị</label>
-                                            <span id="vPrice" class="fw-bold text-success fs-5"></span>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-coins text-warning me-1"></i> Giá trị</div>
+                                            <div id="vPrice" class="d-value text-success fs-5"></div>
                                         </div>
                                     </div>
                                     
                                     <div class="col-sm-6">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i class="fas fa-map-marker-alt"></i></div>
-                                            <div>
-                                                <label class="text-muted small d-block mb-0">Vị trí hiện tại</label>
-                                                <span id="vRoom" class="fw-bold text-dark"></span>
-                                            </div>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-map-marker-alt text-primary me-1"></i> Vị trí hiện tại</div>
+                                            <div id="vRoom" class="d-value"></div>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-info bg-opacity-10 p-2 rounded-3 text-info"><i class="fas fa-tag"></i></div>
-                                            <div>
-                                                <label class="text-muted small d-block mb-0">Danh mục</label>
-                                                <span id="vCategory" class="fw-bold text-dark"></span>
-                                            </div>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-tag text-info me-1"></i> Danh mục</div>
+                                            <div id="vCategory" class="d-value"></div>
                                         </div>
                                     </div>
                                     
                                     <div class="col-sm-6">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-warning bg-opacity-10 p-2 rounded-3 text-warning"><i class="fas fa-shopping-cart"></i></div>
-                                            <div>
-                                                <label class="text-muted small d-block mb-0">Ngày mua</label>
-                                                <span id="vDate_purchase" class="fw-bold text-dark"></span>
-                                            </div>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-shopping-cart text-warning me-1"></i> Ngày mua</div>
+                                            <div id="vDate_purchase" class="d-value"></div>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i class="fas fa-clipboard-check"></i></div>
-                                            <div>
-                                                <label class="text-muted small d-block mb-0">Kiểm kê lần cuối</label>
-                                                <span id="vDate_inven" class="fw-bold text-dark"></span>
-                                            </div>
+                                        <div class="detail-info-card h-100">
+                                            <div class="d-label mb-2"><i class="fas fa-clipboard-check text-success me-1"></i> Kiểm kê lần cuối</div>
+                                            <div id="vDate_inven" class="d-value"></div>
                                         </div>
                                     </div>
 
-                                    <div class="col-12 mt-2">
-                                        <label class="text-muted small fw-bold text-uppercase d-block mb-2" style="letter-spacing: 0.5px;">Mô tả chi tiết</label>
-                                        <p id="vDes" class="bg-light p-3 rounded-3 text-dark mb-0 border border-light" style="font-size: 0.9rem; line-height: 1.6;"></p>
-                                    </div>
-                                    
-                                    <div class="col-12 d-flex justify-content-between align-items-center mt-2 opacity-75">
-                                        <small class="text-muted"><i class="fas fa-user-plus me-1"></i> Thêm bởi: <span id="vCreatedBy" class="fw-bold"></span> vào <span id="vCreatedAt"></span></small>
-                                        <small class="text-muted"><i class="fas fa-clock me-1"></i> Cập nhật: <span id="vUpdatedAt"></span></small>
-                                    </div>
-                                </div>
-
-                                <div class="text-center mt-4 p-3 bg-light rounded-3 border border-dashed">
-                                    <img id="sdQr" src="" class="img-fluid bg-white p-2 shadow-sm" style="max-height: 120px; border-radius: 8px;">
-                                    <p class="small text-muted mt-2 mb-0">Quét để truy xuất nhanh</p>
-                                </div>
-
-                                <div class="row g-3 mt-4 pt-3 border-top">
                                     <div class="col-12">
-                                        <button type="button" class="btn btn-warning w-100 rounded-pill fw-bold py-3 text-dark mb-2" onclick="reportIssue()" style="background: #fbbf24; border: none; box-shadow: 0 4px 15px rgba(251,191,36,0.3);">
+                                        <div class="detail-info-card">
+                                            <div class="d-label mb-2"><i class="fas fa-align-left text-muted me-1"></i> Mô tả chi tiết</div>
+                                            <p id="vDes" class="d-value mb-0" style="font-weight: 500; line-height: 1.6; color: #475569;"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between flex-wrap gap-2 p-3 bg-light rounded-3 border border-dashed" style="font-size: 0.8rem;">
+                                            <div class="text-muted"><i class="fas fa-user-plus me-1 text-primary"></i> <span id="vCreatedBy" class="fw-bold text-dark"></span> (<span id="vCreatedAt"></span>)</div>
+                                            <div class="text-muted"><i class="fas fa-clock me-1 text-info"></i> Cập nhật: <span id="vUpdatedAt" class="fw-bold text-dark"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 pt-3 border-top">
+                                    <div class="col-12">
+                                        <button type="button" class="btn w-100 rounded-pill fw-bold py-3 text-dark mb-1" onclick="reportIssue()" style="background: #fbbf24; border: none; box-shadow: 0 4px 15px rgba(251,191,36,0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                                             <i class="fas fa-exclamation-triangle me-2"></i>Báo cáo hỏng hóc / Sự cố
                                         </button>
                                     </div>
                                     <div class="col-sm-8">
-                                        <button type="button" class="btn btn-primary w-100 rounded-pill fw-bold py-3" onclick="toggleEditMode(true)" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; box-shadow: 0 4px 15px rgba(99,102,241,0.3);">
+                                        <button type="button" class="btn w-100 rounded-pill fw-bold py-3 text-white" onclick="toggleEditMode(true)" style="background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                                             <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
                                         </button>
                                     </div>
                                     <div class="col-sm-4">
-                                        <button type="button" class="btn btn-light w-100 rounded-pill fw-bold py-3 text-danger border border-danger border-opacity-25" onclick="confirmDelete()" style="background: #fff0f2;">
+                                        <button type="button" class="btn w-100 rounded-pill fw-bold py-3 text-danger border border-danger border-opacity-25 bg-white" onclick="confirmDelete()" style="box-shadow: 0 4px 10px rgba(225, 29, 72, 0.05); transition: all 0.3s;" onmouseover="this.style.background='#fff1f2'" onmouseout="this.style.background='#ffffff'">
                                             <i class="fas fa-trash-alt me-2"></i>Xóa
                                         </button>
                                     </div>
@@ -826,55 +918,61 @@
                             </div>
 
                             <div id="editMode" class="d-none">
-                                <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 mb-4">
-                                    <i class="fas fa-info-circle me-2"></i> Bạn đang trong chế độ chỉnh sửa. Nhấn "Lưu lại" để cập nhật.
+                                <div class="alert bg-primary bg-opacity-10 border-0 rounded-4 p-4 mb-4 d-flex align-items-center gap-3">
+                                    <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                        <i class="fas fa-edit"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-primary">Chế độ chỉnh sửa</h6>
+                                        <p class="mb-0 small text-muted">Nhấn "Lưu lại" để cập nhật thông tin hệ thống.</p>
+                                    </div>
                                 </div>
                                 <form id="updateForm">
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="fw-bold small text-muted text-uppercase">Tên thiết bị</label>
-                                            <input type="text" id="eName" class="form-control form-control-lg bg-light border-0 shadow-none rounded-3 fs-6">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Tên thiết bị</label>
+                                            <input type="text" id="eName" class="filter-input w-100">
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="fw-bold small text-muted text-uppercase">Loại thiết bị</label>
-                                            <select id="eCategory" class="form-select form-select-lg bg-light border-0 shadow-none rounded-3 fs-6">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Loại thiết bị</label>
+                                            <select id="eCategory" class="filter-input w-100">
                                                 <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="fw-bold small text-muted text-uppercase">Phòng học</label>
-                                            <select id="eRoom" class="form-select form-select-lg bg-light border-0 shadow-none rounded-3 fs-6">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Phòng học</label>
+                                            <select id="eRoom" class="filter-input w-100">
                                                 <option th:each="r : ${rooms}" th:value="${r}" th:text="${r}"></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="fw-bold small text-muted text-uppercase">Trạng thái</label>
-                                            <select id="eStatus" class="form-select form-select-lg bg-light border-0 shadow-none rounded-3 fs-6">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Trạng thái</label>
+                                            <select id="eStatus" class="filter-input w-100">
                                                 <option th:each="sta : ${status}" th:value="${sta}" th:text="${sta}"></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="fw-bold small text-muted text-uppercase">Giá tiền (VNĐ)</label>
-                                            <input type="text" id="ePrice" class="form-control form-control-lg bg-light border-0 shadow-none rounded-3 fs-6" placeholder="Ví dụ: 15.000.000">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Giá tiền (VNĐ)</label>
+                                            <input type="text" id="ePrice" class="filter-input w-100" placeholder="Ví dụ: 15.000.000">
                                         </div>
-                                        <div class="col-sm-6">
-                                            <label class="fw-bold small text-muted text-uppercase">Ngày mua</label>
-                                            <input type="date" id="ePurchaseDate" class="form-control form-control-lg bg-light border-0 shadow-none rounded-3 fs-6">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="fw-bold small text-muted text-uppercase">Mô tả chi tiết</label>
-                                            <textarea id="eDesc" class="form-control bg-light border-0 shadow-none rounded-3" rows="3"></textarea>
+                                        <div class="col-sm-12">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Ngày mua</label>
+                                            <input type="date" id="ePurchaseDate" class="filter-input w-100">
                                         </div>
                                         <div class="col-12">
-                                            <label class="fw-bold small text-muted text-uppercase">Đổi ảnh thiết bị</label>
-                                            <label for="editDeviceImage" class="d-block p-3 text-center rounded-3 border border-2 border-dashed mt-1"
-                                                   style="cursor:pointer;background:#f8fafc;border-color:#cbd5e1 !important;">
-                                                <div id="editImagePreview" style="display:none;margin-bottom:8px;">
-                                                    <img id="editImagePreviewImg" src="" style="max-height:100px;border-radius:8px;object-fit:contain;">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Mô tả chi tiết</label>
+                                            <textarea id="eDesc" class="filter-input w-100" rows="3"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label-vip" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Đổi ảnh thiết bị</label>
+                                            <label for="editDeviceImage" class="d-block p-4 text-center rounded-4 border border-2 border-dashed mt-1"
+                                                   style="cursor:pointer; background:#f8fafc; border-color:#cbd5e1 !important; transition: all 0.3s;" onmouseover="this.style.background='#ffffff'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
+                                                <div id="editImagePreview" style="display:none; margin-bottom:8px;">
+                                                    <img id="editImagePreviewImg" src="" style="max-height:100px; border-radius:12px; object-fit:contain; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                                                 </div>
                                                 <div id="editImagePlaceholder">
-                                                    <i class="fas fa-image text-muted fa-lg me-2"></i>
-                                                    <span class="small text-muted fw-bold">Nhấn để chọn ảnh mới</span>
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-2"><i class="fas fa-camera fa-lg"></i></div>
+                                                    <div class="small text-muted fw-bold">Nhấn để chọn ảnh mới</div>
                                                 </div>
                                                 <input type="file" id="editDeviceImage" class="d-none" accept="image/*"
                                                        onchange="previewImage(this, 'editImagePreviewImg', 'editImagePreview', 'editImagePlaceholder')">
@@ -883,10 +981,10 @@
                                     </div>
                                     <div class="row g-3 mt-4 pt-3 border-top">
                                         <div class="col-6">
-                                            <button type="button" class="btn btn-light w-100 rounded-pill fw-bold py-3" onclick="toggleEditMode(false)">Hủy bỏ</button>
+                                            <button type="button" class="btn w-100 rounded-pill fw-bold py-3 text-muted bg-light border" onclick="toggleEditMode(false)">Hủy bỏ</button>
                                         </div>
                                         <div class="col-6">
-                                            <button type="button" id="btnSaveUpdate" class="btn btn-success w-100 rounded-pill fw-bold py-3" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3);">
+                                            <button type="button" id="btnSaveUpdate" class="btn w-100 rounded-pill fw-bold py-3 text-white" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 8px 15px rgba(16,185,129,0.25); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                                                 <i class="fas fa-save me-2"></i>Lưu thay đổi
                                             </button>
                                         </div>

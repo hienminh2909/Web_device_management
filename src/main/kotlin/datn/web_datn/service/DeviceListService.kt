@@ -17,6 +17,13 @@ import jakarta.servlet.http.HttpSession
 class DeviceService(private val restTemplate: RestTemplate) {
     private val apiUrl = "http://127.0.0.1:8000/api/devices/summary"
     private val fastApiUpdateUrl = "http://127.0.0.1:8000/api/devices/"
+    
+    private fun normalizeName(name: String?): String {
+        if (name.isNullOrBlank()) return ""
+        return name.trim().split(" ")
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
+    }
 
     // Trong DeviceService.kt
     fun getAllDevices(token: String): List<DeviceResponse> {
@@ -47,7 +54,10 @@ class DeviceService(private val restTemplate: RestTemplate) {
             headers.setBearerAuth(token)
         }
 
-        val entity = HttpEntity(request, headers)
+        val normalizedRequest = request.copy(
+            device_name = request.device_name?.let { normalizeName(it) }
+        )
+        val entity = HttpEntity(normalizedRequest, headers)
 
         return try {
             val response = restTemplate.exchange(
@@ -212,14 +222,19 @@ class DeviceService(private val restTemplate: RestTemplate) {
         workbook.close()
     }
 
-    fun getRawDevices(token: String): List<Map<String, Any>> {
+    fun getRawDevices(token: String, roomId: Int? = null): List<Map<String, Any>> {
         val headers = HttpHeaders()
         headers.setBearerAuth(token)
         val entity = HttpEntity<Unit>(headers)
         
+        var url = "http://127.0.0.1:8000/api/devices"
+        if (roomId != null) {
+            url += "?room_id=$roomId"
+        }
+        
         return try {
             val responseType = object : ParameterizedTypeReference<List<Map<String, Any>>>() {}
-            val response = restTemplate.exchange("http://127.0.0.1:8000/api/devices", HttpMethod.GET, entity, responseType)
+            val response = restTemplate.exchange(url, HttpMethod.GET, entity, responseType)
             response.body ?: emptyList()
         } catch (e: Exception) {
             emptyList()

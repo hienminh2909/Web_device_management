@@ -24,24 +24,42 @@ class CategoryService(private val restTemplate: RestTemplate) {
     fun createCategoryFromMap(payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        if (!token.isNullOrBlank()) {
-            headers.setBearerAuth(token)
-        }
+        if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
-        val entity = HttpEntity(payload, headers)
-        println(">>> CATEGORY SERVICE: [POST FROM MAP] $apiUrl")
-        println(">>> CATEGORY SERVICE: Payload: $payload")
+        // NORMALIZATION & VALIDATION
+        val rawName = payload["category_name"]?.toString()?.trim() ?: ""
+        val rawCode = payload["category_code"]?.toString()?.trim()?.uppercase() ?: ""
+        
+        if (rawName.isEmpty() || rawCode.isEmpty()) {
+            return mapOf("error" to "Tên và mã danh mục không được để trống")
+        }
+
+        // Normalize Name: "máy tính" -> "Máy Tính"
+        val normalizedName = rawName.split(" ").joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
+        
+        // Check duplicates
+        val allCats = getAllCategories(token)
+        if (allCats.any { it.category_name.equals(normalizedName, ignoreCase = true) }) {
+            return mapOf("error" to "Danh mục '$normalizedName' đã tồn tại")
+        }
+        if (allCats.any { it.category_code.equals(rawCode, ignoreCase = true) }) {
+            return mapOf("error" to "Mã danh mục '$rawCode' đã được sử dụng")
+        }
+
+        val finalPayload = payload.toMutableMap()
+        finalPayload["category_name"] = normalizedName
+        finalPayload["category_code"] = rawCode
+        
+        val entity = HttpEntity(finalPayload, headers)
+        println(">>> CATEGORY SERVICE: [POST] $apiUrl - Normalized Payload: $finalPayload")
         
         return try {
             val response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, Map::class.java)
-            println(">>> CATEGORY SERVICE: Response Status: ${response.statusCode}")
             response.body
         } catch (e: org.springframework.web.client.HttpStatusCodeException) {
             val errorBody = e.responseBodyAsString
-            println(">>> CATEGORY SERVICE: HTTP ERROR ${e.statusCode} - $errorBody")
             mapOf("error" to (errorBody.takeIf { it.isNotBlank() } ?: e.message))
         } catch (e: Exception) {
-            println(">>> CATEGORY SERVICE: FATAL ERROR - ${e.message}")
             mapOf("error" to e.message)
         }
     }
@@ -58,23 +76,41 @@ class CategoryService(private val restTemplate: RestTemplate) {
     fun updateCategoryFromMap(id: Int, payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        if (!token.isNullOrBlank()) {
-            headers.setBearerAuth(token)
-        }
+        if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
-        val entity = HttpEntity(payload, headers)
-        println(">>> CATEGORY SERVICE: [PUT] $apiUrl/$id - Payload: $payload")
+        // NORMALIZATION & VALIDATION
+        val rawName = payload["category_name"]?.toString()?.trim() ?: ""
+        val rawCode = payload["category_code"]?.toString()?.trim()?.uppercase() ?: ""
+        
+        if (rawName.isEmpty() || rawCode.isEmpty()) {
+            return mapOf("error" to "Tên và mã danh mục không được để trống")
+        }
+
+        val normalizedName = rawName.split(" ").joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
+        
+        // Check duplicates (excluding current id)
+        val allCats = getAllCategories(token)
+        if (allCats.any { it.category_name.equals(normalizedName, ignoreCase = true) && it.id != id }) {
+            return mapOf("error" to "Tên danh mục '$normalizedName' đã tồn tại ở danh mục khác")
+        }
+        if (allCats.any { it.category_code.equals(rawCode, ignoreCase = true) && it.id != id }) {
+            return mapOf("error" to "Mã danh mục '$rawCode' đã được sử dụng")
+        }
+
+        val finalPayload = payload.toMutableMap()
+        finalPayload["category_name"] = normalizedName
+        finalPayload["category_code"] = rawCode
+
+        val entity = HttpEntity(finalPayload, headers)
+        println(">>> CATEGORY SERVICE: [PUT] $apiUrl/$id - Normalized Payload: $finalPayload")
         
         return try {
             val response = restTemplate.exchange("$apiUrl/$id", HttpMethod.PUT, entity, Map::class.java)
-            println(">>> CATEGORY SERVICE: Update Response Status: ${response.statusCode}")
             response.body
         } catch (e: org.springframework.web.client.HttpStatusCodeException) {
             val errorBody = e.responseBodyAsString
-            println(">>> CATEGORY SERVICE: UPDATE HTTP ERROR ${e.statusCode} - $errorBody")
             mapOf("error" to (errorBody.takeIf { it.isNotBlank() } ?: e.message))
         } catch (e: Exception) {
-            println(">>> CATEGORY SERVICE: UPDATE FATAL ERROR - ${e.message}")
             mapOf("error" to e.message)
         }
     }

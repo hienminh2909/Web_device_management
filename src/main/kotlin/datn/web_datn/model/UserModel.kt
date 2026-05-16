@@ -9,6 +9,7 @@ data class UserModel(
     val email: String? = null,
     val room_id: Int? = null,
     val room_name: String? = null,
+    val handheld_name: String? = null,
     val created_at: String? = null
 )
 
@@ -19,6 +20,7 @@ data class UserCreateRequest(
     val role: String,
     val phone: String? = null,
     val email: String? = null,
+    val handheld_name: String? = null,
     val room_id: Int? = null
 )
 
@@ -27,5 +29,6 @@ data class UserUpdateRequest(
     val role: String? = null,
     val phone: String? = null,
     val email: String? = null,
+    val handheld_name: String? = null,
     val room_id: Int? = null
 )

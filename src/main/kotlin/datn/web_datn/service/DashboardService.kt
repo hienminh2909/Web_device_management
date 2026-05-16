@@ -14,7 +14,9 @@ import kotlin.collections.List
 @Service
 class DashboardService(
     private val restTemplate: RestTemplate,
-    private val roomService: RoomService
+    private val roomService: RoomService,
+    private val inventoryService: InventoryService,
+    private val userService: UserService
 ) {
 
     fun getQuickStats(token: String?): Map<String, Any> {
@@ -31,6 +33,9 @@ class DashboardService(
                 Array<DeviceResponse>::class.java
             )
             val groups = response.body?.toList() ?: emptyList()
+
+            // Lấy số lượng người dùng
+            val userCount = try { userService.getAllUsers(token).size } catch (e: Exception) { 0 }
 
             // LOGIC QUAN TRỌNG: Cộng dồn trường quantity
             val totalQuantity = groups.sumOf { it.quantity }
@@ -70,6 +75,7 @@ class DashboardService(
                 "maintaining" to maintainingCount,
                 "other" to otherQuantity,
                 "totalValue" to totalAssetValue,
+                "userCount" to userCount,
                 "roomLabels" to finalRoomStats.keys.toList(),
                 "roomData" to finalRoomStats.values.toList()
             )
@@ -95,6 +101,33 @@ class DashboardService(
         } catch (e: Exception) {
             println(">>> DASHBOARD SERVICE ERROR: ${e.message}")
             emptyList()
+        }
+    }
+
+    fun getInventoryProgressHistory(
+        token: String?, 
+        months: Int? = 6,
+        startDate: java.time.LocalDate? = null,
+        endDate: java.time.LocalDate? = null
+    ): Map<String, Any> {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        
+        return try {
+            val m = months ?: 6
+            val url = "http://127.0.0.1:8000/api/dashboard/inventory-history?months=$m"
+            
+            val response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                object : ParameterizedTypeReference<Map<String, Any>>() {}
+            )
+            response.body ?: mapOf("labels" to emptyList<String>(), "total" to emptyList<Int>(), "checked" to emptyList<Int>())
+        } catch (e: Exception) {
+            println(">>> DASHBOARD SERVICE ERROR (History): ${e.message}")
+            mapOf("labels" to emptyList<String>(), "total" to emptyList<Int>(), "checked" to emptyList<Int>())
         }
     }
 }

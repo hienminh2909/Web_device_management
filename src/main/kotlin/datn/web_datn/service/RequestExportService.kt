@@ -44,7 +44,7 @@ class RequestExportService {
         var rowIdx = 1
         for (req in requests) {
             val row = sheet.createRow(rowIdx++)
-            row.createCell(0).setCellValue(rowIdx - 1.0)
+            row.createCell(0).setCellValue((rowIdx - 1).toDouble())
             
             val type = when(req.request_type) {
                 "UPDATE" -> "Sửa đổi"
@@ -52,9 +52,18 @@ class RequestExportService {
                 else -> "Báo cáo"
             }
             row.createCell(1).setCellValue(type)
-            row.createCell(2).setCellValue(req.devices?.device_code ?: "N/A")
-            row.createCell(3).setCellValue(req.devices?.device_name ?: "N/A")
-            row.createCell(4).setCellValue(req.devices?.rooms?.room_name ?: "N/A")
+
+            // Extract device info from devices object or payload
+            val devCode = req.devices?.device_code 
+                ?: (req.update_payload?.get("device_code") as? String) ?: "N/A"
+            val devName = req.devices?.device_name 
+                ?: (req.update_payload?.get("device_name") as? String) ?: "N/A"
+            val roomName = req.devices?.rooms?.room_name 
+                ?: (req.update_payload?.get("room_name") as? String) ?: "N/A"
+
+            row.createCell(2).setCellValue(devCode)
+            row.createCell(3).setCellValue(devName)
+            row.createCell(4).setCellValue(roomName)
             row.createCell(5).setCellValue(req.users?.full_name ?: "N/A")
             row.createCell(6).setCellValue(req.created_at?.take(10) ?: "N/A")
             row.createCell(7).setCellValue(req.description ?: "")
@@ -65,7 +74,7 @@ class RequestExportService {
                 else -> "Đang chờ"
             }
             row.createCell(8).setCellValue(status)
-            row.createCell(9).setCellValue(req.resolver?.full_name ?: (if (req.status_resolve != null) "Hệ thống" else "N/A"))
+            row.createCell(9).setCellValue(req.resolver?.full_name ?: (if (req.status_resolve != null && req.status_resolve != "pending") "Hệ thống" else "N/A"))
             row.createCell(10).setCellValue(req.resolved_at?.take(10) ?: "N/A")
         }
 

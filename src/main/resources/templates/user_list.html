@@ -1,146 +1,184 @@
-<div th:fragment="content">
+<div th:fragment="content" class="animate__animated animate__fadeIn">
     <style>
+        /* ===== VIP PRO USER LIST V2 ===== */
         .user-wrapper {
-            animation: fadeIn 0.4s ease-out;
-            font-family: 'Inter', sans-serif;
-            color: #1e293b;
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            font-family: var(--font-body);
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .user-card-header {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 24px 30px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            margin-bottom: 24px;
+
+        /* --- Header & Stats --- */
+        .header-glass {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 35px 40px;
+            margin-bottom: 30px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow-md);
         }
-        .user-table-card {
-            background: #ffffff;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        .avatar-circle {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+
+        /* --- Search & Filter Bar --- */
+        .filter-bar-vip {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border: var(--glass-border);
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white;
-            font-size: 1rem;
-            text-transform: uppercase;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
         }
-        .role-badge {
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-        }
-        .role-admin { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .role-teacher { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .role-staff { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; }
 
-        .search-container-vip {
-            position: relative;
-            flex: 1;
-            min-width: 300px;
-        }
         .search-input-vip {
+            background: transparent !important;
+            border: none !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            color: var(--text-main) !important;
+            padding: 10px 0 !important;
+            flex-grow: 1;
+        }
+        .search-input-vip:focus { outline: none; box-shadow: none !important; }
+
+        .filter-select-vip {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            padding: 8px 15px !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+            color: var(--text-main) !important;
+            min-width: 160px;
+        }
+
+        /* --- User Table Card --- */
+        .user-table-card {
+            background: #ffffff;
+            border-radius: 32px;
+            border: 1px solid #eef2f6;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .table thead th {
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px 12px 45px;
-            font-weight: 500;
-            transition: all 0.2s;
-            width: 100%;
-        }
-        .search-input-vip:focus {
-            background: white;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            outline: none;
-        }
-        .action-btn-vip {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            border: 1px solid #e2e8f0;
-            background: white;
+            padding: 20px 25px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
             color: #64748b;
+            border-bottom: 1px solid #edf2f7;
         }
-        .action-btn-vip:hover {
-            background: #f8fafc;
-            color: #4f46e5;
-            border-color: #6366f1;
+
+        .table tbody td {
+            padding: 20px 25px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .action-btn-delete:hover {
-            color: #ef4444;
-            border-color: #fca5a5;
-            background: #fef2f2;
+
+        .user-row { transition: all 0.2s; cursor: pointer; }
+        .user-row:hover { background: #fcfdfe; }
+
+        /* --- Avatar & Badges --- */
+        .avatar-vip {
+            width: 48px; height: 48px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: #fff; font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
+
+        .role-pill {
+            padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .role-admin { background: #fff1f2; color: #e11d48; }
+        .role-teacher { background: #f0fdf4; color: #15803d; }
+        .role-staff { background: #f0f9ff; color: #0ea5e9; }
+
+        /* --- Actions --- */
+        .action-btn-vip {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid #e2e8f0; background: #fff; color: #64748b;
+            transition: all 0.2s; margin-left: 5px;
+        }
+        .action-btn-vip:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+        .btn-delete-vip:hover { color: var(--danger); border-color: var(--danger); background: #fff1f2; }
+
+        .btn-add-main {
+            background: var(--primary-gradient); color: #fff;
+            padding: 12px 28px; border-radius: 16px; border: none;
+            font-weight: 800; font-size: 0.9rem; letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
+            transition: all 0.3s;
+        }
+        .btn-add-main:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(15, 118, 110, 0.3); color: #fff; }
+
+        /* Modal Custom */
+        .modal-vip { border-radius: 32px !important; overflow: hidden; border: none !important; }
+        .modal-vip .modal-header { background: var(--primary-gradient); color: #fff; padding: 30px; border: none; }
+        .modal-vip .modal-body { padding: 40px; }
+        .modal-vip .form-label { font-weight: 700; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .modal-vip .form-control, .modal-vip .form-select { border-radius: 14px; padding: 12px 18px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.3s; }
     </style>
 
-    <div class="user-wrapper">
-        <!-- HEADER -->
-        <div class="user-card-header d-flex justify-content-between align-items-center flex-wrap gap-4">
+    <div class="user-wrapper container-fluid p-0 pb-5">
+        
+        <!-- TOP HEADER -->
+        <div class="header-glass d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
             <div>
-                <h2 class="fw-bold m-0" style="color: #0f172a; letter-spacing: -1.5px; font-size: 1.75rem;">Quản Lý Thành Viên</h2>
-                <p class="text-muted mb-0 small">Thiết lập quyền hạn và theo dõi đội ngũ cán bộ</p>
+                <h2 class="fw-bold mb-1" style="font-family: var(--font-display); letter-spacing: -1.5px; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QUẢN LÝ NHÂN SỰ</h2>
+                <p class="text-muted fw-semibold small m-0">Đội ngũ cán bộ, giảng viên vận hành hệ thống.</p>
             </div>
-            <div class="d-flex gap-3">
-                <a href="/users/export" class="btn btn-outline-secondary rounded-pill px-4 fw-bold border-2">
-                    <i class="fas fa-download me-2"></i>Xuất Excel
+            <div class="d-flex flex-wrap gap-3">
+                <a href="/users/export" class="btn btn-light rounded-pill px-4 fw-bold border shadow-sm">
+                    <i class="fas fa-file-excel me-2 text-success"></i> XUẤT DỮ LIỆU
                 </a>
-                <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm border-0" style="background: #4f46e5;" data-bs-toggle="modal" data-bs-target="#userModal" id="btnAddUser">
-                    <i class="fas fa-plus-circle me-2"></i>Thêm Mới
+                <button class="btn btn-add-main" data-bs-toggle="modal" data-bs-target="#userModal" id="btnAddUser">
+                    <i class="fas fa-user-plus me-2"></i> THÊM THÀNH VIÊN
                 </button>
             </div>
         </div>
 
-        <!-- SEARCH & FILTERS -->
-        <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
-            <div class="search-container-vip">
-                <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                <input type="text" id="userSearchInput" class="search-input-vip" placeholder="Tìm tên, email, số điện thoại hoặc username...">
+        <!-- MODERN FILTER BAR -->
+        <div class="filter-bar-vip animate__animated animate__fadeIn">
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+                <i class="fas fa-search text-muted fs-5"></i>
+                <input type="text" id="userSearchInput" class="form-control search-input-vip" placeholder="Tìm kiếm theo tên, email, số điện thoại hoặc tài khoản...">
             </div>
-            <div style="width: 200px;">
-                <select id="roleFilter" class="form-select search-input-vip py-2">
+            <div class="d-flex gap-3 align-items-center">
+                <select id="roleFilter" class="form-select filter-select-vip">
                     <option value="">Tất cả vai trò</option>
                     <option value="admin">Quản trị viên</option>
                     <option value="teacher">Giáo viên</option>
-                    <option value="staff">Nhân viên</option>
                 </select>
-            </div>
-            <div class="ms-auto text-muted small fw-bold">
-                Hiển thị <span id="showingCount" class="text-dark">0</span> / <span th:text="${#lists.size(users)}" class="text-dark">0</span>
+                <div class="border-start ps-3">
+                    <span class="text-muted small fw-bold">HIỂN THỊ: <span id="showingCount" class="text-primary">0</span> / <span th:text="${#lists.size(users)}">0</span></span>
+                </div>
             </div>
         </div>
 
-        <!-- TABLE AREA -->
-        <div class="user-table-card">
+        <!-- USER TABLE AREA -->
+        <div class="user-table-card animate__animated animate__fadeInUp">
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
-                    <thead class="bg-light">
-                        <tr style="border-bottom: 2px solid #f1f5f9;">
-                            <th class="ps-4 py-3" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Thành viên</th>
-                            <th style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Username</th>
-                            <th style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Vai trò</th>
-                            <th style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Phòng</th>
-                            <th class="text-end pe-4" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Thao tác</th>
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Thành viên</th>
+                            <th>Tài khoản</th>
+                            <th>Vai trò & Thiết bị</th>
+                            <th>Phòng phụ trách</th>
+                            <th class="text-end pe-4">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
@@ -151,51 +189,57 @@
                             th:data-role="${u.role}"
                             th:data-phone="${u.phone ?: ''}"
                             th:data-email="${u.email ?: ''}"
-                            th:data-room="${u.room_id ?: ''}">
+                            th:data-room="${u.room_name ?: 'Toàn bộ hệ thống'}"
+                            th:data-roomid="${u.room_id ?: ''}"
+                            th:data-handheld="${u.handheld_name ?: ''}"
+                            th:data-created="${u.created_at}">
                             <td class="ps-4">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-circle" th:with="initial=${#strings.substring(u.full_name, 0, 1)}"
-                                         th:style="'background: ' + (${u.role == 'admin' ? '#ef4444' : (u.role == 'teacher' ? '#10b981' : '#3b82f6')})"
+                                    <div class="avatar-vip" th:with="initial=${#strings.substring(u.full_name, 0, 1)}"
+                                         th:style="'background: ' + (${u.role == 'admin' ? 'linear-gradient(135deg, #f43f5e, #e11d48)' : (u.role == 'teacher' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #3b82f6, #2563eb)')})"
                                          th:text="${initial}">
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark mb-0" th:text="${u.full_name}"></div>
-                                        <div class="text-muted x-small" th:text="${u.email ?: 'Chưa cập nhật email'}"></div>
+                                        <div class="fw-bold text-dark" th:text="${u.full_name}">Họ Tên</div>
+                                        <div class="text-muted x-small fw-semibold" th:text="${u.email ?: 'Chưa có email'}">email@example.com</div>
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="badge bg-light text-dark border fw-medium px-2 py-1" th:text="${u.username}"></span></td>
                             <td>
-                                <span class="role-badge" 
-                                      th:classappend="${u.role == 'admin' ? 'role-admin' : (u.role == 'teacher' ? 'role-teacher' : 'role-staff')}"
-                                      th:text="${u.role}"></span>
+                                <span class="badge bg-light text-slate-600 border fw-bold px-2 py-1 rounded-pill" style="font-size: 0.7rem;">
+                                    @<span th:text="${u.username}">username</span>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="mb-1">
+                                    <span class="role-pill" 
+                                          th:classappend="${u.role == 'admin' ? 'role-admin' : (u.role == 'teacher' ? 'role-teacher' : 'role-staff')}"
+                                          th:text="${u.role == 'admin' ? 'QUẢN TRỊ' : 'GIÁO VIÊN'}">VAI TRÒ</span>
+                                </div>
+                                <div th:if="${u.handheld_name}" class="text-primary small fw-bold" style="font-size: 0.65rem;">
+                                    <i class="fas fa-barcode me-1"></i> [[${u.handheld_name}]]
+                                </div>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="fas fa-map-marker-alt text-muted small"></i>
-                                    <span class="small fw-bold text-slate-600" th:text="${u.room_name ?: 'Hệ thống'}"></span>
+                                    <div style="width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1;"></div>
+                                    <span class="small fw-bold text-slate-600" th:text="${u.room_name ?: 'Toàn bộ hệ thống'}">Phòng</span>
                                 </div>
                             </td>
                             <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button class="action-btn-vip btn-reset-user" title="Đặt lại mật khẩu">
-                                        <i class="fas fa-key"></i>
-                                    </button>
-                                    <button class="action-btn-vip btn-edit-user" title="Chỉnh sửa">
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <button class="action-btn-vip action-btn-delete btn-delete-user" title="Xóa tài khoản">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                <div class="d-flex justify-content-end gap-1 action-group-hover">
+                                    <button class="action-btn-vip btn-reset-user" title="Đổi mật khẩu"><i class="fas fa-shield-alt"></i></button>
+                                    <button class="action-btn-vip btn-edit-user" title="Chỉnh sửa"><i class="fas fa-user-edit"></i></button>
+                                    <button class="action-btn-vip btn-delete-vip btn-delete-user" title="Xóa tài khoản"><i class="fas fa-user-minus"></i></button>
                                 </div>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(users)}">
                             <td colspan="5" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="fas fa-users-slash fa-3x text-muted opacity-20 mb-3"></i>
-                                    <h5 class="fw-bold text-dark">Danh sách trống</h5>
-                                    <p class="text-muted">Chưa có người dùng nào hoặc bạn không có quyền xem.</p>
+                                <div class="py-5">
+                                    <div class="mb-3 opacity-20"><i class="fas fa-users-slash fa-4x"></i></div>
+                                    <h5 class="fw-bold text-muted">Hệ thống chưa có nhân sự</h5>
+                                    <button class="btn btn-add-main mt-3" data-bs-toggle="modal" data-bs-target="#userModal">THÊM NGAY</button>
                                 </div>
                             </td>
                         </tr>
@@ -203,117 +247,132 @@
                 </table>
             </div>
             
-            <!-- PAGINATION -->
-            <div class="p-4 bg-white border-top d-flex justify-content-between align-items-center" id="paginationArea">
-                <div class="text-muted small">Trang <span id="currentPageNum" class="fw-bold text-dark">1</span> / <span id="totalPageNum" class="fw-bold text-dark">1</span></div>
-                <div class="btn-group gap-1" id="userPagination">
-                    <!-- Pagination buttons injected here -->
-                </div>
+            <!-- PAGINATION AREA -->
+            <div class="p-4 bg-light border-top d-flex justify-content-between align-items-center" id="paginationArea">
+                <div class="text-muted small fw-bold">Trang <span id="currentPageNum" class="text-primary">1</span> trên <span id="totalPageNum" class="text-primary">1</span></div>
+                <div class="btn-group gap-2" id="userPagination"></div>
             </div>
         </div>
     </div>
 
-    <!-- USER MODAL (ADD/EDIT) -->
+    <!-- PREMIUM USER MODAL -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
-                    <div>
-                        <h5 class="modal-title fw-bold mb-0" id="userModalLabel"><i class="fas fa-user-plus me-2"></i>Thêm Thành Viên</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-vip shadow-floating">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 45px; height: 45px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user-shield fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold" id="userModalLabel">Thêm Thành Viên Mới</h5>
+                            <div class="small opacity-75">Thiết lập thông tin định danh hệ thống</div>
+                        </div>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body">
                     <form id="userForm">
                         <input type="hidden" id="userId">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-muted">HỌ VÀ TÊN <span class="text-danger">*</span></label>
-                                <input type="text" id="fullName" class="form-control rounded-3 border-light bg-light" required placeholder="Nguyễn Văn A">
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <label class="form-label">Họ và tên đầy đủ</label>
+                                <input type="text" id="fullName" class="form-control" required placeholder="Nguyễn Văn A">
                             </div>
                             <div class="col-md-6" id="usernameSection">
-                                <label class="form-label small fw-bold text-muted">TÊN ĐĂNG NHẬP <span class="text-danger">*</span></label>
-                                <input type="text" id="username" class="form-control rounded-3 border-light bg-light" required placeholder="vana_it">
+                                <label class="form-label">Tên đăng nhập (Username)</label>
+                                <input type="text" id="username" class="form-control" required placeholder="vana_it">
                             </div>
                             <div class="col-md-6" id="passwordSection">
-                                <label class="form-label small fw-bold text-muted">MẬT KHẨU <span class="text-danger">*</span></label>
-                                <input type="password" id="password" class="form-control rounded-3 border-light bg-light" required placeholder="********">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-muted">EMAIL</label>
-                                <input type="email" id="email" class="form-control rounded-3 border-light bg-light" placeholder="email@example.com">
+                                <label class="form-label">Mật khẩu truy cập</label>
+                                <input type="password" id="password" class="form-control" required placeholder="********">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted">VAI TRÒ <span class="text-danger">*</span></label>
-                                <select id="role" class="form-select rounded-3 border-light bg-light" required>
-                                    <option value="admin">Quản trị viên</option>
-                                    <option value="teacher">Giáo viên</option>
-                                    <option value="staff">Nhân viên</option>
+                                <label class="form-label">Vai trò quản trị</label>
+                                <select id="role" class="form-select" required>
+                                    <option value="admin">Quản trị viên (Toàn quyền)</option>
+                                    <option value="teacher">Giáo viên (Phòng ban)</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted">SỐ ĐIỆN THOẠI</label>
-                                <input type="text" id="phone" class="form-control rounded-3 border-light bg-light" placeholder="09xxxxxxx">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-muted">PHÒNG PHỤ TRÁCH</label>
-                                <select id="roomId" class="form-select rounded-3 border-light bg-light">
-                                    <option value="">Tất cả hệ thống (Admin/Staff)</option>
+                                <label class="form-label">Địa điểm phụ trách</label>
+                                <select id="roomId" class="form-select">
+                                    <option value="">Tất cả (Hệ thống)</option>
                                     <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.room_name}"></option>
                                 </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="email" class="form-control" placeholder="example@school.edu.vn">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="text" id="phone" class="form-control" placeholder="098xxxxxxxx">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Mã định danh thiết bị kiểm kê (Handheld)</label>
+                                <input type="text" id="handheldName" class="form-control" placeholder="Ví dụ: SCAN-402, HH-ADMIN...">
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" id="btnSaveUser" class="btn btn-primary rounded-pill px-5 fw-bold" onclick="saveUser()" style="background: #4f46e5; border: none;">Lưu thông tin</button>
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="button" id="btnSaveUser" class="btn btn-add-main px-5" onclick="saveUser()">LƯU THÀNH VIÊN</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- USER DETAIL MODAL -->
+    <!-- PROFILE DETAIL MODAL -->
     <div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 bg-light p-4">
-                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-id-card me-2 text-primary"></i>Hồ Sơ Thành Viên</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content modal-vip shadow-floating">
                 <div class="modal-body p-0">
-                    <div class="p-4 text-center border-bottom bg-light">
-                        <div id="detailAvatar" class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; border-radius: 20px;">A</div>
-                        <h4 id="detailFullName" class="fw-bold mb-1">Họ và Tên</h4>
-                        <span id="detailRoleBadge" class="role-badge">ADMIN</span>
+                    <div class="p-5 text-center" style="background: var(--primary-gradient); color: #fff;">
+                        <div id="detailAvatar" class="avatar-vip mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem; border-radius: 30px; background: rgba(255,255,255,0.2); border: 4px solid rgba(255,255,255,0.3);">A</div>
+                        <h3 id="detailFullName" class="fw-bold mb-1">Họ Tên</h3>
+                        <div id="detailRoleBadge" class="badge rounded-pill px-3 py-2 bg-white text-primary fw-bold" style="font-size: 0.7rem;">ADMIN</div>
                     </div>
-                    <div class="p-4">
+                    <div class="p-5">
                         <div class="row g-4">
                             <div class="col-6">
-                                <label class="small text-muted fw-bold d-block mb-1 text-uppercase">Tên đăng nhập</label>
+                                <label class="x-small text-muted fw-bold d-block mb-1">TÀI KHOẢN</label>
                                 <div id="detailUsername" class="fw-bold text-dark">vana_it</div>
                             </div>
                             <div class="col-6">
-                                <label class="small text-muted fw-bold d-block mb-1 text-uppercase">Phòng phụ trách</label>
+                                <label class="x-small text-muted fw-bold d-block mb-1">ĐỊA ĐIỂM</label>
                                 <div id="detailRoom" class="fw-bold text-dark">Phòng 101</div>
                             </div>
                             <div class="col-6">
-                                <label class="small text-muted fw-bold d-block mb-1 text-uppercase">Số điện thoại</label>
+                                <label class="x-small text-muted fw-bold d-block mb-1">ĐIỆN THOẠI</label>
                                 <div id="detailPhone" class="fw-bold text-dark">0988777666</div>
                             </div>
                             <div class="col-6">
-                                <label class="small text-muted fw-bold d-block mb-1 text-uppercase">Email</label>
-                                <div id="detailEmail" class="fw-bold text-dark">email@example.com</div>
+                                <label class="x-small text-muted fw-bold d-block mb-1">EMAIL</label>
+                                <div id="detailEmail" class="fw-bold text-dark small overflow-hidden text-nowrap">email@example.com</div>
+                            </div>
+                            <div class="col-12 border-top pt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <label class="x-small text-muted fw-bold d-block mb-1">THIẾT BỊ CẦM TAY</label>
+                                        <div id="detailHandheld" class="fw-bold text-primary"><i class="fas fa-barcode me-2"></i>Scanner-01</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <label class="x-small text-muted fw-bold d-block mb-1">NGÀY THAM GIA</label>
+                                        <div id="detailCreatedAt" class="small fw-bold">01/01/2026</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-primary w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Đóng cửa sổ</button>
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÓNG HỒ SƠ</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script th:src="@{/js/user/user-actions.js}"></script>
+    <script th:src="@{/js/user/user-actions.js?v=1.1}"></script>
 </div>

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP Manager | Dashboard</title>
+    <title>NEOCORE | System Dashboard</title>
     
     <!-- FONTS & ICONS -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,201 +14,774 @@
 
     <style>
         :root {
-            --vip-primary: #4f46e5;
-            --vip-secondary: #7c3aed;
-            --vip-bg: #f8fafc;
+            /* VIP PRO FOUNDATIONS */
+            --bg-surface: #f8fafc; /* Slate 50 - Very soft background */
+            --bg-card: #ffffff;
+            
+            --primary: #0f766e; /* Teal 700 */
+            --primary-light: #ccfbf1; /* Teal 50 */
+            --primary-gradient: linear-gradient(135deg, #0f766e, #0d9488);
+            
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #e11d48;
+            --text-main: #1e293b; /* Slate 800 */
+            --text-muted: #64748b; /* Slate 500 */
+            
             --sidebar-width: 280px;
-            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --header-height: 80px;
+            
+            --font-body: 'Inter', sans-serif;
+            --font-display: 'Space Mono', monospace;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 20px rgba(0,0,0,0.03);
+            --shadow-floating: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --glass-border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--vip-bg);
-            color: #1e293b;
-            margin: 0;
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            font-family: var(--font-body);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            letter-spacing: -0.01em;
         }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        h1, h2, h3, h4, h5, h6, .brand-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Global Theme Classes --- */
+        body.dark-mode {
+            --bg-surface: #0f172a; /* Slate 900 */
+            --bg-card: #1e293b; /* Slate 800 */
+            --text-main: #f8fafc; /* Slate 50 */
+            --text-muted: #94a3b8; /* Slate 400 */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--bg-surface) !important;
+            color: var(--text-main) !important;
+        }
+
+        body.dark-mode .sidebar-vip, 
+        body.dark-mode .navbar-vip,
+        body.dark-mode .settings-card,
+        body.dark-mode .bento-card,
+        body.dark-mode .bento-card-vip,
+        body.dark-mode .hero-banner-vip,
+        body.dark-mode .quick-nav-container,
+        body.dark-mode .action-card,
+        body.dark-mode .chart-card,
+        body.dark-mode .activity-container,
+        body.dark-mode .asset-box,
+        body.dark-mode .logs-card-vip,
+        body.dark-mode .report-table-card,
+        body.dark-mode .history-card-vip,
+        body.dark-mode .room-card-vip,
+        body.dark-mode .category-card-vip,
+        body.dark-mode .user-card-vip,
+        body.dark-mode .card-device,
+        body.dark-mode .card-body,
+        body.dark-mode .notif-header,
+        body.dark-mode .notif-full-item,
+        body.dark-mode .page-header,
+        body.dark-mode .filter-section,
+        body.dark-mode .quantity-badge,
+        body.dark-mode .info-item,
+        body.dark-mode .detail-info-card,
+        body.dark-mode .segmented-control,
+        body.dark-mode .notif-circle,
+        body.dark-mode .device-image-container,
+        body.dark-mode .total-badge,
+        body.dark-mode .btn-export,
+        body.dark-mode .filter-input,
+        body.dark-mode .form-select.filter-input,
+        body.dark-mode .header-glass,
+        body.dark-mode .glass-header,
+        body.dark-mode .filter-bar-vip,
+        body.dark-mode .search-area-vip,
+        body.dark-mode .user-table-card,
+        body.dark-mode .summary-card-vip,
+        body.dark-mode .room-stat-pill,
+        body.dark-mode .category-stat-pill,
+        body.dark-mode .room-icon-box,
+        body.dark-mode .cat-icon-container,
+        body.dark-mode .action-btn-vip,
+        body.dark-mode .btn-room-action,
+        body.dark-mode .btn-cat-action,
+        body.dark-mode .btn-view-vip,
+        body.dark-mode .handheld-badge,
+        body.dark-mode .device-code-vip,
+        body.dark-mode .time-box,
+        body.dark-mode .detail-info-card,
+        body.dark-mode .room-card-date,
+        body.dark-mode .progress-bar-vip,
+        body.dark-mode .bento-card,
+        body.dark-mode .table-vip tbody tr {
+            background: rgba(30, 41, 59, 0.9) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .stats-circle-vip {
+            background: conic-gradient(var(--primary) calc(var(--progress) * 1%), #334155 0) !important;
+        }
+        body.dark-mode .stats-circle-vip::after {
+            background: #1e293b !important;
+        }
+
+        body.dark-mode .text-dark, 
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+        body.dark-mode p, body.dark-mode span:not(.badge), body.dark-mode div:not(.badge),
+        body.dark-mode .fw-bold, body.dark-mode .fw-semibold,
+        body.dark-mode .time-main, body.dark-mode .category-name-text, 
+        body.dark-mode .room-name-text, body.dark-mode .info-value,
+        body.dark-mode .text-slate-600, body.dark-mode .text-slate-700,
+        body.dark-mode .text-slate-500 {
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .user-row:hover, body.dark-mode .log-row:hover {
+            background: rgba(51, 65, 85, 0.4) !important;
+        }
+
+        body.dark-mode .table, 
+        body.dark-mode .table tr, 
+        body.dark-mode .table td, 
+        body.dark-mode .table th {
+            background: transparent !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .role-pill.role-admin { background: rgba(225, 29, 72, 0.2) !important; color: #fb7185 !important; }
+        body.dark-mode .role-pill.role-teacher { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; }
+        body.dark-mode .role-pill.role-staff { background: rgba(14, 165, 233, 0.2) !important; color: #38bdf8 !important; }
+
+        body.dark-mode .cat-code-badge, body.dark-mode .room-badge, body.dark-mode .badge-id-vip, body.dark-mode .device-code-chip {
+            background: rgba(15, 118, 110, 0.2) !important;
+            color: #2dd4bf !important;
+        }
+
+        body.dark-mode .cat-device-count, body.dark-mode .room-device-count, 
+        body.dark-mode .badge-done, body.dark-mode .pill-done, body.dark-mode .status-approved {
+            background: rgba(20, 184, 166, 0.25) !important;
+            color: #5eead4 !important;
+            border-color: rgba(94, 234, 212, 0.4) !important;
+        }
+
+        body.dark-mode .status-pending {
+            background: rgba(245, 158, 11, 0.2) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(251, 191, 36, 0.4) !important;
+        }
+
+        body.dark-mode .badge-pending, body.dark-mode .badge-overdue, body.dark-mode .pill-warn,
+        body.dark-mode .status-rejected {
+            background: rgba(244, 63, 94, 0.2) !important;
+            color: #fda4af !important;
+            border-color: rgba(253, 164, 175, 0.4) !important;
+        }
+
+        body.dark-mode .info-card, 
+        body.dark-mode [style*="background: #f1f5f9"], 
+        body.dark-mode [style*="background: #f8fafc"],
+        body.dark-mode [style*="background: #f0fdf4"],
+        body.dark-mode [style*="background: #fff1f2"],
+        body.dark-mode [style*="background: #fff"] {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .bg-status-tot {
+            background: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.3) !important;
+        }
+
+        body.dark-mode .bg-status-hong {
+            background: rgba(225, 29, 72, 0.2) !important;
+            color: #fb7185 !important;
+            border-color: rgba(251, 113, 133, 0.3) !important;
+        }
+
+        body.dark-mode .bg-status-baotri {
+            background: rgba(245, 158, 11, 0.2) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(251, 191, 36, 0.3) !important;
+        }
+
+        body.dark-mode .bg-status-dangbaotri {
+            background: rgba(6, 182, 212, 0.2) !important;
+            color: #22d3ee !important;
+            border-color: rgba(34, 211, 238, 0.3) !important;
+        }
+
+        body.dark-mode .bg-status-mat {
+            background: rgba(71, 85, 105, 0.3) !important;
+            color: #cbd5e1 !important;
+            border-color: rgba(148, 163, 184, 0.3) !important;
+        }
+
+        body.dark-mode .type-report {
+            background: rgba(245, 158, 11, 0.2) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(251, 191, 36, 0.3) !important;
+        }
+
+        body.dark-mode .type-update {
+            background: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.3) !important;
+        }
+
+        body.dark-mode .type-delete {
+            background: rgba(225, 29, 72, 0.2) !important;
+            color: #fb7185 !important;
+            border-color: rgba(251, 113, 133, 0.3) !important;
+        }
+
+        body.dark-mode .badge-type {
+            width: 85px !important;
+            min-width: 85px !important;
+            white-space: nowrap !important;
+            padding: 5px !important;
+        }
+
+        body.dark-mode .badge-type i {
+            margin-bottom: 4px !important;
+            font-size: 1.2rem !important;
+        }
+
+        body.dark-mode .badge-type span, 
+        body.dark-mode .badge-type div {
+            font-size: 0.7rem !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        body.dark-mode .cat-icon-container, body.dark-mode .room-icon-box, body.dark-mode .room-icon-container, body.dark-mode .avatar-mini-vip {
+            background: #1e293b !important;
+            color: #2dd4bf !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .badge.bg-primary-subtle {
+            background: rgba(59, 130, 246, 0.2) !important;
+            color: #93c5fd !important;
+            border-color: rgba(147, 197, 253, 0.3) !important;
+        }
+
+        body.dark-mode .search-input-vip, 
+        body.dark-mode .filter-select-vip,
+        body.dark-mode .btn-light.border.shadow-sm,
+        body.dark-mode .form-control,
+        body.dark-mode .form-select,
+        body.dark-mode .input-vip,
+        body.dark-mode .back-link,
+        body.dark-mode .btn-utility,
+        body.dark-mode .filter-status,
+        body.dark-mode .search-glass {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .header-glass,
+        body.dark-mode .glass-header,
+        body.dark-mode .glass-title-card,
+        body.dark-mode .search-container-vip,
+        body.dark-mode .table-container-vip,
+        body.dark-mode .bento-card,
+        body.dark-mode .segmented-control,
+        body.dark-mode .table-vip tbody tr,
+        body.dark-mode .history-card-vip,
+        body.dark-mode .logs-card-vip,
+        body.dark-mode .bg-light {
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .history-badge-vip:not([class*="bg-status-"]),
+        body.dark-mode .status-pill-log:not([class*="status-"]) {
+            background: rgba(30, 41, 59, 0.95) !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .status-good-log { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; }
+        body.dark-mode .status-warn-log { background: rgba(245, 158, 11, 0.2) !important; color: #fbbf24 !important; }
+
+        body.dark-mode h2 span, body.dark-mode h2 {
+            -webkit-text-fill-color: #f8fafc !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode ::placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.8 !important;
+        }
+
+        body.dark-mode .btn-add-main,
+        body.dark-mode .btn-add,
+        body.dark-mode .btn-import,
+        body.dark-mode .btn-add-vip,
+        body.dark-mode .btn-export-vip,
+        body.dark-mode #btnSaveCategory,
+        body.dark-mode #btnSaveUser,
+        body.dark-mode #btnSaveDevice,
+        body.dark-mode #btnSaveRoom {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%) !important;
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4) !important;
+            color: #ffffff !important;
+            border: none !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        }
+
+        body.dark-mode .btn-add-main:hover,
+        body.dark-mode .btn-add:hover,
+        body.dark-mode .btn-import:hover,
+        body.dark-mode .btn-add-vip:hover,
+        body.dark-mode .btn-export-vip:hover,
+        body.dark-mode #btnSaveCategory:hover,
+        body.dark-mode #btnSaveUser:hover,
+        body.dark-mode #btnSaveDevice:hover,
+        body.dark-mode #btnSaveRoom:hover {
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 12px 25px rgba(20, 184, 166, 0.6) !important;
+            background: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%) !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .btn-export,
+        body.dark-mode .btn-utility,
+        body.dark-mode [onclick*="export"],
+        body.dark-mode [href*="export"],
+        body.dark-mode .btn-export-vip {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+            color: #ffffff !important;
+            border: none !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .btn-export:hover,
+        body.dark-mode .btn-utility:hover,
+        body.dark-mode [onclick*="export"]:hover,
+        body.dark-mode [href*="export"]:hover,
+        body.dark-mode .btn-export-vip:hover {
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.6) !important;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .btn-export i, 
+        body.dark-mode .btn-utility i,
+        body.dark-mode [onclick*="export"] i,
+        body.dark-mode [href*="export"] i,
+        body.dark-mode .btn-export-vip i {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .badge.bg-light {
+            background: #334155 !important;
+            color: #cbd5e1 !important;
+            border-color: #475569 !important;
+        }
+
+        body.dark-mode .text-muted, body.dark-mode .bento-label, body.dark-mode .activity-time {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode .nav-link:not(.active) { color: #94a3b8 !important; }
+        body.dark-mode .nav-link:not(.active):hover { background: rgba(51, 65, 85, 0.8) !important; color: #fff !important; }
+        
+        body.dark-mode .table-vip thead th, 
+        body.dark-mode .table-logs thead th,
+        body.dark-mode .smart-table thead th,
+        body.dark-mode .hero-banner-vip,
+        body.dark-mode .bento-card-vip,
+        body.dark-mode .chart-card,
+        body.dark-mode .activity-container,
+        body.dark-mode .asset-box,
+        body.dark-mode .action-card {
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .hero-title-vip {
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            color: #f8fafc !important;
+            display: block !important;
+        }
+
+        body.dark-mode .bento-icon-box,
+        body.dark-mode .action-icon {
+            background: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .bento-value {
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .stat-indigo { color: #818cf8 !important; background: rgba(99, 102, 241, 0.15) !important; }
+        body.dark-mode .stat-emerald { color: #34d399 !important; background: rgba(16, 185, 129, 0.15) !important; }
+        body.dark-mode .stat-rose { color: #fb7185 !important; background: rgba(225, 29, 72, 0.15) !important; }
+        body.dark-mode .stat-amber { color: #fbbf24 !important; background: rgba(217, 119, 6, 0.15) !important; }
+        body.dark-mode .stat-cyan { color: #22d3ee !important; background: rgba(8, 145, 178, 0.15) !important; }
+
+        body.dark-mode .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%) !important;
+        }
+
+        body.dark-mode td, body.dark-mode th {
+            color: #e2e8f0 !important;
+            border-bottom-color: #334155 !important;
+        }
+
+        body.dark-mode .bg-white { background: #1e293b !important; }
+        body.dark-mode .bg-light { background: #334155 !important; }
+        body.dark-mode .border { border-color: #334155 !important; }
+        body.dark-mode .input-vip, body.dark-mode .form-control-vip, body.dark-mode .search-input-vip {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+        body.dark-mode .dropdown-menu {
+            background: #1e293b !important;
+            border-color: #475569 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+        }
+        body.dark-mode .dropdown-item { color: #cbd5e1 !important; }
+        body.dark-mode .dropdown-item:hover { background: #334155 !important; color: #fff !important; }
+        
+        body.dark-mode .card { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .modal-content { background: #1e293b !important; color: #f1f5f9 !important; border-color: #475569 !important; }
+        body.dark-mode .modal-header, body.dark-mode .modal-footer { border-color: #334155 !important; }
+        
+        body.dark-mode .swal2-popup { background: #1e293b !important; color: #f1f5f9 !important; }
+        body.dark-mode .swal2-title, body.dark-mode .swal2-html-container { color: #f1f5f9 !important; }
+        body.dark-mode .bg-light.border { background: #334155 !important; border-color: #475569 !important; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-surface); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* --- Navbar VIP --- */
         .navbar-vip {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            height: 70px; display: flex; align-items: center; justify-content: space-between;
+            position: fixed; top: 20px; left: calc(var(--sidebar-width) + 20px); right: 20px;
+            z-index: 1030; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 30px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            border: var(--glass-border);
+            animation: slideDown 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .navbar-brand-vip {
-            display: flex; align-items: center; gap: 12px;
-            font-weight: 800; font-size: 1.3rem; letter-spacing: -1px;
-            color: #0f172a; text-decoration: none;
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .navbar-brand-vip i {
-            background: linear-gradient(135deg, var(--vip-primary), var(--vip-secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-size: 1.6rem;
-        }
-
-        /* --- Sidebar VIP --- */
+        /* --- Floating Sidebar VIP --- */
         .sidebar-vip {
-            position: fixed; top: 70px; left: 0; bottom: 0;
+            position: fixed; top: 20px; left: 20px; bottom: 20px;
             width: var(--sidebar-width);
-            background: white;
-            border-right: 1px solid #e2e8f0;
-            padding: 25px 15px;
-            display: flex; flex-direction: column; gap: 5px;
-            z-index: 900; transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 30px 20px;
+            display: flex; flex-direction: column;
+            z-index: 1030;
+            box-shadow: var(--shadow-md, 0 10px 30px -5px rgba(0, 0, 0, 0.08));
+            border: var(--glass-border);
+            animation: slideIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-vip::-webkit-scrollbar { width: 4px; }
+        .sidebar-vip::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sidebar-logo {
+            margin-bottom: 30px; padding-left: 15px;
+            font-family: var(--font-display);
+            font-weight: 800; font-size: 1.6rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
         }
 
         .nav-group-label {
-            font-size: 0.7rem; font-weight: 800; color: #94a3b8;
+            font-size: 0.65rem; font-weight: 800; color: #94a3b8;
             text-transform: uppercase; letter-spacing: 1.5px;
-            margin: 20px 0 10px 15px;
+            margin: 25px 0 10px 15px;
         }
 
-        .nav-link-vip {
-            display: flex; align-items: center; gap: 15px;
-            padding: 12px 18px; border-radius: 14px;
-            color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem;
-            transition: all 0.2s;
+        .nav-link {
+            padding: 14px 20px;
+            margin: 6px 0;
+            border-radius: 16px;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: transparent;
+            text-decoration: none;
+            border: 1px solid transparent;
         }
 
-        .nav-link-vip i { font-size: 1.1rem; width: 24px; text-align: center; transition: all 0.2s; }
-
-        .nav-link-vip:hover {
-            color: var(--vip-primary);
-            background: #f1f5f9;
+        .nav-link i { font-size: 1.2rem; transition: transform 0.2s; width: 24px; text-align: center; }
+        
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(248, 250, 252, 0.8);
+            transform: translateX(6px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
 
-        .nav-link-vip.active {
-            color: var(--vip-primary);
-            background: #eef2ff;
+        .nav-link.active {
+            color: #ffffff;
+            background: var(--primary-gradient);
+            font-weight: 800;
+            border: 1px solid rgba(15, 118, 110, 0.1);
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.25);
+            transform: translateY(-2px);
         }
+        
+        .nav-link.active i { color: #ffffff; }
 
         /* --- Main Content --- */
         .main-content {
-            margin-left: var(--sidebar-width); margin-top: 70px;
-            padding: 40px; min-height: calc(100vh - 70px);
-            background-color: var(--vip-bg);
+            margin-left: var(--sidebar-width);
+            margin-top: 100px;
+            padding: 20px 40px 40px 40px;
+            min-height: calc(100vh - 100px);
+            width: calc(100% - var(--sidebar-width));
+            transition: all 0.3s ease;
         }
 
-        /* --- User Profile Dropdown --- */
+        .content-canvas {
+            width: 100%;
+            animation: fadeInCanvas 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes fadeInCanvas {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* User Profile */
         .user-profile-btn {
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-            padding: 6px 16px; border-radius: 12px;
+            display: flex; align-items: center; gap: 12px;
+            background: transparent;
+            padding: 6px 12px; border-radius: 16px;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+        .user-profile-btn:hover { background: #f1f5f9; border-color: #e2e8f0; }
+
+        .dropdown-menu {
+            background: rgba(255,255,255,0.95) !important;
+            backdrop-filter: blur(20px);
+            border: var(--glass-border) !important;
+            box-shadow: var(--shadow-lg) !important;
+            border-radius: 16px !important;
+            padding: 8px !important;
+        }
+        .dropdown-item {
+            color: var(--text-main) !important;
+            font-family: var(--font-body);
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 8px 16px;
             transition: all 0.2s;
         }
-
-        .user-profile-btn:hover {
-            background: #f1f5f9;
+        .dropdown-item:hover {
+            background: #f1f5f9 !important;
+            color: var(--primary) !important;
+            transform: translateX(4px);
         }
 
-        .dropdown-menu-vip {
-            background: white; border: 1px solid #e2e8f0;
-            border-radius: 16px; padding: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            margin-top: 10px !important; border: none;
-        }
-
-        .dropdown-item-vip {
-            color: #475569; padding: 10px 15px; border-radius: 10px;
-            font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
-        }
-
-        .dropdown-item-vip:hover {
-            background: #f1f5f9; color: var(--vip-primary);
+        /* Overrides */
+        .bg-white { background-color: var(--bg-card) !important; }
+        .text-dark { color: var(--text-main) !important; }
+        
+        /* Badge Pulse Animation */
+        .badge-pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar-vip">
-    <a href="/dashboard" class="navbar-brand-vip">
-        <i class="fas fa-shield-halved"></i>
-        <span>VIP MANAGER</span>
+<div class="sidebar-vip">
+    <div class="sidebar-logo">NEO.SYS</div>
+    
+    <div class="nav-group-label">Hệ thống</div>
+    <a href="/dashboard" class="nav-link" th:classappend="${view == null ? 'active' : ''}">
+        <i class="fas fa-chart-pie"></i> Tổng quan
+    </a>
+    <a href="/notifications" class="nav-link" th:classappend="${view == 'notification_list' ? 'active' : ''}">
+        <i class="fas fa-bell"></i> Thông báo
+        <span id="sidebarNotifBadge" class="badge rounded-pill ms-auto d-none badge-pulse" style="background: var(--danger);">0</span>
     </a>
 
+    <div class="nav-group-label">Quản lý</div>
+    <a href="/devices/list" class="nav-link" th:classappend="${view == 'device_list' ? 'active' : ''}">
+        <i class="fas fa-boxes-stacked"></i> Thiết bị
+    </a>
+    <a href="/rooms" class="nav-link" th:classappend="${view == 'room_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-door-open"></i> Phòng học
+    </a>
+    <a href="/categories" class="nav-link" th:classappend="${view == 'category_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-tags"></i> Danh mục
+    </a>
+    <a href="/users" class="nav-link" th:classappend="${view == 'user_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
+        <i class="fas fa-users-cog"></i> Nhân sự
+    </a>
+
+    <div class="nav-group-label">Vận hành</div>
+    <a href="/inventory/progress" class="nav-link" th:classappend="${view == 'inventory_progress' || view == 'inventory_details' ? 'active' : ''}">
+        <i class="fas fa-qrcode"></i> Kiểm kê
+    </a>
+    <a href="/requests" class="nav-link" th:classappend="${view == 'request_list' ? 'active' : ''}">
+        <i class="fas fa-clipboard-list"></i> Báo cáo
+        <span id="sidebarRequestBadge" class="badge rounded-pill ms-auto d-none badge-pulse" style="background: var(--danger);">0</span>
+    </a>
+    <a href="/reports" class="nav-link" th:classappend="${view == 'report_history' ? 'active' : ''}">
+        <i class="fas fa-history"></i> Nhật ký
+    </a>
+</div>
+
+<nav class="navbar-vip">
+    <div class="d-flex align-items-center gap-2">
+        <span class="small" style="color: #94a3b8; font-weight: 700; letter-spacing: 1px;">PATH //</span>
+        <span class="fw-bold" style="color: var(--primary); text-transform: uppercase; font-family: var(--font-display);" th:text="${view ?: 'Overview'}">Overview</span>
+    </div>
+
     <div class="d-flex align-items-center gap-4">
-        <!-- User Profile Dropdown -->
         <div class="dropdown">
-            <div class="user-profile-btn" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="user-profile-btn" data-bs-toggle="dropdown" style="cursor: pointer;">
                 <div class="text-end d-none d-sm-block">
-                    <div class="fw-bold" style="font-size: 0.85rem; color: #0f172a;" th:text="${session.name}">Admin User</div>
-                    <div class="text-muted" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--vip-primary) !important;" th:text="${session.role}">SUPER ADMIN</div>
+                    <div class="fw-bold text-dark" style="font-size: 0.85rem;" th:text="${session.name}">Admin User</div>
+                    <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--primary);" th:text="${session.role}">ADMIN</div>
                 </div>
-                <div class="avatar-circle" style="width: 38px; height: 38px; border-radius: 50%; background: #eef2ff; display: flex; align-items: center; justify-content: center; color: var(--vip-primary); border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0;">
-                    <i class="fas fa-user-shield"></i>
+                <div style="width: 36px; height: 36px; border-radius: 12px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(15, 118, 110, 0.2);">
+                    <i class="fas fa-user-shield" style="color: var(--primary);"></i>
                 </div>
             </div>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-vip">
-                <li><a class="dropdown-item dropdown-item-vip" href="/settings"><i class="fas fa-user-gear me-2"></i> Cài đặt tài khoản</a></li>
-                <li><a class="dropdown-item dropdown-item-vip" href="/notifications"><i class="fas fa-bell me-2"></i> Thông báo</a></li>
-                <li><hr class="dropdown-divider opacity-50"></li>
-                <li><a class="dropdown-item dropdown-item-vip text-danger" href="/login?logout"><i class="fas fa-arrow-right-from-bracket me-2"></i> Đăng xuất</a></li>
+            <ul class="dropdown-menu dropdown-menu-end mt-3">
+                <li><a class="dropdown-item mb-1" href="/settings"><i class="fas fa-cog me-2"></i>Cài đặt</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/login?logout" style="color: var(--danger) !important;"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div class="sidebar-vip">
-    <div class="nav-group-label">Hệ thống</div>
-    <a href="/dashboard" class="nav-link-vip" th:classappend="${view == null ? 'active' : ''}">
-        <i class="fas fa-chart-pie"></i> Tổng quan
-    </a>
-    <a href="/notifications" class="nav-link-vip" th:classappend="${view == 'notification_list' ? 'active' : ''}">
-        <i class="fas fa-bell"></i> Thông báo
-        <span id="sidebarNotifBadge" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
-    </a>
-
-    <div class="nav-group-label">Quản lý</div>
-    <a href="/devices/list" class="nav-link-vip" th:classappend="${view == 'device_list' ? 'active' : ''}">
-        <i class="fas fa-boxes-stacked"></i> Danh sách thiết bị
-    </a>
-    <a href="/rooms" class="nav-link-vip" th:classappend="${view == 'room_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
-        <i class="fas fa-door-open"></i> Quản lý phòng
-    </a>
-    <a href="/categories" class="nav-link-vip" th:classappend="${view == 'category_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
-        <i class="fas fa-tags"></i> Danh mục
-    </a>
-    <a href="/users" class="nav-link-vip" th:classappend="${view == 'user_list' ? 'active' : ''}" th:if="${session.role == 'admin'}">
-        <i class="fas fa-users-cog"></i> Người dùng
-    </a>
-
-    <div class="nav-group-label">Kho & Sự cố</div>
-    <a href="/inventory/progress" class="nav-link-vip" th:classappend="${view == 'inventory_progress' || view == 'inventory_details' ? 'active' : ''}">
-        <i class="fas fa-qrcode"></i> Tiến độ kiểm kê
-    </a>
-    <a href="/requests" class="nav-link-vip" th:classappend="${view == 'request_list' ? 'active' : ''}">
-        <i class="fas fa-clipboard-list"></i> Quản lý báo cáo
-        <span id="sidebarRequestBadge" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
-    </a>
-    <a href="/reports" class="nav-link-vip" th:classappend="${view == 'report_list' ? 'active' : ''}">
-        <i class="fas fa-history"></i> Lịch sử báo hỏng
-    </a>
-</div>
-
 <main class="main-content">
-    <div th:replace="~{${view == null ? 'overview' : view} :: content}"></div>
+    <div class="content-canvas">
+        <div th:replace="~{${view == null ? 'overview' : view} :: content}"></div>
+    </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // --- GLOBAL THEME ENGINE ---
+    window.applyTheme = function() {
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        const primaryColor = localStorage.getItem('primaryColor') || '#0f766e';
+        
+        // Apply Dark Mode
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        
+        // Apply Primary Color
+        document.documentElement.style.setProperty('--primary', primaryColor);
+        document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`);
+    };
+
+    // Run theme engine immediately to prevent flicker
+    applyTheme();
+
+    // Global Date Formatter
+    window.formatVietnamTime = function() {
+        const fullDateEls = document.querySelectorAll('.format-date-full');
+        const shortDateEls = document.querySelectorAll('.format-date');
+
+        const optionsFull = { 
+            timeZone: 'Asia/Ho_Chi_Minh',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        };
+        const optionsShort = { 
+            timeZone: 'Asia/Ho_Chi_Minh',
+            year: 'numeric', month: '2-digit', day: '2-digit'
+        };
+
+        fullDateEls.forEach(el => {
+            const raw = el.getAttribute('data-date') || el.innerText.trim();
+            if (raw && raw !== '--' && !el.classList.contains('formatted')) {
+                const date = new Date(raw);
+                if (!isNaN(date.getTime())) {
+                    el.innerText = date.toLocaleString('vi-VN', optionsFull);
+                    el.classList.add('formatted');
+                }
+            }
+        });
+
+        shortDateEls.forEach(el => {
+            const raw = el.getAttribute('data-date') || el.innerText.trim();
+            if (raw && raw !== '--' && !el.classList.contains('formatted')) {
+                const date = new Date(raw);
+                if (!isNaN(date.getTime())) {
+                    el.innerText = date.toLocaleDateString('vi-VN', optionsShort);
+                    el.classList.add('formatted');
+                }
+            }
+        });
+    };
+
     async function updateBadges() {
-        console.log(">>> SYSTEM: Checking for updates via /api/dashboard/...");
         try {
-            // Kiểm tra thông báo chưa đọc
             const notifRes = await fetch('/api/dashboard/unread-notifications-count');
             const notifData = await notifRes.json();
             const notifBadge = document.getElementById('sidebarNotifBadge');
-            console.log(">>> SYSTEM: Unread Notifications =", notifData.count);
             if (notifData.count > 0) {
                 notifBadge.innerText = notifData.count;
                 notifBadge.classList.remove('d-none');
@@ -216,11 +789,9 @@
                 notifBadge.classList.add('d-none');
             }
 
-            // Kiểm tra yêu cầu chờ duyệt
             const reqRes = await fetch('/api/dashboard/pending-requests-count');
             const reqData = await reqRes.json();
             const reqBadge = document.getElementById('sidebarRequestBadge');
-            console.log(">>> SYSTEM: Pending Requests =", reqData.count);
             if (reqData.count > 0) {
                 reqBadge.innerText = reqData.count;
                 reqBadge.classList.remove('d-none');
@@ -228,13 +799,13 @@
                 reqBadge.classList.add('d-none');
             }
         } catch (err) {
-            console.error(">>> SYSTEM: Failed to update badges:", err);
+            console.error("Badge update failed", err);
         }
     }
-    // Export function to window object
-    window.updateBadges = updateBadges;
-    
-    document.addEventListener('DOMContentLoaded', updateBadges);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateBadges();
+        window.formatVietnamTime();
+    });
     setInterval(updateBadges, 30000);
 </script>
 </body>
