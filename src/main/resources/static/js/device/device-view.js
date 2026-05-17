@@ -265,15 +265,21 @@ function showSingleDeviceInfo(item) {
     }, 200);
 }
 
-// ========== NÚT XÓA HÀNG LOẠT ==========
+// ========== NÚT THAO TÁC HÀNG LOẠT ==========
 function updateDeleteButtonState() {
     const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
     const btnDelete = document.getElementById('btnBulkDelete');
+    const btnEdit = document.getElementById('btnBulkEdit');
     const counter = document.getElementById('selectedCounter');
+    const editCounter = document.getElementById('selectedEditCounter');
 
     if (btnDelete && counter) {
         btnDelete.style.display = checkedCount > 0 ? 'block' : 'none';
         counter.innerText = checkedCount;
+    }
+    if (btnEdit && editCounter) {
+        btnEdit.style.display = checkedCount > 0 ? 'block' : 'none';
+        editCounter.innerText = checkedCount;
     }
 }
 

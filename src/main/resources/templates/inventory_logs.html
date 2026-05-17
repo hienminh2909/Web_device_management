@@ -70,9 +70,14 @@
         .status-pill-log {
             padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .status-good-log { background: #f0fdf4; color: #15803d; }
-        .status-warn-log { background: #fffbeb; color: #b45309; }
+        .status-good-log { background: linear-gradient(135deg, #10b981, #059669) !important; }
+        .status-broken-log { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
+        .status-need-log { background: linear-gradient(135deg, #f59e0b, #d97706) !important; }
+        .status-maintaining-log { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; }
 
         .handheld-badge {
             background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b;
@@ -102,22 +107,22 @@
                 <table class="table table-hover mb-0 table-logs align-middle">
                     <thead>
                         <tr>
-                            <th class="ps-4">Thời gian</th>
-                            <th>Thiết bị tài sản</th>
-                            <th>Mã số (Code)</th>
-                            <th>Trạng thái ghi nhận</th>
-                            <th class="text-end pe-4">Nguồn quét</th>
+                            <th class="ps-4" style="white-space: nowrap; width: 15%;">Thời gian</th>
+                            <th style="white-space: nowrap; width: 30%;">Thiết bị tài sản</th>
+                            <th style="white-space: nowrap; width: 15%;">Mã số (Code)</th>
+                            <th style="white-space: nowrap; width: 20%;">Trạng thái ghi nhận</th>
+                            <th class="text-end pe-4" style="white-space: nowrap; width: 20%;">Nguồn quét</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="log, stat : ${logs}" class="log-row animate__animated animate__fadeInRight" 
                             th:style="'animation-delay: ' + (${stat.index} * 0.05) + 's;'">
-                            <td class="ps-4">
+                            <td class="ps-4" style="white-space: nowrap;">
                                 <div class="time-box">
                                     <span class="time-main format-date-full" th:text="${log.inventory_at}">00:00</span>
                                 </div>
                             </td>
-                            <td>
+                            <td style="white-space: nowrap;">
                                 <div class="d-flex align-items-center gap-3">
                                     <div style="width: 40px; height: 40px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: var(--primary);">
                                         <i class="fas fa-barcode"></i>
@@ -125,15 +130,21 @@
                                     <div class="fw-bold text-dark" th:text="${log.devices?.device_name}">Tên thiết bị</div>
                                 </div>
                             </td>
-                            <td><span class="device-code-vip" th:text="${log.devices?.device_code}">CODE-123</span></td>
-                            <td>
+                            <td style="white-space: nowrap;"><span class="device-code-vip" th:text="${log.devices?.device_code}">CODE-123</span></td>
+                            <td style="white-space: nowrap;">
                                 <span class="status-pill-log" 
-                                      th:classappend="${log.status_at_scan == 'Tốt' ? 'status-good-log' : 'status-warn-log'}">
-                                    <i class="fas" th:classappend="${log.status_at_scan == 'Tốt' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                      th:classappend="${log.status_at_scan == null ? 'status-good-log' : 
+                                                       (#strings.toLowerCase(log.status_at_scan) == 'tốt' || #strings.toLowerCase(log.status_at_scan) == 'tot' ? 'status-good-log' : 
+                                                       (#strings.toLowerCase(log.status_at_scan) == 'hỏng' || #strings.toLowerCase(log.status_at_scan) == 'hong' ? 'status-broken-log' : 
+                                                       (#strings.contains(#strings.toLowerCase(log.status_at_scan), 'đang') ? 'status-maintaining-log' : 'status-need-log')))}">
+                                    <i class="fas" th:classappend="${log.status_at_scan == null ? 'fa-check-circle' : 
+                                                                   (#strings.toLowerCase(log.status_at_scan) == 'tốt' || #strings.toLowerCase(log.status_at_scan) == 'tot' ? 'fa-check-circle' : 
+                                                                   (#strings.toLowerCase(log.status_at_scan) == 'hỏng' || #strings.toLowerCase(log.status_at_scan) == 'hong' ? 'fa-times-circle' : 
+                                                                   (#strings.contains(#strings.toLowerCase(log.status_at_scan), 'đang') ? 'fa-cog fa-spin' : 'fa-tools')))}"></i>
                                     <span th:text="${log.status_at_scan}">Tốt</span>
                                 </span>
                             </td>
-                            <td class="text-end pe-4">
+                            <td class="text-end pe-4" style="white-space: nowrap;">
                                 <span class="handheld-badge">
                                     <i class="fas fa-mobile-alt me-1"></i>
                                     <span th:text="${log.handheld_name ?: 'Web Portal'}">Handheld-01</span>

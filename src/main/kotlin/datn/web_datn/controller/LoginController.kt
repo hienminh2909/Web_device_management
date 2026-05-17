@@ -26,16 +26,19 @@ class LoginController {
         session: HttpSession,
         redirectAttributes: RedirectAttributes
     ): String {
-        val response = authService.authenticate(user, pass)
-
-        return if (response != null) {
-            session.setAttribute("token", response.access_token)
-            session.setAttribute("role", response.role)
-            session.setAttribute("name", response.full_name)
-
-            "redirect:/dashboard"
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Tài khoản hoặc mật khẩu không đúng!")
+        return try {
+            val response = authService.authenticate(user, pass)
+            if (response != null) {
+                session.setAttribute("token", response.access_token)
+                session.setAttribute("role", response.role)
+                session.setAttribute("name", response.full_name)
+                "redirect:/dashboard"
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Tài khoản hoặc mật khẩu không đúng!")
+                "redirect:/login"
+            }
+        } catch (e: datn.web_datn.service.ServerWakingUpException) {
+            redirectAttributes.addFlashAttribute("error", e.message)
             "redirect:/login"
         }
     }

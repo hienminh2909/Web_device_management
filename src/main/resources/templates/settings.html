@@ -357,8 +357,28 @@
             const oldPass = document.getElementById('oldPass').value;
             const newPass = document.getElementById('newPass').value;
             const confirmPass = document.getElementById('confirmPass').value;
-            if (!oldPass || !newPass) { Swal.fire("Lỗi", "Vui lòng nhập mật khẩu!", "warning"); return; }
-            if (newPass !== confirmPass) { Swal.fire("Lỗi", "Mật khẩu xác nhận không khớp!", "error"); return; }
+            
+            if (!oldPass || !newPass) { 
+                Swal.fire("Lỗi", "Vui lòng nhập đầy đủ mật khẩu cũ và mới!", "warning"); 
+                return; 
+            }
+            if (newPass.length < 6) {
+                Swal.fire("Lỗi", "Mật khẩu mới phải có ít nhất 6 ký tự!", "warning");
+                return;
+            }
+            if (newPass.includes(' ')) {
+                Swal.fire("Lỗi", "Mật khẩu mới không được chứa khoảng trắng!", "warning");
+                return;
+            }
+            if (newPass === oldPass) {
+                Swal.fire("Lỗi", "Mật khẩu mới không được trùng với mật khẩu cũ!", "warning");
+                return;
+            }
+            if (newPass !== confirmPass) { 
+                Swal.fire("Lỗi", "Mật khẩu xác nhận không khớp!", "error"); 
+                return; 
+            }
+            
             Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch('/settings/change-password', {
@@ -366,9 +386,32 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ old_password: oldPass, new_password: newPass })
                 });
-                if (res.ok) Swal.fire("Thành công", "Đổi mật khẩu thành công!", "success");
-                else throw new Error("Mật khẩu cũ không chính xác");
-            } catch (err) { Swal.fire("Lỗi", err.message, "error"); }
+                if (res.ok) {
+                    Swal.fire("Thành công", "Đổi mật khẩu thành công!", "success").then(() => {
+                        document.getElementById('formPassword').reset();
+                    });
+                } else {
+                    const errText = await res.text();
+                    let errMsg = "Cập nhật mật khẩu thất bại";
+                    try {
+                        const errJson = JSON.parse(errText);
+                        if (errJson.detail) {
+                            if (Array.isArray(errJson.detail)) {
+                                errMsg = errJson.detail.map(d => d.msg).join('<br>');
+                            } else {
+                                errMsg = errJson.detail;
+                            }
+                        } else if (errJson.error) {
+                            errMsg = errJson.error;
+                        }
+                    } catch (e) {
+                        errMsg = errText || "Mật khẩu cũ không chính xác";
+                    }
+                    Swal.fire("Thất bại", errMsg, "error");
+                }
+            } catch (err) { 
+                Swal.fire("Lỗi", err.message, "error"); 
+            }
         }
 
         async function loadNotifications() {

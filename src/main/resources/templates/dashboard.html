@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEOCORE | System Dashboard</title>
+    <title>HCM-UTE.EQUIP | School Device Management</title>
     
     <!-- FONTS & ICONS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -647,7 +647,10 @@
 <body>
 
 <div class="sidebar-vip">
-    <div class="sidebar-logo">NEO.SYS</div>
+    <div class="sidebar-logo d-flex align-items-center gap-3 mb-4" style="padding-left: 5px;">
+        <img src="/images/logo.png" style="height: 54px; width: 54px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));" alt="HCM-UTE Logo" />
+        <span style="font-family: var(--font-display); font-weight: 800; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.4rem; letter-spacing: -0.5px; white-space: nowrap;">HCM-UTE.EQUIP</span>
+    </div>
     
     <div class="nav-group-label">Hệ thống</div>
     <a href="/dashboard" class="nav-link" th:classappend="${view == null ? 'active' : ''}">
@@ -680,7 +683,7 @@
         <i class="fas fa-clipboard-list"></i> Báo cáo
         <span id="sidebarRequestBadge" class="badge rounded-pill ms-auto d-none badge-pulse" style="background: var(--danger);">0</span>
     </a>
-    <a href="/reports" class="nav-link" th:classappend="${view == 'report_history' ? 'active' : ''}">
+    <a href="/reports" class="nav-link" th:classappend="${view == 'inventory_logs' ? 'active' : ''}">
         <i class="fas fa-history"></i> Nhật ký
     </a>
 </div>

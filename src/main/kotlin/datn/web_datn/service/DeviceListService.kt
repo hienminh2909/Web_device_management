@@ -119,6 +119,22 @@ class DeviceService(private val restTemplate: RestTemplate) {
         )
     }
 
+    fun updateMultipleDevices(ids: List<Int>, request: DeviceUpdateRequest, token: String?): Map<String, Any> {
+        var successCount = 0
+        ids.forEach { id ->
+            try {
+                updateDevice(id, request, token)
+                successCount++
+            } catch (e: Exception) {
+                println("ERROR: updateMultipleDevices failed for ID $id: ${e.message}")
+            }
+        }
+        return mapOf(
+            "message" to "Đã cập nhật thành công $successCount/${ids.size} thiết bị",
+            "count" to successCount
+        )
+    }
+
     // Trong DeviceService.kt
     fun exportToExcel(devices: List<DeviceResponse>, response: HttpServletResponse) {
         val workbook = XSSFWorkbook()

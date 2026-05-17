@@ -646,6 +646,262 @@ async function handleBulkDelete() {
     }
 }
 
+async function handleBulkEdit() {
+    const selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => parseInt(cb.value));
+    if (selectedIds.length === 0) return;
+
+    // Cập nhật số lượng thiết bị đã chọn vào giao diện
+    const bulkEditCountEl = document.getElementById('bulkEditCount');
+    if (bulkEditCountEl) {
+        bulkEditCountEl.innerText = selectedIds.length;
+    }
+
+    // Reset trạng thái checkbox và điền thông tin mặc định từ currentGroupData để hiển thị
+    const fields = ['name', 'category', 'room', 'status', 'price', 'purchase', 'desc', 'image'];
+    fields.forEach(f => {
+        const chk = document.getElementById(`bulk-edit-${f}-check`);
+        if (chk) {
+            chk.checked = false;
+            chk.dispatchEvent(new Event('change'));
+        }
+    });
+
+    if (typeof currentGroupData !== 'undefined' && currentGroupData) {
+        const nameVal = document.getElementById('bulk-edit-name-val');
+        if (nameVal) nameVal.value = currentGroupData.name || '';
+
+        const catVal = document.getElementById('bulk-edit-category-val');
+        if (catVal) catVal.value = currentGroupData.category || '';
+
+        const roomVal = document.getElementById('bulk-edit-room-val');
+        if (roomVal) roomVal.value = currentGroupData.room || '';
+
+        const statusVal = document.getElementById('bulk-edit-status-val');
+        if (statusVal) statusVal.value = currentGroupData.status || '';
+
+        const priceVal = document.getElementById('bulk-edit-price-val');
+        if (priceVal) priceVal.value = currentGroupData.price || '';
+
+        const descVal = document.getElementById('bulk-edit-desc-val');
+        if (descVal) descVal.value = currentGroupData.desc || '';
+
+        const purchaseVal = document.getElementById('bulk-edit-purchase-val');
+        if (purchaseVal) {
+            if (currentGroupData.date_purchase && currentGroupData.date_purchase !== 'N/A') {
+                try {
+                    const parts = currentGroupData.date_purchase.split('/');
+                    if (parts.length === 3) {
+                        purchaseVal.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    } else {
+                        purchaseVal.value = currentGroupData.date_purchase;
+                    }
+                } catch(e) {
+                    purchaseVal.value = '';
+                }
+            } else {
+                purchaseVal.value = '';
+            }
+        }
+    }
+
+    // Thiết lập phần preview ảnh từ ảnh hiện tại của nhóm
+    const bulkImgPreview = document.getElementById('bulkImagePreview');
+    const bulkImgPreviewImg = document.getElementById('bulkImagePreviewImg');
+    const bulkImgPlaceholder = document.getElementById('bulkImagePlaceholder');
+    const bulkImgInput = document.getElementById('bulk-edit-image-input');
+    
+    if (bulkImgInput) {
+        bulkImgInput.value = '';
+        bulkImgInput.disabled = true;
+    }
+
+    if (typeof currentGroupData !== 'undefined' && currentGroupData && currentGroupData.image_url) {
+        if (bulkImgPreviewImg) bulkImgPreviewImg.src = currentGroupData.image_url;
+        if (bulkImgPreview) bulkImgPreview.style.display = 'block';
+        if (bulkImgPlaceholder) bulkImgPlaceholder.style.display = 'none';
+    } else {
+        if (bulkImgPreview) bulkImgPreview.style.display = 'none';
+        if (bulkImgPlaceholder) bulkImgPlaceholder.style.display = 'block';
+    }
+
+    // Ẩn modal danh sách thiết bị con (detailModal)
+    const detailModalEl = document.getElementById('detailModal');
+    const bsDetail = bootstrap.Modal.getInstance(detailModalEl);
+    if (bsDetail) bsDetail.hide();
+
+    // Hiển thị modal chỉnh sửa hàng loạt mới
+    const bulkModalEl = document.getElementById('bulkEditModal');
+    const bsBulk = bootstrap.Modal.getInstance(bulkModalEl) || new bootstrap.Modal(bulkModalEl);
+    bsBulk.show();
+}
+
+function closeBulkEditModal() {
+    const bulkModalEl = document.getElementById('bulkEditModal');
+    const bsBulk = bootstrap.Modal.getInstance(bulkModalEl);
+    if (bsBulk) bsBulk.hide();
+
+    // Hiện lại modal chi tiết thiết bị
+    const detailModalEl = document.getElementById('detailModal');
+    const bsDetail = bootstrap.Modal.getInstance(detailModalEl) || new bootstrap.Modal(detailModalEl);
+    bsDetail.show();
+}
+
+async function submitBulkEdit() {
+    const selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => parseInt(cb.value));
+    if (selectedIds.length === 0) {
+        Swal.fire("Lỗi", "Không tìm thấy thiết bị nào được chọn.", "error");
+        return;
+    }
+
+    const fields = {};
+    
+    if (document.getElementById('bulk-edit-name-check').checked) {
+        fields.device_name = document.getElementById('bulk-edit-name-val').value.trim();
+        if (!fields.device_name) {
+            Swal.fire("Lỗi", "Vui lòng nhập tên thiết bị mới", "error");
+            return;
+        }
+    }
+    if (document.getElementById('bulk-edit-category-check').checked) {
+        fields.category = document.getElementById('bulk-edit-category-val').value;
+    }
+    if (document.getElementById('bulk-edit-room-check').checked) {
+        fields.room_name = document.getElementById('bulk-edit-room-val').value;
+    }
+    if (document.getElementById('bulk-edit-status-check').checked) {
+        fields.status = document.getElementById('bulk-edit-status-val').value;
+    }
+    if (document.getElementById('bulk-edit-price-check').checked) {
+        fields.device_price = document.getElementById('bulk-edit-price-val').value.trim();
+        if (!fields.device_price) {
+            Swal.fire("Lỗi", "Vui lòng nhập giá tiền mới", "error");
+            return;
+        }
+    }
+    if (document.getElementById('bulk-edit-purchase-check').checked) {
+        fields.purchase_date = document.getElementById('bulk-edit-purchase-val').value || null;
+    }
+    if (document.getElementById('bulk-edit-desc-check').checked) {
+        fields.description = document.getElementById('bulk-edit-desc-val').value.trim();
+    }
+
+    const hasImageUpdate = document.getElementById('bulk-edit-image-check').checked;
+    const imageInput = document.getElementById('bulk-edit-image-input');
+    const imageFile = imageInput ? imageInput.files[0] : null;
+
+    if (Object.keys(fields).length === 0 && !hasImageUpdate) {
+        Swal.fire("Thông báo", "Vui lòng chọn ít nhất một thông tin để thay đổi.", "warning");
+        return;
+    }
+
+    if (hasImageUpdate && !imageFile) {
+        Swal.fire("Lỗi", "Vui lòng chọn ảnh thiết bị mới.", "error");
+        return;
+    }
+
+    const rawRole = (window.userRole || 'teacher').toString().toLowerCase();
+    const isAdmin = rawRole.indexOf('admin') !== -1;
+
+    // Ẩn modal chỉnh sửa hàng loạt
+    const bulkModalEl = document.getElementById('bulkEditModal');
+    const bsBulk = bootstrap.Modal.getInstance(bulkModalEl);
+    if (bsBulk) bsBulk.hide();
+
+    if (!isAdmin) {
+        // TEACHER FLOW: Gửi yêu cầu phê duyệt hàng loạt
+        const { value: reason, isDismissed: isReasonDismissed } = await Swal.fire({
+            title: 'Lý do thay đổi hàng loạt',
+            input: 'textarea',
+            inputPlaceholder: 'Vui lòng nhập lý do để gửi yêu cầu phê duyệt...',
+            showCancelButton: true,
+            confirmButtonText: 'Gửi yêu cầu',
+            cancelButtonText: 'Hủy',
+            inputValidator: (value) => { if (!value) return 'Bạn phải nhập lý do!'; }
+        });
+
+        if (isReasonDismissed || !reason) {
+            if (bsBulk) bsBulk.show();
+            return;
+        }
+
+        Swal.fire({ title: 'Đang gửi yêu cầu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            const apiUrl = window.location.origin + '/requests/api/advanced';
+            
+            // Nếu có ảnh, upload ảnh trước rồi lấy URL gán vào payload gửi giáo viên
+            if (hasImageUpdate && imageFile) {
+                Swal.update({ title: 'Đang tải ảnh lên...' });
+                const uploadRes = await uploadDeviceImage(imageFile, selectedIds.join(','), fields.device_name || "Lô_Thiết_Bị");
+                if (uploadRes && uploadRes.image_url) {
+                    fields.image_url = uploadRes.image_url;
+                }
+            }
+
+            const promises = selectedIds.map(async (id) => {
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        device_id: id, 
+                        description: reason, 
+                        request_type: 'UPDATE',
+                        update_payload: fields 
+                    })
+                });
+                
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Gửi thất bại cho thiết bị ID: " + id);
+                }
+            });
+
+            await Promise.all(promises);
+
+            await Swal.fire("Thành công", `Đã gửi ${selectedIds.length} yêu cầu chỉnh sửa hàng loạt tới Admin.`, "success");
+            location.reload();
+        } catch (error) {
+            Swal.fire("Lỗi", error.message, "error");
+            if (bsBulk) bsBulk.show();
+        }
+        return;
+    }
+
+    // ADMIN FLOW: Cập nhật trực tiếp
+    Swal.fire({ title: 'Đang cập nhật...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    try {
+        let resultMsg = "Đã cập nhật hàng loạt thành công!";
+        
+        // 1. Cập nhật các trường dữ liệu văn bản/lựa chọn nếu có
+        if (Object.keys(fields).length > 0) {
+            const response = await fetch('/update-multiple', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selectedIds, fields: fields })
+            });
+            
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || "Cập nhật thông tin thất bại");
+            }
+            const resData = await response.json();
+            resultMsg = resData.message || resultMsg;
+        }
+
+        // 2. Upload ảnh hàng loạt nếu có
+        if (hasImageUpdate && imageFile) {
+            Swal.update({ title: 'Đang upload ảnh hàng loạt...' });
+            await uploadDeviceImage(imageFile, selectedIds.join(','), fields.device_name || "Lô_Thiết_Bị");
+        }
+
+        await Swal.fire({ icon: 'success', title: 'Thành công!', text: resultMsg, timer: 2000, showConfirmButton: false });
+        location.reload();
+    } catch (error) {
+        Swal.fire("Lỗi", error.message, "error");
+        if (bsBulk) bsBulk.show();
+    }
+}
+
 
 async function downloadImportTemplate() {
     window.location.href = '/devices/download-template';

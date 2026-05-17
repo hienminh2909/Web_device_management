@@ -467,7 +467,7 @@
                     <div class="text-center mb-3">
                         <span class="device-code-badge"><i class="fas fa-barcode me-2"></i><span th:text="${device.device_code}"></span></span>
                     </div>
-                    <h4 class="fw-bold text-dark text-center text-truncate mb-2" th:text="${device.device_name}" style="letter-spacing: -0.5px; font-family: var(--font-display);"></h4>
+                    <h4 class="fw-bold text-dark text-center text-truncate mb-2" th:text="${device.device_name}" style="letter-spacing: -0.5px; font-family: 'Inter', system-ui, sans-serif;"></h4>
                     <p class="text-muted text-center small mb-4" th:text="${device.description ?: 'Không có mô tả chi tiết.'}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px;"></p>
 
                     <div class="info-grid-3">
@@ -799,10 +799,16 @@
                 </div>
                 <div class="modal-footer border-0 bg-white p-4 d-flex justify-content-between align-items-center" style="border-top: 1px solid rgba(226, 232, 240, 0.8) !important;">
                     <small class="text-muted fw-medium"><i class="fas fa-info-circle me-1 text-primary"></i>Nhấn vào mã định danh để xem chi tiết thông tin thiết bị con.</small>
-                    <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
-                            id="btnBulkDelete" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkDelete()">
-                        <i class="fas fa-trash-alt me-2"></i>Xóa (<span id="selectedCounter">0</span>) mục đã chọn
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
+                                id="btnBulkEdit" style="display: none; background: linear-gradient(135deg, #0d9488, #0f766e); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkEdit()">
+                            <i class="fas fa-edit me-2"></i>Sửa (<span id="selectedEditCounter">0</span>) mục
+                        </button>
+                        <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
+                                id="btnBulkDelete" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkDelete()">
+                            <i class="fas fa-trash-alt me-2"></i>Xóa (<span id="selectedCounter">0</span>) mục
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -831,7 +837,7 @@
                         <!-- Cột Phải: Thông tin -->
                         <div class="col-md-7 p-4 p-lg-5 position-relative bg-white" style="border-left: 1px solid #e2e8f0;">
                             <div class="mb-4 pb-4 border-bottom">
-                                <h2 id="vName" class="fw-bold text-dark mb-2" style="letter-spacing: -0.5px; font-family: var(--font-display);">Tên thiết bị</h2>
+                                <h2 id="vName" class="fw-bold text-dark mb-2" style="letter-spacing: -0.5px; font-family: 'Inter', system-ui, sans-serif;">Tên thiết bị</h2>
                                 <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
                                     <span class="badge" style="background: var(--primary-gradient); padding: 8px 16px; border-radius: 12px; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.2);">
                                         <i class="fas fa-barcode me-2"></i><span id="vCode" style="font-family: var(--font-mono); letter-spacing: 1px;"></span>
@@ -985,6 +991,161 @@
                                         </div>
                                         <div class="col-6">
                                             <button type="button" id="btnSaveUpdate" class="btn w-100 rounded-pill fw-bold py-3 text-white" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 8px 15px rgba(16,185,129,0.25); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL CHỈNH SỬA HÀNG LOẠT (BULK EDIT MODAL) -->
+    <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 1050px; width: 95vw; margin: auto; background: #f8fafc;">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="modal" style="z-index: 10; background-color: rgba(255,255,255,0.8); backdrop-filter: blur(5px); border-radius: 50%; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"></button>
+                    <div class="row g-0">
+                        <!-- Cột Trái: Minh họa -->
+                        <div class="col-md-5 d-flex flex-column align-items-center justify-content-center position-relative" style="min-height: 550px; background: rgba(241, 245, 249, 0.5); padding: 40px;">
+                            <div class="device-image-wrapper p-4 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: white; border-radius: 30px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; position: relative; min-height: 350px;">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 120px; height: 120px; box-shadow: 0 10px 25px rgba(15, 118, 110, 0.15);">
+                                    <i class="fas fa-layer-group fa-4x text-primary"></i>
+                                </div>
+                                <h4 class="fw-bold text-dark text-center px-3" style="letter-spacing: -0.5px; font-family: 'Inter', system-ui, sans-serif;">Chỉnh Sửa Hàng Loạt</h4>
+                                <p class="text-muted text-center small mb-0 px-3">Cập nhật đồng thời thông tin cho nhiều thiết bị con trong danh sách.</p>
+                            </div>
+                            <div class="mt-4 text-center w-100">
+                                <div class="p-3 text-white rounded-4 shadow-sm d-inline-block px-4 py-2 fw-bold" style="background: var(--primary-gradient);">
+                                    <i class="fas fa-cubes me-2"></i>Đã chọn: <span id="bulkEditCount">0</span> thiết bị con
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cột Phải: Form Chỉnh sửa -->
+                        <div class="col-md-7 p-4 p-lg-5 position-relative bg-white" style="border-left: 1px solid #e2e8f0;">
+                            <div class="mb-4 pb-4 border-bottom">
+                                <h2 class="fw-bold text-dark mb-2" style="letter-spacing: -0.5px; font-family: 'Inter', system-ui, sans-serif;">Chỉnh sửa hàng loạt</h2>
+                                <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
+                                    <span class="badge bg-light text-dark border px-3 py-2" style="border-radius: 12px; font-size: 0.8rem;">
+                                        <i class="fas fa-check-double text-success me-1"></i> Trạng thái: Đang cấu hình lô thiết bị
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="alert bg-primary bg-opacity-10 border-0 rounded-4 p-4 mb-4 d-flex align-items-center gap-3">
+                                    <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                        <i class="fas fa-sliders-h"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-primary">Cấu hình cập nhật lô</h6>
+                                        <p class="mb-0 small text-muted">Tích chọn hộp kiểm cạnh tên trường để chọn cập nhật trường đó cho lô thiết bị.</p>
+                                    </div>
+                                </div>
+                                <form id="bulkUpdateForm">
+                                    <div class="row g-3">
+                                        <!-- Tên thiết bị -->
+                                        <div class="col-12">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-name-check" onchange="document.getElementById('bulk-edit-name-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-name-check">Tên thiết bị</label>
+                                            </div>
+                                            <input type="text" id="bulk-edit-name-val" class="filter-input w-100" placeholder="Nhập tên thiết bị mới..." disabled>
+                                        </div>
+
+                                        <!-- Loại thiết bị -->
+                                        <div class="col-sm-6">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-category-check" onchange="document.getElementById('bulk-edit-category-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-category-check">Loại thiết bị</label>
+                                            </div>
+                                            <select id="bulk-edit-category-val" class="filter-input w-100" disabled>
+                                                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Phòng học -->
+                                        <div class="col-sm-6">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-room-check" onchange="document.getElementById('bulk-edit-room-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-room-check">Phòng học</label>
+                                            </div>
+                                            <select id="bulk-edit-room-val" class="filter-input w-100" disabled>
+                                                <option th:each="r : ${rooms}" th:value="${r}" th:text="${r}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Trạng thái -->
+                                        <div class="col-sm-6">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-status-check" onchange="document.getElementById('bulk-edit-status-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-status-check">Trạng thái</label>
+                                            </div>
+                                            <select id="bulk-edit-status-val" class="filter-input w-100" disabled>
+                                                <option th:each="sta : ${status}" th:value="${sta}" th:text="${sta}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Giá tiền -->
+                                        <div class="col-sm-6">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-price-check" onchange="document.getElementById('bulk-edit-price-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-price-check">Giá tiền (VNĐ)</label>
+                                            </div>
+                                            <input type="text" id="bulk-edit-price-val" class="filter-input w-100" placeholder="Ví dụ: 15.000.000" disabled>
+                                        </div>
+
+                                        <!-- Ngày mua -->
+                                        <div class="col-sm-12">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-purchase-check" onchange="document.getElementById('bulk-edit-purchase-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-purchase-check">Ngày mua</label>
+                                            </div>
+                                            <input type="date" id="bulk-edit-purchase-val" class="filter-input w-100" disabled>
+                                        </div>
+
+                                        <!-- Mô tả chi tiết -->
+                                        <div class="col-12">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-desc-check" onchange="document.getElementById('bulk-edit-desc-val').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-desc-check">Mô tả chi tiết</label>
+                                            </div>
+                                            <textarea id="bulk-edit-desc-val" class="filter-input w-100" rows="3" placeholder="Nhập mô tả mới..." disabled></textarea>
+                                        </div>
+
+                                        <!-- Đổi ảnh thiết bị hàng loạt -->
+                                        <div class="col-12">
+                                            <div class="form-check d-flex align-items-center mb-1">
+                                                <input class="form-check-input me-2" type="checkbox" id="bulk-edit-image-check" onchange="document.getElementById('bulk-edit-image-input').disabled = !this.checked">
+                                                <label class="form-label-vip mb-0" style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; cursor: pointer;" for="bulk-edit-image-check">Đổi ảnh thiết bị hàng loạt</label>
+                                            </div>
+                                            <label for="bulk-edit-image-input" class="d-block p-4 text-center rounded-4 border border-2 border-dashed mt-1"
+                                                   style="cursor:pointer; background:#f8fafc; border-color:#cbd5e1 !important; transition: all 0.3s;" onmouseover="this.style.background='#ffffff'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'">
+                                                <div id="bulkImagePreview" style="display:none; margin-bottom:8px;">
+                                                    <img id="bulkImagePreviewImg" src="" style="max-height:100px; border-radius:12px; object-fit:contain; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                                </div>
+                                                <div id="bulkImagePlaceholder">
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-2"><i class="fas fa-camera fa-lg"></i></div>
+                                                    <div class="small text-muted fw-bold">Nhấn để chọn ảnh mới cho lô thiết bị</div>
+                                                </div>
+                                                <input type="file" id="bulk-edit-image-input" class="d-none" accept="image/*" disabled
+                                                       onchange="previewImage(this, 'bulkImagePreviewImg', 'bulkImagePreview', 'bulkImagePlaceholder')">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mt-4 pt-3 border-top">
+                                        <div class="col-6">
+                                            <button type="button" class="btn w-100 rounded-pill fw-bold py-3 text-muted bg-light border" onclick="closeBulkEditModal()">Hủy bỏ</button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" id="btnSaveBulkUpdate" class="btn w-100 rounded-pill fw-bold py-3 text-white" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 8px 15px rgba(16,185,129,0.25); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="submitBulkEdit()">
                                                 <i class="fas fa-save me-2"></i>Lưu thay đổi
                                             </button>
                                         </div>

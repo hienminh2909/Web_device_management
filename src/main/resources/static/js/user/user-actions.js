@@ -216,6 +216,58 @@ async function saveUser() {
         return;
     }
 
+    // Client-side validations
+    const fullNameVal = (userData.full_name || '').trim();
+    if (fullNameVal.length < 2) {
+        Swal.fire('Cảnh báo', 'Họ và tên phải có ít nhất 2 ký tự', 'warning');
+        return;
+    }
+
+    if (!isEdit) {
+        const usernameVal = (userData.username || '').trim();
+        const passwordVal = (userData.password_hash || '').trim();
+
+        if (usernameVal.length < 3 || usernameVal.length > 20) {
+            Swal.fire('Cảnh báo', 'Tên đăng nhập phải từ 3 đến 20 ký tự', 'warning');
+            return;
+        }
+
+        // Only lowercase, numbers, underscores, and hyphens
+        const usernameRegex = /^[a-z0-9_-]+$/;
+        if (!usernameRegex.test(usernameVal)) {
+            Swal.fire('Cảnh báo', 'Tên đăng nhập chỉ được chứa chữ cái thường (a-z), chữ số (0-9), dấu gạch dưới (_) hoặc gạch ngang (-)', 'warning');
+            return;
+        }
+
+        if (passwordVal.length < 6) {
+            Swal.fire('Cảnh báo', 'Mật khẩu phải có ít nhất 6 ký tự', 'warning');
+            return;
+        }
+
+        if (passwordVal.includes(' ')) {
+            Swal.fire('Cảnh báo', 'Mật khẩu không được chứa khoảng trắng', 'warning');
+            return;
+        }
+    }
+
+    if (userData.phone) {
+        const phoneVal = userData.phone.trim();
+        const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+        if (!phoneRegex.test(phoneVal)) {
+            Swal.fire('Cảnh báo', 'Số điện thoại không hợp lệ (phải bắt đầu bằng 0 hoặc +84 và gồm 10 chữ số)', 'warning');
+            return;
+        }
+    }
+
+    if (userData.email) {
+        const emailVal = userData.email.trim();
+        const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+        if (!emailRegex.test(emailVal)) {
+            Swal.fire('Cảnh báo', 'Email không hợp lệ', 'warning');
+            return;
+        }
+    }
+
     try {
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
@@ -236,7 +288,26 @@ async function saveUser() {
             }).then(() => location.reload());
         } else {
             const err = await response.text();
-            Swal.fire('Thất bại', err || 'Có lỗi xảy ra', 'error');
+            let errMsg = err || 'Có lỗi xảy ra';
+            try {
+                const errJson = JSON.parse(err);
+                if (errJson.detail) {
+                    if (Array.isArray(errJson.detail)) {
+                        errMsg = errJson.detail.map(d => d.msg).join('<br>');
+                    } else {
+                        errMsg = errJson.detail;
+                    }
+                } else if (errJson.error) {
+                    errMsg = errJson.error;
+                }
+            } catch (e) {
+                // If it is just a plain error string
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Thất bại',
+                html: errMsg
+            });
         }
     } catch (err) {
         Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ', 'error');

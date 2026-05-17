@@ -115,6 +115,30 @@ class DeviceController(
         }
     }
 
+    @PutMapping("/update-multiple")
+    @ResponseBody
+    fun updateMultipleDevices(
+        @RequestBody payload: Map<String, Any>,
+        session: HttpSession
+    ): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as? String
+        
+        val idsRaw = payload["ids"] as? List<*> ?: return ResponseEntity.badRequest().body(mapOf("error" to "Danh sách ID trống"))
+        val ids = idsRaw.mapNotNull { (it as? Number)?.toInt() }
+        if (ids.isEmpty()) return ResponseEntity.badRequest().body(mapOf("error" to "Danh sách ID trống"))
+        
+        val mapper = jacksonObjectMapper()
+        val requestJson = mapper.writeValueAsString(payload["fields"] ?: emptyMap<String, Any>())
+        val request = mapper.readValue(requestJson, DeviceUpdateRequest::class.java)
+
+        return try {
+            val result = deviceService.updateMultipleDevices(ids, request, token)
+            ResponseEntity.ok(result)
+        } catch (e: Exception) {
+            ResponseEntity.status(400).body(mapOf("error" to e.message))
+        }
+    }
+
 
     @GetMapping("/devices/export-excel")
     fun exportExcel(
