@@ -642,6 +642,50 @@
             70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
+
+        /* --- Floating Sidebar Backdrop --- */
+        .sidebar-backdrop-vip {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1025;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .sidebar-backdrop-vip.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- MOBILE RESPONSIVE DASHBOARD SYSTEM --- */
+        @media (max-width: 991px) {
+            .sidebar-vip {
+                transform: translateX(-110%);
+                transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+                z-index: 1040;
+                top: 10px; left: 10px; bottom: 10px;
+                border-radius: 24px;
+            }
+            .sidebar-vip.show-mobile {
+                transform: translateX(0);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            }
+            .navbar-vip {
+                left: 10px; right: 10px;
+                width: calc(100% - 20px);
+                top: 10px;
+                padding: 0 15px;
+                border-radius: 16px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px 10px 40px 10px;
+                margin-top: 90px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -690,6 +734,9 @@
 
 <nav class="navbar-vip">
     <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-toggle-sidebar d-lg-none border-0 bg-transparent me-2" onclick="toggleSidebarMobile()" style="color: var(--primary); font-size: 1.25rem; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+            <i class="fas fa-bars"></i>
+        </button>
         <span class="small" style="color: #94a3b8; font-weight: 700; letter-spacing: 1px;">PATH //</span>
         <span class="fw-bold" style="color: var(--primary); text-transform: uppercase; font-family: var(--font-display);" th:text="${view ?: 'Overview'}">Overview</span>
     </div>
@@ -810,6 +857,17 @@
         window.formatVietnamTime();
     });
     setInterval(updateBadges, 30000);
+
+    // --- MOBILE SIDEBAR CONTROL ---
+    window.toggleSidebarMobile = function() {
+        const sidebar = document.querySelector('.sidebar-vip');
+        const backdrop = document.querySelector('.sidebar-backdrop-vip');
+        if (sidebar && backdrop) {
+            sidebar.classList.toggle('show-mobile');
+            backdrop.classList.toggle('show');
+        }
+    };
 </script>
+<div class="sidebar-backdrop-vip" onclick="toggleSidebarMobile()"></div>
 </body>
 </html>
