@@ -238,14 +238,21 @@ class DeviceService(private val restTemplate: RestTemplate) {
         workbook.close()
     }
 
-    fun getRawDevices(token: String, roomId: Int? = null): List<Map<String, Any>> {
+    fun getRawDevices(token: String, roomId: Int? = null, ids: String? = null): List<Map<String, Any>> {
         val headers = HttpHeaders()
         headers.setBearerAuth(token)
         val entity = HttpEntity<Unit>(headers)
         
         var url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices"
+        val params = mutableListOf<String>()
         if (roomId != null) {
-            url += "?room_id=$roomId"
+            params.add("room_id=$roomId")
+        }
+        if (!ids.isNullOrBlank()) {
+            params.add("ids=$ids")
+        }
+        if (params.isNotEmpty()) {
+            url += "?" + params.joinToString("&")
         }
         
         return try {

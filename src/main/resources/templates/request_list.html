@@ -72,6 +72,23 @@
             box-shadow: 0 6px 16px rgba(0, 102, 102, 0.1);
             transform: translateY(-2px);
         }
+        .btn-vip-outline-danger {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: #dc2626 !important;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .btn-vip-outline-danger:hover {
+            background: #fff;
+            border-color: #dc2626;
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
+        }
 
         /* --- PREMIUM SEGMENTED TABS (Main Filter) --- */
         .segmented-control {
@@ -136,15 +153,17 @@
             color: #64748b !important;
             border-radius: 16px !important;
             font-weight: 800 !important;
-            padding: 12px 24px !important;
+            height: 48px !important;
+            padding: 0 24px !important;
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
             box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 1px;
             backdrop-filter: blur(10px);
-            display: flex;
+            display: inline-flex !important;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
         .filter-status:hover {
@@ -159,7 +178,8 @@
             border: 2px solid var(--primary) !important;
             box-shadow: 0 8px 25px rgba(15, 118, 110, 0.15) !important;
             transform: translateY(-3px);
-            padding: 11px 23px !important; /* Compensate for 2px border vs 1px */
+            height: 48px !important;
+            padding: 0 23px !important; /* Compensate for 2px border vs 1px */
         }
         .filter-status.active .badge {
             background: var(--primary) !important;
@@ -173,15 +193,47 @@
             border-radius: 16px !important;
             color: var(--text-main) !important;
             font-weight: 600;
-            padding: 15px 20px 15px 45px !important;
+            padding: 0 20px 0 45px !important;
             transition: all 0.3s;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            height: 48px !important;
         }
         .search-glass:focus {
             background: #ffffff !important;
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1) !important;
             outline: none;
+        }
+
+        /* --- SELECT GLASS --- */
+        .select-glass {
+            background: rgba(255,255,255,0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 16px !important;
+            color: var(--text-main) !important;
+            font-weight: 600;
+            padding: 0 35px 0 45px !important;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            cursor: pointer;
+            height: 48px !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 16px center !important;
+            background-size: 12px 10px !important;
+        }
+        .select-glass:focus {
+            background: #ffffff !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1) !important;
+            outline: none;
+        }
+        select#roomFilterSelect option {
+            background-color: #ffffff !important;
+            color: var(--text-main) !important;
         }
 
         /* --- PREMIUM TABLE --- */
@@ -270,6 +322,8 @@
         .action-approve:hover { background: #059669; color: white; transform: scale(1.1); }
         .action-reject { background: rgba(255, 33, 87, 0.1); color: #e11d48; }
         .action-reject:hover { background: #e11d48; color: white; transform: scale(1.1); }
+        .action-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .action-delete:hover { background: #ef4444; color: white; transform: scale(1.1); }
         
         /* Select & Input override for modal */
         .form-vip {
@@ -296,6 +350,9 @@
                 <p class="vip-subtitle mb-0">Theo dõi, kiểm duyệt và quản lý trạng thái thiết bị toàn hệ thống.</p>
             </div>
             <div class="d-flex gap-2">
+                <button th:if="${#strings.toLowerCase(session.role) == 'admin'}" class="btn-vip-outline-danger d-flex align-items-center gap-2" onclick="confirmClearAllRequests()">
+                    <i class="fas fa-trash-alt me-1"></i><span>Dọn dẹp báo cáo</span>
+                </button>
                 <button class="btn-vip-outline d-flex align-items-center gap-2" onclick="exportToExcel()">
                     <i class="fas fa-file-excel text-success"></i><span>Xuất Excel</span>
                 </button>
@@ -322,7 +379,7 @@
         <!-- FILTER BAR -->
         <div class="bento-card mb-4" style="padding: 16px 24px;">
             <div class="row g-3 align-items-center">
-                <div class="col-md-8 d-flex flex-wrap gap-2">
+                <div class="col-xl-6 col-lg-12 col-md-12 d-flex flex-wrap gap-2">
                     <button class="btn filter-status active" onclick="setStatusFilter('all', this)">
                         Tất cả <span id="badgeStatusAll" class="badge bg-secondary rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
                     </button>
@@ -336,10 +393,19 @@
                         Từ chối <span id="badgeStatusRejected" class="badge bg-dark rounded-pill ms-1 d-none" style="font-size: 0.6rem;">0</span>
                     </button>
                 </div>
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent border-0 position-absolute z-3 text-muted" style="left: 5px; top: 3px;"><i class="fas fa-search"></i></span>
-                        <input type="text" id="reqSearch" class="form-control search-glass ps-5" placeholder="Tìm kiếm mã, thiết bị, phòng..." onkeyup="masterFilter()">
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="position-relative">
+                        <span class="position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%); z-index: 5; pointer-events: none;"><i class="fas fa-door-open"></i></span>
+                        <select id="roomFilterSelect" class="form-select select-glass w-100" onchange="masterFilter()">
+                            <option value="">Tất cả phòng học</option>
+                            <option th:each="r : ${rooms}" th:value="${r.room_name}" th:text="${r.room_name}">Phòng</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="position-relative">
+                        <span class="position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%); z-index: 5; pointer-events: none;"><i class="fas fa-search"></i></span>
+                        <input type="text" id="reqSearch" class="form-control search-glass w-100" placeholder="Tìm kiếm mã, thiết bị..." onkeyup="masterFilter()">
                     </div>
                 </div>
             </div>
@@ -424,13 +490,17 @@
                         
                         <!-- Thao tác -->
                         <td class="text-end" onclick="event.stopPropagation()">
-                            <div th:if="${(req.status_resolve == null or req.status_resolve == 'pending') and #strings.toLowerCase(session.role) == 'admin'}" class="d-flex gap-2 justify-content-end">
+                            <div th:if="${(req.status_resolve == null or req.status_resolve == 'pending') and #strings.toLowerCase(session.role) == 'admin'}" class="d-flex gap-2 justify-content-end align-items-center">
                                 <button class="action-btn action-approve" title="Duyệt" th:attr="onclick=|processAction(${req.id}, 'approved')|"><i class="fas fa-check"></i></button>
                                 <button class="action-btn action-reject" title="Từ chối" th:attr="onclick=|processAction(${req.id}, 'rejected')|"><i class="fas fa-times"></i></button>
+                                <button class="action-btn action-delete" title="Xóa" th:attr="onclick=|confirmDeleteRequest(${req.id})|"><i class="far fa-trash-alt"></i></button>
                             </div>
-                            <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}" class="text-muted d-flex justify-content-end pe-2">
-                                <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;" th:if="${req.status_resolve == 'approved'}"></i>
-                                <i class="fas fa-times-circle" style="color: #f43f5e; font-size: 1.2rem;" th:if="${req.status_resolve == 'rejected'}"></i>
+                            <div th:if="${req.status_resolve != null and req.status_resolve != 'pending'}" class="d-flex gap-2 justify-content-end align-items-center">
+                                <span class="pe-1">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;" th:if="${req.status_resolve == 'approved'}"></i>
+                                    <i class="fas fa-times-circle" style="color: #f43f5e; font-size: 1.2rem;" th:if="${req.status_resolve == 'rejected'}"></i>
+                                </span>
+                                <button th:if="${#strings.toLowerCase(session.role) == 'admin'}" class="action-btn action-delete" title="Xóa" th:attr="onclick=|confirmDeleteRequest(${req.id})|"><i class="far fa-trash-alt"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -594,22 +664,108 @@
             masterFilter();
         }
 
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let matchingItems = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            masterFilter();
+            updateTabBadges();
+        });
+
         function masterFilter() {
-            const search = document.getElementById('reqSearch').value.toLowerCase();
+            const search = document.getElementById('reqSearch').value.toLowerCase().trim();
+            const selectedRoom = document.getElementById('roomFilterSelect').value.toLowerCase().trim();
             const rows = document.querySelectorAll('#requestTableBody tr');
             
+            matchingItems = [];
+
             rows.forEach(row => {
                 const type = row.getAttribute('data-type');
                 const status = row.getAttribute('data-status');
+                const room = (row.getAttribute('data-room-name') || '').toLowerCase().trim();
                 const text = row.innerText.toLowerCase();
                 
                 let show = true;
                 if (currentMainTab === 'REPORT' && type !== 'REPORT') show = false;
                 if (currentMainTab === 'ADVANCED' && type === 'REPORT') show = false;
                 if (currentStatusTab !== 'all' && status !== currentStatusTab) show = false;
+                if (selectedRoom && room !== selectedRoom) show = false;
                 if (search && !text.includes(search)) show = false;
                 
-                row.style.display = show ? '' : 'none';
+                row.style.display = 'none'; // hide all initially
+                if (show) {
+                    matchingItems.push(row);
+                }
+            });
+            
+            currentPage = 1;
+            renderPagination();
+            showPage(currentPage);
+        }
+
+        function showPage(page) {
+            matchingItems.forEach(row => row.style.display = 'none');
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = matchingItems.slice(start, end);
+            
+            pageItems.forEach(row => {
+                row.style.display = '';
+            });
+        }
+
+        function renderPagination() {
+            let paginationContainer = document.getElementById('reqPagination');
+            if (!paginationContainer) {
+                const tableContainer = document.querySelector('.table-responsive');
+                if (!tableContainer) return;
+                paginationContainer = document.createElement('nav');
+                paginationContainer.id = 'reqPagination';
+                paginationContainer.className = 'mt-4 d-flex justify-content-center w-100';
+                tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+            }
+
+            const totalPages = Math.ceil(matchingItems.length / itemsPerPage);
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            let html = '<ul class="pagination pagination-md shadow-sm" style="border-radius: 12px; overflow: hidden;">';
+            
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage - 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-left"></i></a>
+                     </li>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const activeStyle = i === currentPage ? 'background: linear-gradient(135deg, var(--primary), #008080); color: white; border: none;' : 'color: #334155; border: none;';
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link px-3 py-2" href="#" data-page="${i}" style="${activeStyle} font-weight: 600;">${i}</a>
+                             </li>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<li class="page-item disabled"><a class="page-link px-3 py-2 text-muted" href="#" style="border:none; font-weight: 600;">...</a></li>`;
+                }
+            }
+
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage + 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-right"></i></a>
+                     </li>`;
+            
+            html += '</ul>';
+            paginationContainer.innerHTML = html;
+
+            paginationContainer.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (!isNaN(page) && page >= 1 && page <= totalPages && page !== currentPage) {
+                        currentPage = page;
+                        showPage(currentPage);
+                        renderPagination();
+                    }
+                });
             });
         }
 
@@ -676,6 +832,76 @@
                     }
                 } catch (e) {
                     Swal.fire('Lỗi', 'Không thể thực hiện thao tác này.', 'error');
+                }
+            }
+        }
+
+        async function confirmDeleteRequest(id) {
+            const result = await Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: 'Bạn có chắc chắn muốn xóa báo cáo này khỏi hệ thống?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy',
+                customClass: { popup: 'rounded-4' }
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/requests/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: 'Báo cáo đã được xóa thành công.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-4' }
+                        }).then(() => location.reload());
+                    } else {
+                        const errorData = await res.json();
+                        throw new Error(errorData.error || 'Lỗi server');
+                    }
+                } catch (e) {
+                    Swal.fire('Lỗi', e.message || 'Không thể xóa báo cáo này.', 'error');
+                }
+            }
+        }
+
+        async function confirmClearAllRequests() {
+            const result = await Swal.fire({
+                title: 'Dọn dẹp toàn bộ?',
+                text: 'Hành động này sẽ xóa vĩnh viễn tất cả báo cáo trong hệ thống. Bạn có chắc chắn?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Dọn dẹp ngay',
+                cancelButtonText: 'Hủy',
+                customClass: { popup: 'rounded-4' }
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch('/requests/clear', { method: 'DELETE' });
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Đã dọn dẹp toàn bộ báo cáo.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-4' }
+                        }).then(() => location.reload());
+                    } else {
+                        const errorData = await res.json();
+                        throw new Error(errorData.error || 'Lỗi server');
+                    }
+                } catch (e) {
+                    Swal.fire('Lỗi', e.message || 'Không thể dọn dẹp báo cáo.', 'error');
                 }
             }
         }

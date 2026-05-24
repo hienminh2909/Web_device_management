@@ -162,4 +162,38 @@ class RequestController(
             ResponseEntity.status(500).body(mapOf("error" to "Lỗi hệ thống: ${e.message}"))
         }
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    fun deleteRequest(@PathVariable id: Int, session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String? ?: return ResponseEntity.status(401).body("Unauthorized")
+        val role = session.getAttribute("role")?.toString()?.lowercase() ?: ""
+        if (role != "admin") {
+            return ResponseEntity.status(403).body(mapOf("error" to "Chỉ admin mới có quyền xóa yêu cầu"))
+        }
+
+        val success = requestService.deleteRequest(id, token)
+        return if (success) {
+            ResponseEntity.ok(mapOf("message" to "Xóa yêu cầu thành công"))
+        } else {
+            ResponseEntity.status(500).body(mapOf("error" to "Lỗi khi xóa yêu cầu"))
+        }
+    }
+
+    @DeleteMapping("/clear")
+    @ResponseBody
+    fun clearAllRequests(session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String? ?: return ResponseEntity.status(401).body("Unauthorized")
+        val role = session.getAttribute("role")?.toString()?.lowercase() ?: ""
+        if (role != "admin") {
+            return ResponseEntity.status(403).body(mapOf("error" to "Chỉ admin mới có quyền xóa yêu cầu"))
+        }
+
+        val success = requestService.clearAllRequests(token)
+        return if (success) {
+            ResponseEntity.ok(mapOf("message" to "Dọn dẹp toàn bộ yêu cầu thành công"))
+        } else {
+            ResponseEntity.status(500).body(mapOf("error" to "Lỗi khi dọn dẹp yêu cầu"))
+        }
+    }
 }

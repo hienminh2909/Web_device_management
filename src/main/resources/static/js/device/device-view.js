@@ -13,7 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
     filterDevices();
 });
 
-// ========== LỌC THIẾT BỊ ==========
+let currentPage = 1;
+const itemsPerPage = 12;
+let matchingItems = [];
+
+// ========== LỌC THIẾT BỊ VÀ PHÂN TRANG ==========
 function filterDevices() {
     const search = document.getElementById('searchInput').value.toLowerCase().trim();
     const room = document.getElementById('roomFilter').value.toLowerCase();
@@ -22,6 +26,7 @@ function filterDevices() {
     
     let totalQty = 0;
     let totalValue = 0;
+    matchingItems = [];
 
     const gridItems = document.querySelectorAll('.device-item');
     const tableRows = document.querySelectorAll('#deviceTableBody tr');
@@ -64,31 +69,19 @@ function filterDevices() {
             (cat === "" || (item.dataset.category || '').toLowerCase().includes(cat)) &&
             (status === "" || (item.dataset.status || '').toLowerCase() === status);
 
-        if (!matches) {
-            item.classList.add('d-none');
-            item.classList.remove('fade-in-scale');
-        } else {
-            if (item.classList.contains('d-none')) {
-                item.classList.remove('d-none');
-                // Force reflow
-                void item.offsetWidth;
-                item.classList.add('fade-in-scale');
-            }
-        }
-        
+        // Hide all initially
+        item.classList.add('d-none');
+        item.classList.remove('fade-in-scale');
         if (tableRows[index]) {
-            if (!matches) {
-                tableRows[index].classList.add('d-none');
-            } else {
-                tableRows[index].classList.remove('d-none');
-            }
+            tableRows[index].classList.add('d-none');
         }
-        
+
         if (matches) {
+            matchingItems.push(index);
             const qty = parseInt(item.dataset.quantity || 0);
             totalQty += qty;
             
-            // Tính giá trị: Xóa các ký tự không phải số (ví dụ "15.000.000 ₫" -> 15000000)
+            // Tính giá trị
             const priceStr = item.dataset.price || "0";
             const price = parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
             totalValue += (price * qty);
@@ -97,9 +90,98 @@ function filterDevices() {
 
     const totalCountEl = document.getElementById('totalCount');
     const totalValueEl = document.getElementById('totalValueDisplay');
-    
     if (totalCountEl) totalCountEl.innerText = totalQty;
     if (totalValueEl) totalValueEl.innerText = totalValue.toLocaleString('vi-VN') + ' ₫';
+
+    // Reset trang về 1 khi lọc
+    currentPage = 1;
+    renderPagination();
+    showPage(currentPage);
+}
+
+function showPage(page) {
+    const gridItems = document.querySelectorAll('.device-item');
+    const tableRows = document.querySelectorAll('#deviceTableBody tr');
+    
+    // Hide all matching items first
+    matchingItems.forEach(index => {
+        if (gridItems[index]) gridItems[index].classList.add('d-none');
+        if (tableRows[index]) tableRows[index].classList.add('d-none');
+    });
+
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageItems = matchingItems.slice(startIndex, endIndex);
+
+    // Show only items for current page
+    pageItems.forEach(index => {
+        if (gridItems[index]) {
+            gridItems[index].classList.remove('d-none');
+            // Force reflow
+            void gridItems[index].offsetWidth;
+            gridItems[index].classList.add('fade-in-scale');
+        }
+        if (tableRows[index]) {
+            tableRows[index].classList.remove('d-none');
+        }
+    });
+}
+
+function renderPagination() {
+    let paginationContainer = document.getElementById('devicePagination');
+    if (!paginationContainer) {
+        const tableContainer = document.getElementById('deviceTableWrapper');
+        if (!tableContainer) return;
+        paginationContainer = document.createElement('nav');
+        paginationContainer.id = 'devicePagination';
+        paginationContainer.className = 'mt-4 d-flex justify-content-center w-100';
+        tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+    }
+
+    const totalPages = Math.ceil(matchingItems.length / itemsPerPage);
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+
+    let html = '<ul class="pagination pagination-md shadow-sm" style="border-radius: 12px; overflow: hidden;">';
+    
+    // Prev
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage - 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-left"></i></a>
+             </li>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            const activeStyle = i === currentPage ? 'background: var(--primary-gradient); color: white; border: none;' : 'color: #334155; border: none;';
+            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link px-3 py-2" href="#" data-page="${i}" style="${activeStyle} font-weight: 600;">${i}</a>
+                     </li>`;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            html += `<li class="page-item disabled"><a class="page-link px-3 py-2 text-muted" href="#" style="border:none; font-weight: 600;">...</a></li>`;
+        }
+    }
+
+    // Next
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage + 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-right"></i></a>
+             </li>`;
+    
+    html += '</ul>';
+    paginationContainer.innerHTML = html;
+
+    paginationContainer.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(page) && page >= 1 && page <= totalPages && page !== currentPage) {
+                currentPage = page;
+                showPage(currentPage);
+                renderPagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    });
 }
 
 // ========== CHUYỂN ĐỔI GRID / TABLE ==========
@@ -270,16 +352,29 @@ function updateDeleteButtonState() {
     const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
     const btnDelete = document.getElementById('btnBulkDelete');
     const btnEdit = document.getElementById('btnBulkEdit');
+    const btnPrint = document.getElementById('btnBulkPrintQR');
+    const btnDownload = document.getElementById('btnBulkDownloadQR');
+    
     const counter = document.getElementById('selectedCounter');
     const editCounter = document.getElementById('selectedEditCounter');
+    const printCounter = document.getElementById('selectedPrintCounter');
+    const downloadCounter = document.getElementById('selectedDownloadCounter');
 
     if (btnDelete && counter) {
-        btnDelete.style.display = checkedCount > 0 ? 'block' : 'none';
+        btnDelete.style.display = checkedCount > 0 ? 'inline-flex' : 'none';
         counter.innerText = checkedCount;
     }
     if (btnEdit && editCounter) {
-        btnEdit.style.display = checkedCount > 0 ? 'block' : 'none';
+        btnEdit.style.display = checkedCount > 0 ? 'inline-block' : 'none';
         editCounter.innerText = checkedCount;
+    }
+    if (btnPrint && printCounter) {
+        btnPrint.style.display = checkedCount > 0 ? 'inline-block' : 'none';
+        printCounter.innerText = checkedCount;
+    }
+    if (btnDownload && downloadCounter) {
+        btnDownload.style.display = checkedCount > 0 ? 'inline-block' : 'none';
+        downloadCounter.innerText = checkedCount;
     }
 }
 

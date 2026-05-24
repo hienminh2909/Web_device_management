@@ -122,6 +122,28 @@
             transform: translateY(-2px);
         }
 
+        .btn-vip-outline-danger {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: #dc2626 !important;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 800;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        
+        .btn-vip-outline-danger:hover {
+            background: #fff;
+            border-color: #dc2626;
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
+        }
+
         .delete-btn-hover { opacity: 0.3; transition: all 0.2s; }
         .notif-full-item:hover .delete-btn-hover { opacity: 1; }
         .delete-btn-hover:hover { transform: scale(1.2); color: #e11d48 !important; }
@@ -158,6 +180,9 @@
             <div class="d-flex gap-3">
                 <button class="btn btn-vip-secondary" onclick="sendTestNotification()">
                     <i class="fas fa-vial me-2"></i>Gửi thử nghiệm
+                </button>
+                <button class="btn btn-vip-outline-danger" onclick="confirmClearAllNotifications()">
+                    <i class="fas fa-trash-alt me-2"></i>Xóa tất cả
                 </button>
                 <button class="btn btn-vip-primary" onclick="markAllAsRead()">
                     <i class="fas fa-check-double me-2"></i>Đọc tất cả
@@ -302,6 +327,41 @@
                     }
                 } catch (err) {
                     Swal.fire('Lỗi', 'Không thể xóa thông báo', 'error');
+                }
+            }
+        }
+
+        async function confirmClearAllNotifications() {
+            const result = await Swal.fire({
+                title: 'Xóa tất cả thông báo?',
+                text: "Bạn không thể hoàn tác thao tác này!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Đồng ý xóa sạch',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch('/api/notifications', { method: 'DELETE' });
+                    if (res.ok) {
+                        if (window.updateBadges) window.updateBadges();
+                        loadFullNotifications();
+                        Swal.fire({
+                            title: 'Đã xóa sạch!',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        Swal.fire('Lỗi', 'Không thể xóa sạch thông báo', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
                 }
             }
         }

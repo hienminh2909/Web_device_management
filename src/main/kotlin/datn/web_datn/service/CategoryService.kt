@@ -1,6 +1,8 @@
 package datn.web_datn.service
 
 import datn.web_datn.model.CategoryModel
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -9,6 +11,7 @@ import org.springframework.web.client.RestTemplate
 class CategoryService(private val restTemplate: RestTemplate) {
     private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/categories"
 
+    @Cacheable(value = ["categories"])
     fun getAllCategories(token: String?): List<CategoryModel> {
         val headers = HttpHeaders()
         headers.setBearerAuth(token ?: "")
@@ -21,6 +24,7 @@ class CategoryService(private val restTemplate: RestTemplate) {
         }
     }
 
+    @CacheEvict(value = ["categories"], allEntries = true)
     fun createCategoryFromMap(payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -73,6 +77,7 @@ class CategoryService(private val restTemplate: RestTemplate) {
         return createCategoryFromMap(payload as Map<String, Any>, token)
     }
 
+    @CacheEvict(value = ["categories"], allEntries = true)
     fun updateCategoryFromMap(id: Int, payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -124,6 +129,7 @@ class CategoryService(private val restTemplate: RestTemplate) {
         return updateCategoryFromMap(id, payload as Map<String, Any>, token)
     }
 
+    @CacheEvict(value = ["categories"], allEntries = true)
     fun deleteCategory(id: Int, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         if (!token.isNullOrBlank()) {

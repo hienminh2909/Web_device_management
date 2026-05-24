@@ -5,8 +5,9 @@ data class InventoryLogModel(
     val device_id: Int,
     val status_at_scan: String? = null,
     val inventory_at: String? = null,
-    val handheld_name: String? = null,
-    val devices: DeviceInfo? = null
+    val resolved_by: Int? = null,
+    val devices: DeviceInfo? = null,
+    val users: UserInfo? = null
 )
 
 data class InventoryProgressModel(

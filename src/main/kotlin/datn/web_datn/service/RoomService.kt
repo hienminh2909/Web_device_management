@@ -1,6 +1,8 @@
 package datn.web_datn.service
 
 import datn.web_datn.model.RoomModel
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -9,6 +11,7 @@ import org.springframework.web.client.RestTemplate
 class RoomService(private val restTemplate: RestTemplate) {
     private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/rooms"
 
+    @Cacheable(value = ["rooms"])
     fun getAllRooms(token: String?): List<RoomModel> {
         val headers = HttpHeaders()
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
@@ -23,6 +26,7 @@ class RoomService(private val restTemplate: RestTemplate) {
         }
     }
 
+    @CacheEvict(value = ["rooms"], allEntries = true)
     fun createRoomFromMap(payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -54,6 +58,7 @@ class RoomService(private val restTemplate: RestTemplate) {
         }
     }
 
+    @CacheEvict(value = ["rooms"], allEntries = true)
     fun updateRoomFromMap(id: Int, payload: Map<String, Any>, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -85,6 +90,7 @@ class RoomService(private val restTemplate: RestTemplate) {
         }
     }
 
+    @CacheEvict(value = ["rooms"], allEntries = true)
     fun deleteRoom(id: Int, token: String?): Map<*, *>? {
         val headers = HttpHeaders()
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)

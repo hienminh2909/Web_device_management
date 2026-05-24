@@ -50,6 +50,14 @@ class NotificationController(private val notificationService: NotificationServic
         val success = notificationService.deleteNotification(id, token)
         return ResponseEntity.ok(mapOf("success" to success))
     }
+
+    @DeleteMapping("/api/notifications")
+    @ResponseBody
+    fun clearAllNotifications(session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String?
+        val success = notificationService.clearAllNotifications(token)
+        return ResponseEntity.ok(mapOf("success" to success))
+    }
     @PostMapping("/api/notifications/test")
     @ResponseBody
     fun sendTestNotification(session: HttpSession): ResponseEntity<Any> {

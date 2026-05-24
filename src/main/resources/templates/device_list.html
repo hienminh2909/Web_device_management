@@ -426,8 +426,28 @@
 
 
 
-    <div class="row g-4" id="deviceGrid">
-        <div class="col-sm-6 col-lg-4 col-xl-3 device-item"
+    <div id="dynamicDeviceContainer" th:fragment="deviceListContent">
+        <!-- SKELTON LOADER (Hiển thị khi danh sách devices rỗng) -->
+        <div id="skeletonLoader" th:if="${devices.isEmpty()}" style="display:flex; flex-direction:column; gap:20px; padding:20px;">
+            <div class="row g-4">
+                <div class="col-sm-6 col-lg-4 col-xl-3" th:each="i : ${#numbers.sequence(1, 8)}">
+                    <div class="card card-device h-100 border-0" style="min-height: 350px;">
+                        <div class="device-image-container placeholder-glow">
+                            <div class="placeholder w-100 h-100" style="border-radius:12px;"></div>
+                        </div>
+                        <div class="card-body placeholder-glow">
+                            <span class="placeholder col-6 mb-3"></span>
+                            <h4 class="placeholder col-8 mb-2"></h4>
+                            <p class="placeholder col-10"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${!devices.isEmpty()}">
+            <div class="row g-4" id="deviceGrid">
+                <div class="col-sm-6 col-lg-4 col-xl-3 device-item"
              th:each="device, iterStat : ${devices}"
              th:attr="data-index=${iterStat.index}"
              th:data-name="${device.device_name}"
@@ -540,6 +560,8 @@
                 </table>
             </div>
         </div>
+    </div>
+    </div>
     </div>
 
 <!--    NUT DANG KY THIET BI -->
@@ -797,16 +819,31 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-white p-4 d-flex justify-content-between align-items-center" style="border-top: 1px solid rgba(226, 232, 240, 0.8) !important;">
-                    <small class="text-muted fw-medium"><i class="fas fa-info-circle me-1 text-primary"></i>Nhấn vào mã định danh để xem chi tiết thông tin thiết bị con.</small>
-                    <div class="d-flex gap-2">
+                <div class="modal-footer border-0 bg-white p-4 d-flex justify-content-between align-items-center flex-wrap gap-3" style="border-top: 1px solid rgba(226, 232, 240, 0.8) !important;">
+                    <div class="d-flex align-items-center gap-3">
+                        <button type="button"
+                                id="btnBulkDelete"
+                                class="btn btn-sm text-danger fw-semibold"
+                                style="display: none; border: 1px solid rgba(220,53,69,0.35); background: rgba(220,53,69,0.06); border-radius: 20px; font-size: 0.78rem; padding: 4px 14px; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(220,53,69,0.13)'"
+                                onmouseout="this.style.background='rgba(220,53,69,0.06)'"
+                                onclick="handleBulkDelete()">
+                            <i class="fas fa-trash me-1" style="font-size:0.72rem;"></i>Xóa (<span id="selectedCounter">0</span>) mục
+                        </button>
+                        <small class="text-muted fw-medium"><i class="fas fa-info-circle me-1 text-primary"></i>Nhấn vào mã định danh để xem chi tiết thông tin thiết bị con.</small>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap justify-content-end">
+                        <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
+                                id="btnBulkPrintQR" style="display: none; background: linear-gradient(135deg, #4f46e5, #4338ca); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkPrintQR()">
+                            <i class="fas fa-print me-2"></i>In nhãn (<span id="selectedPrintCounter">0</span>)
+                        </button>
+                        <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
+                                id="btnBulkDownloadQR" style="display: none; background: linear-gradient(135deg, #0284c7, #0369a1); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkDownloadQR()">
+                            <i class="fas fa-download me-2"></i>Tải nhãn (<span id="selectedDownloadCounter">0</span>)
+                        </button>
                         <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
                                 id="btnBulkEdit" style="display: none; background: linear-gradient(135deg, #0d9488, #0f766e); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkEdit()">
                             <i class="fas fa-edit me-2"></i>Sửa (<span id="selectedEditCounter">0</span>) mục
-                        </button>
-                        <button type="button" class="btn text-white rounded-pill px-4 py-2 shadow-sm fw-bold"
-                                id="btnBulkDelete" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="handleBulkDelete()">
-                            <i class="fas fa-trash-alt me-2"></i>Xóa (<span id="selectedCounter">0</span>) mục
                         </button>
                     </div>
                 </div>
@@ -830,7 +867,15 @@
                                 <div class="p-3 bg-white rounded-4 shadow-sm border" style="display: inline-block;">
                                     <img id="sdQr" src="" class="img-fluid" style="max-height: 100px; border-radius: 8px;">
                                 </div>
-                                <p class="small fw-bold text-muted mt-3 mb-0" style="letter-spacing: 1px; text-transform: uppercase;">Mã QR Thiết Bị</p>
+                                <p class="small fw-bold text-muted mt-2 mb-3" style="letter-spacing: 1px; text-transform: uppercase;">Mã QR Thiết Bị</p>
+                                <div class="d-flex justify-content-center gap-2 mb-3">
+                                    <button class="btn btn-sm btn-outline-primary fw-bold px-3 py-2 rounded-pill" onclick="downloadSinglePropertyTag()" style="font-size: 0.75rem; border-color: var(--primary); color: var(--primary);">
+                                        <i class="fas fa-file-image me-1"></i> Tải nhãn
+                                    </button>
+                                    <button class="btn btn-sm text-white fw-bold px-3 py-2 rounded-pill" onclick="printSinglePropertyTag()" style="background: var(--primary-gradient); border: none; font-size: 0.75rem;">
+                                        <i class="fas fa-print me-1"></i> In nhãn
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1235,6 +1280,29 @@
                     }
                 }, 500);
             }
+            // FETCH SKELETON REPLACEMENT
+            fetch('/devices/list/fragment')
+                .then(response => response.text())
+                .then(html => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const newContent = tempDiv.querySelector('#dynamicDeviceContainer');
+                    if (newContent) {
+                        document.getElementById('dynamicDeviceContainer').replaceWith(newContent);
+                        // Kích hoạt tính toán lại số lượng và giá trị (chạy hàm filterDevices)
+                        if (typeof filterDevices === 'function') {
+                            filterDevices();
+                        }
+                        
+                        // Extract device data store from the new script tag if possible, 
+                        // or better yet, fetch /api/devices/summary if needed for JS logic
+                        fetch('/api/devices/summary').then(res => res.json()).then(data => {
+                            window.deviceDataStore = data;
+                        });
+                    }
+                })
+                .catch(err => console.error("Error loading devices fragment:", err));
+
         });
         /*]]>*/
     </script>

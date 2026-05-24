@@ -66,6 +66,18 @@ class NotificationService(private val restTemplate: RestTemplate) {
         }
     }
 
+    fun clearAllNotifications(token: String?): Boolean {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            restTemplate.exchange(apiUrl, HttpMethod.DELETE, entity, Map::class.java)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun getUnreadCount(token: String?): Int {
         val all = getMyNotifications(token)
         return all.count { 

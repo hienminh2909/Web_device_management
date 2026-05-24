@@ -2,6 +2,7 @@ package datn.web_datn.controller
 
 import datn.web_datn.service.InventoryService
 import jakarta.servlet.http.HttpSession
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/inventory")
 class InventoryController(
     private val inventoryService: InventoryService,
-    private val deviceService: datn.web_datn.service.DeviceService
+    private val deviceService: datn.web_datn.service.DeviceService,
+    private val roomService: datn.web_datn.service.RoomService
 ) {
 
     @GetMapping("/logs")
@@ -19,7 +21,15 @@ class InventoryController(
         if (token == null) return "redirect:/login"
 
         val logs = inventoryService.getInventoryLogs(token)
+        val rooms = try {
+            roomService.getAllRooms(token).map { it.room_name }.sorted()
+        } catch (e: Exception) {
+            emptyList<String>()
+        }
+
         model.addAttribute("logs", logs)
+        model.addAttribute("rooms", rooms)
+        model.addAttribute("isAdmin", session.getAttribute("role") == "admin")
         model.addAttribute("view", "inventory_logs")
         return "dashboard"
     }
@@ -124,6 +134,69 @@ class InventoryController(
         val token = session.getAttribute("token") as String?
         if (token != null) {
             inventoryService.exportRoomInventory(id, roomName, month, year, token, response)
+        }
+    }
+
+    @PostMapping("/scan")
+    @ResponseBody
+    fun scanDevice(
+        @RequestBody payload: Map<String, Any>,
+        session: HttpSession
+    ): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String? ?: return ResponseEntity.status(401).body("Unauthorized")
+        
+        val deviceId = when (val idVal = payload["device_id"] ?: payload["device_code"]) {
+            is Number -> idVal.toInt()
+            is String -> idVal.toIntOrNull()
+            else -> null
+        } ?: return ResponseEntity.badRequest().body(mapOf("error" to "Thiếu hoặc sai định dạng ID thiết bị"))
+        
+        val statusAtScan = payload["status_at_scan"] as? String ?: "Tốt"
+        
+        return try {
+            val result = inventoryService.scanDevice(deviceId, statusAtScan, token)
+            ResponseEntity.ok(result ?: mapOf("message" to "Quét kiểm kê thành công"))
+        } catch (e: Exception) {
+            ResponseEntity.status(400).body(mapOf("error" to e.message))
+        }
+    }
+
+    @DeleteMapping("/logs/{id}")
+    @ResponseBody
+    fun deleteLog(
+        @PathVariable id: Int,
+        session: HttpSession
+    ): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String? ?: return ResponseEntity.status(401).body("Unauthorized")
+        val role = session.getAttribute("role") as String?
+        if (role != "admin") {
+            return ResponseEntity.status(403).body(mapOf("error" to "Chỉ admin mới có quyền xóa nhật ký"))
+        }
+        
+        val success = inventoryService.deleteInventoryLog(id, token)
+        return if (success) {
+            ResponseEntity.ok(mapOf("message" to "Xóa nhật ký thành công"))
+        } else {
+            ResponseEntity.status(500).body(mapOf("error" to "Lỗi khi xóa nhật ký"))
+        }
+    }
+
+    @DeleteMapping("/logs/clear")
+    @ResponseBody
+    fun clearLogs(
+        session: HttpSession
+    ): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String? ?: return ResponseEntity.status(401).body("Unauthorized")
+        val role = session.getAttribute("role") as String?
+        if (role != "admin") {
+            return ResponseEntity.status(403).body(mapOf("error" to "Chỉ admin mới có quyền dọn dẹp nhật ký"))
+        }
+        
+        val success = inventoryService.clearAllInventoryLogs(token)
+        return if (success) {
+            ResponseEntity.ok(mapOf("message" to "Dọn dẹp nhật ký thành công"))
+        } else {
+            ResponseEntity.status(500).body(mapOf("error" to "Lỗi khi dọn dẹp nhật ký"))
         }
     }
 }

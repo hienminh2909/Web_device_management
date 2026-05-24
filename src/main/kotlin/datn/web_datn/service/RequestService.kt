@@ -100,4 +100,28 @@ class RequestService(private val restTemplate: RestTemplate) {
             mapOf("error" to e.message)
         }
     }
+
+    fun deleteRequest(id: Int, token: String?): Boolean {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange("$apiUrl/$id", HttpMethod.DELETE, entity, Map::class.java)
+            response.statusCode.is2xxSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun clearAllRequests(token: String?): Boolean {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange(apiUrl, HttpMethod.DELETE, entity, Map::class.java)
+            response.statusCode.is2xxSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
 }

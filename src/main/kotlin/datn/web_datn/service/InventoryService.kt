@@ -99,4 +99,48 @@ class InventoryService(private val restTemplate: RestTemplate) {
             response.sendError(500, "Lỗi xuất file: ${e.message}")
         }
     }
+
+    fun scanDevice(deviceId: Int, statusAtScan: String, token: String?): Map<*, *>? {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.setBearerAuth(token ?: "")
+        
+        val payload = mapOf(
+            "device_id" to deviceId,
+            "status_at_scan" to statusAtScan
+        )
+        
+        val entity = HttpEntity(payload, headers)
+        return try {
+            val response = restTemplate.postForEntity("$apiUrl/scan", entity, Map::class.java)
+            response.body
+        } catch (e: Exception) {
+            throw Exception("Lỗi khi gửi dữ liệu quét kiểm kê: ${e.message}")
+        }
+    }
+
+    fun deleteInventoryLog(logId: Int, token: String?): Boolean {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange("$apiUrl/logs/$logId", HttpMethod.DELETE, entity, Map::class.java)
+            response.statusCode.is2xxSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun clearAllInventoryLogs(token: String?): Boolean {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange("$apiUrl/logs", HttpMethod.DELETE, entity, Map::class.java)
+            response.statusCode.is2xxSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
+

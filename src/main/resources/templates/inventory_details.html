@@ -86,6 +86,9 @@
             </div>
             
             <div class="d-flex gap-3">
+                <button class="btn-utility text-primary" style="border-color: rgba(15,118,110,0.3);" onclick="openManualInventoryModal()">
+                    <i class="fas fa-qrcode"></i> Kiểm kê thủ công
+                </button>
                 <button class="btn-utility" onclick="window.print()"><i class="fas fa-print"></i> In danh sách</button>
                 <a th:href="@{/inventory/export-room/{id}(id=${roomId ?: id}, roomName=${roomName}, month=${selectedMonth}, year=${selectedYear})}" 
                    class="btn-utility" style="color: #15803d; border-color: #bbf7d0;">
@@ -115,9 +118,18 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryDetailTable">
-                        <tr th:each="d : ${details}">
+                        <tr th:each="d : ${details}" 
+                            th:data-code="${d.device_code}" 
+                            th:data-name="${d.device_name}" 
+                            th:data-id="${d.id}" 
+                            th:data-status="${d.status}" 
+                            th:data-checked="${d.is_checked}"
+                            th:onclick="'showDeviceDetails(' + ${d.id} + ')'"
+                            style="cursor: pointer; transition: background-color 0.2s;"
+                            onmouseover="this.style.backgroundColor='#f1f5f9';"
+                            onmouseout="this.style.backgroundColor='';">
                             <td class="ps-5">
-                                <div class="fw-bold text-dark" th:text="${d.device_name}"></div>
+                                <div class="fw-bold text-dark" style="transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color=''" th:text="${d.device_name}"></div>
                             </td>
                             <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold" th:text="${d.device_code}"></span></td>
                             <td><span class="badge-id-vip">#[[${d.id}]]</span></td>
@@ -147,14 +159,348 @@
         </div>
     </div>
 
+    <!-- Modal Kiểm kê thủ công -->
+    <div class="modal fade" id="manualInventoryModal" tabindex="-1" aria-labelledby="manualInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 24px; border: var(--glass-border); box-shadow: var(--shadow-xl); background: #ffffff;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="manualInventoryModalLabel" style="font-family: var(--font-display); background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.25rem;">Kiểm kê thiết bị thủ công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <!-- Form nhập mã -->
+                    <div class="mb-4">
+                        <label for="modalDeviceCodeInput" class="form-label fw-bold text-muted small">Nhập mã thiết bị (QR Code / Barcode)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="modalDeviceCodeInput" placeholder="Ví dụ: DEV-000001" style="border-radius: 12px 0 0 12px; height: 50px; font-weight: 600; border: 1px solid #e2e8f0; background: #f8fafc;">
+                            <button class="btn btn-primary fw-bold px-4" id="btnLookupDevice" style="border-radius: 0 12px 12px 0; background: var(--primary); border: none;"><i class="fas fa-search"></i> Tìm</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Thông tin thiết bị -->
+                    <div id="modalDeviceInfoContainer" class="d-none p-4 rounded-4 bg-light border border-light-subtle">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h6 class="fw-bold text-dark mb-0" id="infoDeviceName" style="font-size: 1.05rem;">Tên thiết bị</h6>
+                            <span class="badge" id="infoDeviceStatus">Tốt</span>
+                        </div>
+                        <hr class="my-3 opacity-10">
+                        <div class="row g-3 small text-muted">
+                            <div class="col-6">
+                                <div class="fw-bold text-uppercase x-small" style="font-size: 0.65rem; letter-spacing: 0.5px;">Mã QR / Barcode</div>
+                                <span class="fw-bold text-dark" id="infoDeviceCode">DEV-XXXX</span>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-uppercase x-small" style="font-size: 0.65rem; letter-spacing: 0.5px;">Phòng hiện tại</div>
+                                <span class="fw-bold text-dark" id="infoDeviceRoom">Phòng 101</span>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="fw-bold text-uppercase x-small" style="font-size: 0.65rem; letter-spacing: 0.5px;">Kết quả kỳ kiểm kê này</div>
+                                <div class="mt-1" id="infoInventoryResult">Chưa kiểm kê</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thông báo lỗi -->
+                    <div id="modalInfoError" class="d-none alert alert-danger mt-3 small" style="border-radius: 12px; border: 1px solid #fecdd3; background: #fff5f5; color: #dc2626; font-weight: 600;">
+                        <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy thiết bị này trong danh sách phòng.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light fw-bold px-4 rounded-pill" data-bs-dismiss="modal" style="border: 1px solid #e2e8f0; font-size: 0.8rem;">Đóng</button>
+                    <button type="button" class="btn btn-success fw-bold px-4 rounded-pill" id="btnConfirmInventory" disabled style="background: #10b981; border: none; font-size: 0.8rem;">
+                        <i class="fas fa-check-circle me-1"></i> Xác nhận kiểm kê
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let matchingItems = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterInventoryDetails();
+        });
+
         document.getElementById('deviceSearch')?.addEventListener('input', function(e) {
-            const val = e.target.value.toLowerCase();
+            filterInventoryDetails();
+        });
+
+        function filterInventoryDetails() {
+            const searchInput = document.getElementById('deviceSearch');
+            const val = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const rows = document.querySelectorAll('#inventoryDetailTable tr');
+            
+            matchingItems = [];
+
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(val) ? '' : 'none';
+                row.style.display = 'none';
+
+                if (text.includes(val)) {
+                    matchingItems.push(row);
+                }
+            });
+            
+            currentPage = 1;
+            renderPagination();
+            showPage(currentPage);
+        }
+
+        function showPage(page) {
+            matchingItems.forEach(row => row.style.display = 'none');
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = matchingItems.slice(start, end);
+            
+            pageItems.forEach(row => {
+                row.style.display = '';
+            });
+        }
+
+        function renderPagination() {
+            let paginationContainer = document.getElementById('inventoryPagination');
+            if (!paginationContainer) {
+                const tableContainer = document.querySelector('.table-container-vip');
+                if (!tableContainer) return;
+                paginationContainer = document.createElement('nav');
+                paginationContainer.id = 'inventoryPagination';
+                paginationContainer.className = 'mt-4 d-flex justify-content-center w-100 pb-2';
+                tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+            }
+
+            const totalPages = Math.ceil(matchingItems.length / itemsPerPage);
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            let html = '<ul class="pagination pagination-md shadow-sm" style="border-radius: 12px; overflow: hidden;">';
+            
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage - 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-left"></i></a>
+                     </li>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const activeStyle = i === currentPage ? 'background: linear-gradient(135deg, var(--primary), #008080); color: white; border: none;' : 'color: #334155; border: none;';
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link px-3 py-2" href="#" data-page="${i}" style="${activeStyle} font-weight: 600;">${i}</a>
+                             </li>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<li class="page-item disabled"><a class="page-link px-3 py-2 text-muted" href="#" style="border:none; font-weight: 600;">...</a></li>`;
+                }
+            }
+
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link px-3 py-2 text-dark" href="#" data-page="${currentPage + 1}" style="border:none; font-weight: 600;"><i class="fas fa-chevron-right"></i></a>
+                     </li>`;
+            
+            html += '</ul>';
+            paginationContainer.innerHTML = html;
+
+            paginationContainer.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (!isNaN(page) && page >= 1 && page <= totalPages && page !== currentPage) {
+                        currentPage = page;
+                        showPage(currentPage);
+                        renderPagination();
+                    }
+                });
+            });
+        }
+
+        let selectedDeviceForInventory = null;
+
+        function openManualInventoryModal() {
+            document.getElementById('modalDeviceCodeInput').value = '';
+            document.getElementById('modalDeviceInfoContainer').classList.add('d-none');
+            document.getElementById('modalInfoError').classList.add('d-none');
+            document.getElementById('btnConfirmInventory').disabled = true;
+            selectedDeviceForInventory = null;
+
+            const modalEl = document.getElementById('manualInventoryModal');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
+
+            modalEl.addEventListener('shown.bs.modal', function () {
+                document.getElementById('modalDeviceCodeInput').focus();
+            }, { once: true });
+        }
+
+        function performDeviceLookup() {
+            const codeInput = document.getElementById('modalDeviceCodeInput').value.trim().toLowerCase();
+            document.getElementById('modalDeviceInfoContainer').classList.add('d-none');
+            document.getElementById('modalInfoError').classList.add('d-none');
+            document.getElementById('btnConfirmInventory').disabled = true;
+            selectedDeviceForInventory = null;
+
+            if (!codeInput) return;
+
+            const row = Array.from(document.querySelectorAll('#inventoryDetailTable tr')).find(r => {
+                const code = r.getAttribute('data-code');
+                return code && code.toLowerCase() === codeInput;
+            });
+
+            if (row) {
+                const name = row.getAttribute('data-name');
+                const code = row.getAttribute('data-code');
+                const id = row.getAttribute('data-id');
+                const status = row.getAttribute('data-status');
+                const checked = row.getAttribute('data-checked') === 'true';
+
+                selectedDeviceForInventory = { id, code, name, status, checked };
+
+                document.getElementById('infoDeviceName').innerText = name;
+                document.getElementById('infoDeviceCode').innerText = code;
+                document.getElementById('infoDeviceRoom').innerText = document.querySelector('.glass-title-card h2 span').innerText;
+                
+                const statusBadge = document.getElementById('infoDeviceStatus');
+                statusBadge.innerText = status;
+                statusBadge.className = 'badge px-3 py-2 rounded-pill';
+                if (status === 'Tốt') {
+                    statusBadge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                } else if (status === 'Hỏng') {
+                    statusBadge.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+                } else {
+                    statusBadge.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+                }
+                statusBadge.style.color = 'white';
+
+                const resultText = document.getElementById('infoInventoryResult');
+                if (checked) {
+                    resultText.innerHTML = '<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Đã kiểm kê trong kỳ này</span>';
+                } else {
+                    resultText.innerHTML = '<span class="text-warning fw-bold"><i class="fas fa-exclamation-circle me-1"></i> Chưa kiểm kê trong kỳ này</span>';
+                }
+
+                document.getElementById('modalDeviceInfoContainer').classList.remove('d-none');
+                document.getElementById('btnConfirmInventory').disabled = false;
+            } else {
+                document.getElementById('modalInfoError').classList.remove('d-none');
+            }
+        }
+
+        document.getElementById('btnLookupDevice')?.addEventListener('click', performDeviceLookup);
+        document.getElementById('modalDeviceCodeInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performDeviceLookup();
+            }
+        });
+
+        document.getElementById('btnConfirmInventory')?.addEventListener('click', function() {
+            if (!selectedDeviceForInventory) return;
+
+            const confirmBtn = this;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang xử lý...';
+
+            fetch('/inventory/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    device_id: parseInt(selectedDeviceForInventory.id),
+                    status_at_scan: selectedDeviceForInventory.status || 'Tốt'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || 'Lỗi khi gửi yêu cầu') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                const modalEl = document.getElementById('manualInventoryModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                Swal.fire({
+                    title: 'Kiểm kê thành công!',
+                    text: `Đã xác nhận kiểm kê thiết bị ${selectedDeviceForInventory.name}`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Lỗi kiểm kê!',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonText: 'Đóng'
+                });
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Xác nhận kiểm kê';
             });
         });
+
+        function showDeviceDetails(deviceId) {
+            if (!deviceId) return;
+            
+            Swal.fire({
+                title: 'Đang tải thông tin...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('/api/devices/all?ids=' + deviceId)
+                .then(response => {
+                    if (!response.ok) throw new Error('Không thể tải thông tin thiết bị');
+                    return response.json();
+                })
+                .then(devices => {
+                    if (!devices || devices.length === 0) {
+                        Swal.fire('Lỗi!', 'Không tìm thấy thiết bị này.', 'error');
+                        return;
+                    }
+                    const device = devices[0];
+                    
+                    const price = device.device_price ? parseInt(device.device_price.toString().replace(/\D/g, '')).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật';
+                    const date = device.purchase_date ? new Date(device.purchase_date).toLocaleDateString('vi-VN') : 'Chưa cập nhật';
+                    const roomName = device.rooms?.room_name || 'Chưa xác định';
+                    const categoryName = device.categories?.category_name || 'Chưa xác định';
+                    const creator = device.users?.full_name || 'Chưa xác định';
+                    const imageHtml = device.image_url ? `<img src="${device.image_url}" class="img-fluid rounded-4 mb-3 shadow-sm" style="max-height: 150px; object-fit: cover; width: 100%;" />` : '';
+
+                    Swal.fire({
+                        title: `<span class="fw-bold text-primary" style="font-family: var(--font-display);">${device.device_name}</span>`,
+                        html: `
+                            <div class="text-start px-3" style="font-size: 0.9rem; line-height: 1.6;">
+                                ${imageHtml}
+                                <div class="mb-2"><strong>Mã thiết bị:</strong> <code class="bg-light text-primary px-2 py-1 rounded" style="font-family: var(--font-mono);">${device.device_code}</code></div>
+                                <div class="mb-2"><strong>Danh mục:</strong> <span>${categoryName}</span></div>
+                                <div class="mb-2"><strong>Vị trí (Phòng):</strong> <span>${roomName}</span></div>
+                                <div class="mb-2"><strong>Giá trị:</strong> <span>${price}</span></div>
+                                <div class="mb-2"><strong>Ngày mua:</strong> <span>${date}</span></div>
+                                <div class="mb-2"><strong>Trạng thái hiện tại:</strong> 
+                                    <span class="badge ${device.status === 'Tốt' ? 'bg-success' : (device.status === 'Hỏng' ? 'bg-danger' : 'bg-warning')}">
+                                        ${device.status}
+                                    </span>
+                                </div>
+                                <div class="mb-2"><strong>Người bàn giao:</strong> <span>${creator}</span></div>
+                                <div class="mb-2"><strong>Mô tả:</strong> <p class="text-muted bg-light p-2 rounded mt-1 mb-0">${device.description || 'Không có mô tả.'}</p></div>
+                            </div>
+                        `,
+                        confirmButtonText: 'Đóng',
+                        confirmButtonColor: 'var(--primary)',
+                        customClass: {
+                            popup: 'rounded-4'
+                        }
+                    });
+                })
+                .catch(error => {
+                    Swal.fire('Lỗi!', error.message, 'error');
+                });
+        }
     </script>
 </div>

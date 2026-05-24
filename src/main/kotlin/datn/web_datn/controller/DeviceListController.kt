@@ -33,15 +33,15 @@ class DeviceController(
         println("DEBUG: Device List Page - CatID: $categoryId, RoomID: $roomId, OpenAdd: $openAdd")
         val token = session.getAttribute("token") as? String ?: return "redirect:/login"
 
-        val devices = deviceService.getAllDevices(token)
+        // Load rooms and categories fast from Cache
         val rooms = roomService.getAllRooms(token)
         val categories = categoryService.getAllCategories(token)
 
-        model.addAttribute("devices", devices)
+        model.addAttribute("devices", emptyList<Any>()) // Empty for Skeleton Load
         model.addAttribute("rooms", rooms.map { it.room_name }.sorted())
         model.addAttribute("categories", categories.map { it.category_name }.sorted())
         model.addAttribute("view", "device_list")
-        model.addAttribute("status", devices.map { it.status }.distinct().sorted())
+        model.addAttribute("status", listOf("Tốt", "Hỏng", "Cần bảo trì", "Đang bảo trì", "Mất"))
         
         // Truyền các bộ lọc ban đầu
         model.addAttribute("initialCategoryId", categoryId)
@@ -55,18 +55,34 @@ class DeviceController(
         return "dashboard"
     }
 
+    @GetMapping("/devices/list/fragment")
+    fun getDeviceCardsFragment(model: Model, session: HttpSession): String {
+        val token = session.getAttribute("token") as? String ?: return ""
+        val devices = deviceService.getAllDevices(token)
+        model.addAttribute("devices", devices)
+        return "device_list :: deviceListContent"
+    }
+
+
     @GetMapping("/api/devices/all")
     @ResponseBody
     fun getAllDevicesJson(
         @RequestParam(required = false) roomId: Int?,
+        @RequestParam(required = false) ids: String?,
         session: HttpSession
     ): ResponseEntity<Any> {
         val token = session.getAttribute("token") as? String ?: return ResponseEntity.status(401).body("Unauthorized")
-        val devices = deviceService.getRawDevices(token, roomId)
+        val devices = deviceService.getRawDevices(token, roomId, ids)
         return ResponseEntity.ok(devices)
     }
 
-
+    @GetMapping("/api/devices/summary")
+    @ResponseBody
+    fun getDevicesSummaryJson(session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as? String ?: return ResponseEntity.status(401).body("Unauthorized")
+        val devices = deviceService.getAllDevices(token)
+        return ResponseEntity.ok(devices)
+    }
 
     @PutMapping("/update/{id}")
     @ResponseBody // Thêm cái này để Spring biết đây là API trả về JSON, không phải tìm file HTML
