@@ -78,4 +78,28 @@ class NotificationController(private val notificationService: NotificationServic
             ResponseEntity.status(500).body(mapOf("error" to e.message))
         }
     }
+
+    @PostMapping("/api/notifications")
+    @ResponseBody
+    fun createCustomNotification(@RequestBody payload: Map<String, Any?>, session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String?
+        val headers = org.springframework.http.HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        headers.contentType = org.springframework.http.MediaType.APPLICATION_JSON
+        val entity = org.springframework.http.HttpEntity(payload, headers)
+        
+        return try {
+            val response = org.springframework.web.client.RestTemplate().exchange(
+                (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/notifications",
+                org.springframework.http.HttpMethod.POST,
+                entity,
+                Map::class.java
+            )
+            ResponseEntity.ok(response.body)
+        } catch (e: org.springframework.web.client.HttpStatusCodeException) {
+            ResponseEntity.status(e.statusCode).body(e.responseBodyAsString)
+        } catch (e: Exception) {
+            ResponseEntity.status(500).body(mapOf("error" to e.message))
+        }
+    }
 }

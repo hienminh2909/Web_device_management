@@ -33,6 +33,14 @@ class UserController(
         return "dashboard"
     }
 
+    @GetMapping("/api-list")
+    @ResponseBody
+    fun getApiUsers(session: HttpSession): ResponseEntity<Any> {
+        val token = session.getAttribute("token") as String?
+        if (token == null) return ResponseEntity.status(401).body("Unauthorized")
+        return ResponseEntity.ok(userService.getAllUsers(token))
+    }
+
     @PostMapping("/add")
     @ResponseBody
     fun addUser(@RequestBody user: UserCreateRequest, session: HttpSession): ResponseEntity<Any> {

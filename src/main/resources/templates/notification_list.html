@@ -169,6 +169,73 @@
         .skeleton-circle { width: 54px; height: 54px; border-radius: 16px; flex-shrink: 0; }
         .skeleton-title { height: 20px; width: 40%; margin-bottom: 10px; }
         .skeleton-text { height: 14px; width: 80%; }
+
+        /* ===== VIP MODAL STYLES ===== */
+        .modal-vip .modal-content {
+            border: none;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+        }
+        .modal-vip .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 24px 30px;
+            border-bottom: none;
+        }
+        .modal-vip .modal-title {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .modal-vip .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+        .modal-vip .btn-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+        .modal-vip .modal-body {
+            padding: 30px;
+        }
+        .modal-vip .modal-footer {
+            padding: 20px 30px 30px;
+            border-top: none;
+        }
+        .modal-vip .form-control, .modal-vip .form-select {
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            padding: 14px 20px;
+            font-weight: 500;
+            background: #f8fafc;
+            transition: all 0.3s;
+            color: #1e293b;
+        }
+        .modal-vip .form-control:focus, .modal-vip .form-select:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+        }
+        .modal-vip .form-label {
+            font-weight: 800;
+            color: #334155;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+        .modal-vip .form-label i {
+            color: var(--primary);
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
     </style>
 
     <div class="notif-wrapper">
@@ -178,6 +245,9 @@
                 <p class="m-0 text-muted small fw-bold">Nơi lưu giữ mọi hoạt động quan trọng của bạn</p>
             </div>
             <div class="d-flex gap-3">
+                <button class="btn btn-vip-primary" onclick="openCreateNotifModal()">
+                    <i class="fas fa-plus me-2"></i>Tạo thông báo
+                </button>
                 <button class="btn btn-vip-secondary" onclick="sendTestNotification()">
                     <i class="fas fa-vial me-2"></i>Gửi thử nghiệm
                 </button>
@@ -192,6 +262,89 @@
 
         <div id="fullNotificationList" class="pb-5">
             <!-- Notifications will load here -->
+        </div>
+    </div>
+
+    <!-- Modal Tạo Thông Báo VIP -->
+    <div class="modal fade modal-vip" id="createNotifModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-bullhorn me-2"></i>Tạo Thông Báo Mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createNotifForm">
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fas fa-users"></i>Gửi đến</label>
+                            <select class="form-select" id="notifTargetUser">
+                                <option value="">-- TẤT CẢ NGƯỜI DÙNG --</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fas fa-heading"></i>Tiêu đề</label>
+                            <input type="text" class="form-control" id="notifTitle" required placeholder="Nhập tiêu đề thông báo...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fas fa-align-left"></i>Nội dung</label>
+                            <textarea class="form-control" id="notifContent" rows="4" required placeholder="Nhập chi tiết nội dung thông báo..."></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label"><i class="fas fa-link"></i>Đường dẫn (Tùy chọn)</label>
+                            <input type="text" class="form-control" id="notifLink" placeholder="VD: /requests hoặc /inventory">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-vip-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-vip-primary" onclick="submitCreateNotif()">
+                        <i class="fas fa-paper-plane me-2"></i>Phát Hành
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Thông Báo -->
+    <div class="modal fade modal-vip" id="viewNotifModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-envelope-open-text me-2"></i>Chi Tiết Thông Báo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 id="detailNotifTitle" class="fw-bold m-0" style="color: var(--primary); font-family: var(--font-display);"></h4>
+                        <span id="detailNotifStatusBadge" class="badge rounded-pill px-3 py-2" style="font-size: 0.8rem;"></span>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-3 text-muted small mb-4 pb-3 border-bottom">
+                        <div><i class="fas fa-hashtag me-1"></i>Mã TB: <span id="detailNotifId" class="fw-bold text-dark"></span></div>
+                        <div><i class="far fa-clock me-1"></i>Thời gian: <span id="detailNotifTime" class="fw-bold text-dark"></span></div>
+                        <div><i class="fas fa-user-edit me-1"></i>Người gửi: <span id="detailNotifSender" class="fw-bold text-dark"></span></div>
+                    </div>
+                    
+                    <div class="notif-content-box p-4 rounded-4" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Nội dung chi tiết</h6>
+                        <div id="detailNotifContent" style="font-size: 1.05rem; white-space: pre-wrap; line-height: 1.7; color: #334155;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-vip-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Đóng
+                    </button>
+                    <a href="#" id="detailNotifLinkBtn" class="btn btn-vip-primary d-none">
+                        Đi tới liên kết <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -218,6 +371,7 @@
             try {
                 const res = await fetch('/api/notifications');
                 const data = await res.json();
+                window.loadedNotifications = data; // Save for detail view
                 
                 if (data.length === 0) {
                     list.innerHTML = `
@@ -230,7 +384,7 @@
                 }
 
                 list.innerHTML = data.map(n => `
-                    <div class="notif-full-item ${n.is_read ? '' : 'unread'}" onclick="markRead(${n.id}, '${n.link}')">
+                    <div class="notif-full-item ${n.is_read ? '' : 'unread'}" onclick="viewNotifDetails(${n.id})">
                         <div class="notif-circle ${n.title.includes('Duyệt') || n.title.includes('PHÊ DUYỆT') ? 'text-success' : 'text-primary'}">
                             <i class="${getIcon(n.title)}"></i>
                         </div>
@@ -268,6 +422,57 @@
                 year: 'numeric', month: '2-digit', day: '2-digit',
                 hour: '2-digit', minute: '2-digit'
             });
+        }
+
+        async function viewNotifDetails(id) {
+            const notif = window.loadedNotifications.find(n => n.id === id);
+            if (!notif) return;
+
+            // Fill details
+            document.getElementById('detailNotifTitle').innerText = notif.title;
+            document.getElementById('detailNotifId').innerText = notif.id;
+            document.getElementById('detailNotifTime').innerText = formatTime(notif.created_at);
+            document.getElementById('detailNotifContent').innerText = notif.content;
+            
+            const senderName = notif.creator && notif.creator.full_name ? notif.creator.full_name : 'Hệ thống';
+            document.getElementById('detailNotifSender').innerText = senderName;
+
+            // Handle status badge
+            const statusBadge = document.getElementById('detailNotifStatusBadge');
+            if (notif.is_read) {
+                statusBadge.className = 'badge rounded-pill px-3 py-2 bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+                statusBadge.innerHTML = '<i class="fas fa-check-double me-1"></i>Đã đọc';
+            } else {
+                statusBadge.className = 'badge rounded-pill px-3 py-2 bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25';
+                statusBadge.innerHTML = '<i class="fas fa-envelope me-1"></i>Mới';
+            }
+
+            const linkBtn = document.getElementById('detailNotifLinkBtn');
+            if (notif.link && notif.link !== 'null' && notif.link !== 'undefined' && notif.link !== '') {
+                linkBtn.href = notif.link;
+                linkBtn.classList.remove('d-none');
+            } else {
+                linkBtn.classList.add('d-none');
+                linkBtn.href = "#";
+            }
+
+            // Mark as read in background if unread
+            if (!notif.is_read) {
+                try {
+                    await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                    if (window.updateBadges) window.updateBadges();
+                    // Update local state to avoid re-calling API
+                    notif.is_read = true;
+                    // Visually update the item in the list
+                    loadFullNotifications(); 
+                } catch (err) {
+                    console.error("Error marking as read:", err);
+                }
+            }
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('viewNotifModal'));
+            modal.show();
         }
 
         async function markRead(id, link) {
@@ -377,6 +582,68 @@
                     Swal.fire('Lỗi', 'Không thể gửi thông báo thử nghiệm', 'error');
                 }
             } catch (err) {
+                Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
+            }
+        }
+
+        async function openCreateNotifModal() {
+            try {
+                const res = await fetch('/users/api-list');
+                if (res.ok) {
+                    const users = await res.json();
+                    const select = document.getElementById('notifTargetUser');
+                    select.innerHTML = '<option value="">-- Tất cả người dùng --</option>';
+                    users.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id;
+                        opt.textContent = `${u.full_name} (${u.role})`;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error("Lỗi tải danh sách người dùng", e);
+            }
+            const modal = new bootstrap.Modal(document.getElementById('createNotifModal'));
+            modal.show();
+        }
+
+        async function submitCreateNotif() {
+            const form = document.getElementById('createNotifForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const payload = {
+                title: document.getElementById('notifTitle').value,
+                content: document.getElementById('notifContent').value,
+                link: document.getElementById('notifLink').value || null
+            };
+            
+            const target = document.getElementById('notifTargetUser').value;
+            if (target) {
+                payload.user_id = parseInt(target);
+            }
+
+            try {
+                const res = await fetch('/api/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    Swal.fire('Thành công', data.message || 'Đã gửi thông báo', 'success');
+                    const modalEl = document.getElementById('createNotifModal');
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    form.reset();
+                    loadFullNotifications();
+                    if (window.updateBadges) window.updateBadges();
+                } else {
+                    Swal.fire('Lỗi', data.detail || 'Không thể gửi thông báo', 'error');
+                }
+            } catch (e) {
                 Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
             }
         }
