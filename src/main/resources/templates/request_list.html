@@ -432,6 +432,10 @@
                         th:data-device-name="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}"
                         th:data-device-code="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}"
                         th:data-room-name="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}"
+                        th:data-device-category="${req.devices?.categories?.category_name ?: 'N/A'}"
+                        th:data-device-price="${req.devices?.device_price ?: '0'}"
+                        th:data-device-purchase="${req.devices?.purchase_date ?: 'N/A'}"
+                        th:data-device-image="${req.devices?.image_url ?: ''}"
                         th:data-resolver="${req.resolver?.full_name}"
                         th:data-resolved-at="${req.resolved_at}"
                         th:data-status-device="${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
@@ -937,14 +941,33 @@
                 <div class="row g-4 mb-4">
                     <!-- Column 1: Device Info -->
                     <div class="col-md-6">
-                        <div class="info-card">
+                        <div class="info-card h-100">
                             <div class="info-card-label"><i class="fas fa-microchip me-1"></i> THÔNG TIN THIẾT BỊ</div>
-                            <h5 class="fw-bold text-dark mb-1 mt-2">${data.deviceName}</h5>
-                            <div class="device-code-chip d-inline-block mb-3">Mã: ${data.deviceCode}</div>
+                            <div class="d-flex gap-3 mt-2">
+                                ${data.deviceImage && data.deviceImage !== 'null' && data.deviceImage !== '' ? `<div style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; flex-shrink: 0;"><img src="${data.deviceImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">${data.deviceName}</h5>
+                                    <div class="device-code-chip d-inline-block mb-2">Mã: ${data.deviceCode}</div>
+                                </div>
+                            </div>
                             
-                            <div class="d-flex justify-content-between border-top pt-2">
-                                <span class="text-muted small">Trạng thái TB:</span>
-                                <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                            <div class="d-flex flex-column gap-2 border-top pt-3 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Danh mục:</span>
+                                    <span class="fw-bold text-dark small">${data.deviceCategory !== 'N/A' && data.deviceCategory !== 'undefined' ? data.deviceCategory : 'Không có'}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Giá trị:</span>
+                                    <span class="fw-bold text-success small">${data.devicePrice !== '0' && data.devicePrice !== 'undefined' ? Number(data.devicePrice).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật'}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Ngày nhập:</span>
+                                    <span class="fw-bold text-dark small">${data.devicePurchase !== 'N/A' && data.devicePurchase !== 'undefined' ? formatTime(data.devicePurchase) : 'Chưa cập nhật'}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-muted small">Trạng thái TB:</span>
+                                    <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -26,9 +26,19 @@ data class DeviceInfo(
     val device_name: String? = null,
     val device_code: String? = null,
     val room_id: Int? = null,
-    val rooms: RoomInfo? = null
+    val description: String? = null,
+    val purchase_date: String? = null,
+    val device_price: String? = null,
+    val status: String? = null,
+    val image_url: String? = null,
+    val rooms: RoomInfo? = null,
+    val categories: CategoryInfo? = null
 )
 
 data class RoomInfo(
     val room_name: String? = null
+)
+
+data class CategoryInfo(
+    val category_name: String? = null
 )
