@@ -44,7 +44,6 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
         return ResponseEntity.ok(result ?: mapOf("message" to "Kiểm tra hoàn tất"))
     }
 
-    // Upload ảnh thiết bị lên Supabase Storage
     @PostMapping("/upload-image")
     fun uploadImage(
         @RequestParam("file") file: MultipartFile,
@@ -58,6 +57,28 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
             ResponseEntity.ok(result ?: mapOf("message" to "Upload thành công"))
         } catch (e: Exception) {
             ResponseEntity.status(400).body(mapOf("error" to e.message))
+        }
+    }
+
+    // Proxy get QR code
+    @GetMapping("/qr/{code}")
+    fun getQrCode(@PathVariable code: String): ResponseEntity<ByteArray> {
+        return try {
+            val imageBytes = registerService.getDynamicImage("qr", code)
+            ResponseEntity.ok().header("Content-Type", "image/png").body(imageBytes)
+        } catch (e: Exception) {
+            ResponseEntity.status(404).build()
+        }
+    }
+
+    // Proxy get Barcode
+    @GetMapping("/barcode/{code}")
+    fun getBarcode(@PathVariable code: String): ResponseEntity<ByteArray> {
+        return try {
+            val imageBytes = registerService.getDynamicImage("barcode", code)
+            ResponseEntity.ok().header("Content-Type", "image/png").body(imageBytes)
+        } catch (e: Exception) {
+            ResponseEntity.status(404).build()
         }
     }
 }

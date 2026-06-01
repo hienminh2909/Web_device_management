@@ -1268,6 +1268,15 @@
                 }
             }
 
+            // 4. Xử lý Code định danh thiết bị nếu có (ví dụ từ đường link QR)
+            if (window.initialCode) {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.value = window.initialCode;
+                    hasFilter = true;
+                }
+            }
+
             // Kích hoạt lọc nếu có bất kỳ bộ lọc nào
             if (hasFilter && typeof filterDevices === 'function') {
                 filterDevices();

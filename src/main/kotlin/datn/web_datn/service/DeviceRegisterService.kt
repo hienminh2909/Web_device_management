@@ -263,4 +263,19 @@ class DeviceRegisterService(
             throw Exception("Lỗi khi tải file mẫu từ FastAPI: ${e.message}")
         }
     }
+
+    fun getDynamicImage(type: String, code: String): ByteArray? {
+        val url = "${System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000"}/api/devices/$type/$code"
+        val headers = HttpHeaders()
+        headers.setAccept(listOf(MediaType.IMAGE_PNG, MediaType.APPLICATION_OCTET_STREAM))
+        
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange(url, org.springframework.http.HttpMethod.GET, entity, ByteArray::class.java)
+            response.body
+        } catch (e: Exception) {
+            println("Lỗi khi tải ảnh $type động: ${e.message}")
+            null
+        }
+    }
 }
