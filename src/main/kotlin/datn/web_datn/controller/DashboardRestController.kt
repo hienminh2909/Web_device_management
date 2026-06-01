@@ -71,15 +71,8 @@ class DashboardRestController(
     @GetMapping("/pending-requests-count")
     fun getPendingRequestsCount(session: HttpSession): Map<String, Int> {
         val token = session.getAttribute("token") as String? ?: return mapOf("count" to 0)
-        val role = session.getAttribute("role")?.toString()?.lowercase() ?: ""
-        
         return try {
-            val requests = if (role == "admin") {
-                requestService.getAllRequests(token)
-            } else {
-                requestService.getMyRequests(token)
-            }
-            val count = requests.count { it.status_resolve == null || it.status_resolve?.lowercase() == "pending" }
+            val count = requestService.getPendingRequestsCount(token)
             mapOf("count" to count)
         } catch (e: Exception) {
             mapOf("count" to 0)

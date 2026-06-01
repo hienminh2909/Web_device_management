@@ -123,8 +123,8 @@ async function submitUpdateDevice() {
             if (editImageInput && editImageInput.files[0]) {
                 await uploadDeviceImage(editImageInput.files[0], id, payload.device_name);
             }
-            await Swal.fire({ icon: "success", title: "Thành công", timer: 1500, showConfirmButton: false });
-            location.reload();
+            showToast("Thành công");
+            setTimeout(() => location.reload(), 1000);
         } else {
             const err = await response.json();
             throw new Error(err.message || "Lỗi máy chủ");
@@ -199,8 +199,8 @@ async function reportIssue() {
         });
         
         if (res.ok) {
-            await Swal.fire("Thành công", "Yêu cầu báo hỏng đã được gửi tới Admin.", "success");
-            location.reload();
+            showToast("Yêu cầu báo hỏng đã được gửi tới Admin.");
+            setTimeout(() => location.reload(), 1000);
         } else {
             const errData = await res.json();
             throw new Error(errData.error || "Gửi thất bại");
@@ -293,8 +293,8 @@ async function confirmDelete() {
             });
             
             if (res.ok) {
-                await Swal.fire("Thành công", "Yêu cầu xóa đã được gửi tới Admin.", "success");
-                location.reload();
+                showToast("Yêu cầu xóa đã được gửi tới Admin.");
+                setTimeout(() => location.reload(), 1000);
             } else {
                 const errData = await res.json();
                 throw new Error(errData.error || "Gửi thất bại");
@@ -322,8 +322,8 @@ async function confirmDelete() {
             Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const res = await fetch(`/delete/${id}`, { method: 'DELETE' });
             if (res.ok) {
-                await Swal.fire({ icon: "success", title: "Đã xóa!", timer: 1500, showConfirmButton: false });
-                location.reload();
+                showToast("Đã xóa!");
+                setTimeout(() => location.reload(), 1000);
             } else {
                 throw new Error("Xóa thất bại");
             }

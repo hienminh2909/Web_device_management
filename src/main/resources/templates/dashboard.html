@@ -867,6 +867,55 @@
             backdrop.classList.toggle('show');
         }
     };
+
+    // --- GLOBAL TOAST NOTIFICATION ---
+    window.showToast = function(message, icon = 'success') {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            customClass: { popup: 'rounded-4 shadow-sm' },
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({
+            icon: icon,
+            title: message
+        });
+    };
+
+    // --- TOP LOADING BAR (Pseudo-SPA feel) ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #page-loader-bar {
+                position: fixed; top: 0; left: 0; height: 3px; background: var(--primary, #0f766e);
+                z-index: 9999; transition: width 0.3s ease, opacity 0.3s ease;
+                width: 0%; opacity: 0; pointer-events: none;
+                box-shadow: 0 0 10px var(--primary, #0f766e);
+            }
+        `;
+        document.head.appendChild(style);
+        const loader = document.createElement('div');
+        loader.id = 'page-loader-bar';
+        document.body.appendChild(loader);
+
+        document.querySelectorAll('a.nav-link, a.action-btn-vip, .btn-room-action').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if(href && !href.startsWith('#') && href !== 'javascript:void(0)') {
+                    loader.style.opacity = '1';
+                    loader.style.width = '30%';
+                    setTimeout(() => loader.style.width = '60%', 200);
+                    setTimeout(() => loader.style.width = '85%', 600);
+                }
+            });
+        });
+    });
 </script>
 <div class="sidebar-backdrop-vip" onclick="toggleSidebarMobile()"></div>
 </body>

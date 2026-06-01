@@ -4,10 +4,16 @@
 let currentGroupData = {};
 
 document.addEventListener('DOMContentLoaded', function() {
+    let filterTimeout;
+    const filterDevicesDebounced = () => {
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(filterDevices, 300);
+    };
+
     const filters = ['searchInput', 'roomFilter', 'categoryFilter', 'statusFilter'];
     filters.forEach(id => {
-        document.getElementById(id)?.addEventListener('input', filterDevices);
-        document.getElementById(id)?.addEventListener('change', filterDevices);
+        document.getElementById(id)?.addEventListener('input', filterDevicesDebounced);
+        document.getElementById(id)?.addEventListener('change', filterDevicesDebounced);
     });
     // Gọi lọc lần đầu để tính tổng ban đầu
     filterDevices();

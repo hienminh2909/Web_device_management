@@ -22,6 +22,21 @@ class RequestService(private val restTemplate: RestTemplate) {
         }
     }
 
+    fun getPendingRequestsCount(token: String?): Int {
+        val headers = HttpHeaders()
+        headers.setBearerAuth(token ?: "")
+        val entity = HttpEntity<Unit>(headers)
+        return try {
+            val response = restTemplate.exchange("$apiUrl/pending-count", HttpMethod.GET, entity, Map::class.java)
+            val body = response.body as? Map<*, *>
+            val countStr = body?.get("count")?.toString() ?: "0"
+            countStr.toIntOrNull() ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+
     fun createRequest(deviceId: Int, description: String, statusDevice: String?, token: String?): RequestModel? {
         val headers = HttpHeaders()
         headers.setBearerAuth(token ?: "")

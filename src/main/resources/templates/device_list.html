@@ -282,6 +282,21 @@
         .modal-header { border-bottom: 1px solid #e2e8f0 !important; padding: 25px 30px !important; }
         .modal-footer { border-top: 1px solid #e2e8f0 !important; background: #f8fafc !important; padding: 20px 30px !important; }
         .bg-light { background-color: #f8fafc !important; }
+
+        /* ===== MOBILE RESPONSIVE TWEAKS ===== */
+        @media (max-width: 768px) {
+            .page-header { padding: 20px 15px; border-radius: 16px; flex-direction: column; align-items: flex-start !important; }
+            .page-header > div:last-child { width: 100%; justify-content: space-between; margin-top: 15px; }
+            .filter-panel { padding: 20px 15px; border-radius: 16px; }
+            .filter-panel .row > div { margin-bottom: 15px; }
+            .table-responsive { border-radius: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .table-device th, .table-device td { padding: 12px 10px !important; font-size: 0.8rem !important; white-space: nowrap; }
+            .action-btn-vip, .btn-room-action { padding: 10px 15px !important; width: 100%; margin-bottom: 10px; justify-content: center; }
+            .segmented-control { width: 100%; justify-content: center; margin-bottom: 10px; }
+            #btnGridView, #btnTableView { flex: 1; }
+            .info-grid-3 { grid-template-columns: 1fr; }
+            .info-item.full-width { grid-column: span 1; }
+        }
     </style>
 
 
