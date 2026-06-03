@@ -357,7 +357,7 @@
                     <i class="fas fa-file-excel text-success"></i><span>Xuất Excel</span>
                 </button>
                 <button class="btn-vip-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createRequestModalVip">
-                    <i class="fas fa-plus-circle"></i><span>Báo cáo sự cố</span>
+                    <i class="fas fa-plus-circle"></i><span>Báo cáo tình trạng</span>
                 </button>
             </div>
         </div>
@@ -366,7 +366,7 @@
         <div class="mb-4 text-center text-md-start">
             <div class="segmented-control">
                 <button class="seg-tab active" id="mainTabReport" onclick="setMainTab('REPORT', this)">
-                    <i class="fas fa-tools me-2"></i>Báo hỏng
+                    <i class="fas fa-tools me-2"></i>Báo cáo tình trạng
                     <span id="badgeReport" class="badge bg-danger rounded-pill ms-1 d-none" style="font-size: 0.6rem; vertical-align: middle;">0</span>
                 </button>
                 <button class="seg-tab" id="mainTabAdvanced" onclick="setMainTab('ADVANCED', this)">
@@ -447,7 +447,7 @@
                         
                         <!-- Loại Yêu cầu -->
                         <td>
-                            <span th:if="${req.request_type == 'REPORT' || req.request_type == null}" class="badge-type type-report"><i class="fas fa-tools me-1"></i>Báo hỏng</span>
+                            <span th:if="${req.request_type == 'REPORT' || req.request_type == null}" class="badge-type type-report"><i class="fas fa-tools me-1"></i>Tình trạng thiết bị</span>
                             <span th:if="${req.request_type == 'UPDATE'}" class="badge-type type-update"><i class="fas fa-pen me-1"></i>Sửa đổi</span>
                             <span th:if="${req.request_type == 'DELETE'}" class="badge-type type-delete"><i class="fas fa-trash me-1"></i>Xóa TB</span>
                         </td>
@@ -533,7 +533,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content modal-content-vip">
                 <div class="modal-header modal-header-vip bg-light">
-                    <h5 class="modal-title modal-title-vip"><i class="fas fa-tools me-2"></i>TẠO PHIẾU BÁO SỰ CỐ</h5>
+                    <h5 class="modal-title modal-title-vip"><i class="fas fa-tools me-2"></i>TẠO PHIẾU BÁO CÁO TÌNH TRẠNG</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -567,7 +567,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">4. MÔ TẢ CHI TIẾT <span class="text-danger">*</span></label>
-                                <textarea id="reqDesc" class="form-control form-vip" rows="4" placeholder="Nhập lý do báo hỏng hoặc yêu cầu bảo trì..."></textarea>
+                                <textarea id="reqDesc" class="form-control form-vip" rows="4" placeholder="Nhập mô tả tình trạng hoặc yêu cầu bảo trì..."></textarea>
                             </div>
                         </div>
                         <div class="text-end mt-4 pt-3 border-top">
@@ -923,7 +923,7 @@
             else statusBadge = '<span class="status-tag status-rejected"><i class="fas fa-times-circle me-1"></i> Từ chối</span>';
 
             let typeBadge = '';
-            if(type === 'REPORT') typeBadge = '<span class="badge-type type-report">Báo Hỏng</span>';
+            if(type === 'REPORT') typeBadge = '<span class="badge-type type-report">Tình trạng thiết bị</span>';
             else if(type === 'UPDATE') typeBadge = '<span class="badge-type type-update">Sửa Đổi</span>';
             else typeBadge = '<span class="badge-type type-delete">Xóa Thiết Bị</span>';
             

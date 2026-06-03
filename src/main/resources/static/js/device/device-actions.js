@@ -154,7 +154,7 @@ async function reportIssue() {
         if (bsModal) bsModal.hide();
 
         const { value: formValues, isDismissed } = await Swal.fire({
-            title: 'Báo cáo sự cố',
+            title: 'Báo cáo tình trạng',
             html: `
                 <div class="text-start mb-3">
                     <p class="mb-1 small fw-bold">Thiết bị: <span class="text-primary">${name} [${code}]</span></p>
@@ -174,7 +174,7 @@ async function reportIssue() {
                 const status = document.getElementById('swal-status').value;
                 const desc = document.getElementById('swal-desc').value;
                 if (!desc) {
-                    Swal.showValidationMessage('Vui lòng nhập mô tả sự cố');
+                    Swal.showValidationMessage('Vui lòng nhập mô tả tình trạng');
                     return false;
                 }
                 return { status, desc };
@@ -199,7 +199,7 @@ async function reportIssue() {
         });
         
         if (res.ok) {
-            showToast("Yêu cầu báo hỏng đã được gửi tới Admin.");
+            showToast("Yêu cầu báo cáo tình trạng đã được gửi tới Admin.");
             setTimeout(() => location.reload(), 1000);
         } else {
             const errData = await res.json();
