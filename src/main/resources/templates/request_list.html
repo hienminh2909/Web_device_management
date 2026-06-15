@@ -439,7 +439,9 @@
                         th:data-resolver="${req.resolver?.full_name}"
                         th:data-resolved-at="${req.resolved_at}"
                         th:data-status-device="${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
+                        th:data-old-status-device="${req.devices?.status ?: (req.update_payload != null ? req.update_payload['old_status'] : 'N/A')}"
                         th:data-desc="${req.description}"
+                        th:data-device-desc="${req.devices?.description ?: (req.update_payload != null ? req.update_payload['description'] : '')}"
                         th:data-user-name="${req.users?.full_name}"
                         th:data-created-at="${req.created_at}"
                         th:data-payload="${req.json_payload}"
@@ -454,14 +456,34 @@
                         
                         <!-- Thiết bị & Vị trí -->
                         <td>
-                            <div class="fw-bold mb-1" style="font-size: 0.95rem; color: #0f172a;" th:text="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}">Device</div>
+                            <div class="fw-bold mb-1" style="font-size: 0.95rem; color: #0f172a;">
+                                <span th:text="${req.devices?.device_name ?: (req.update_payload != null ? req.update_payload['device_name'] : 'N/A')}">Device</span>
+                                <th:block th:if="${req.request_type == 'UPDATE' and req.update_payload != null and req.update_payload['device_name'] != null and req.devices?.device_name != req.update_payload['device_name']}">
+                                    <i class="fas fa-arrow-right mx-1 text-muted" style="font-size: 0.7rem;"></i>
+                                    <span class="text-primary" th:text="${req.update_payload['device_name']}"></span>
+                                </th:block>
+                            </div>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <span class="device-code-chip"><i class="fas fa-barcode me-1 text-muted"></i><span th:text="${req.devices?.device_code ?: (req.update_payload != null ? req.update_payload['device_code'] : 'N/A')}">CODE</span></span>
-                                <span class="badge bg-light text-dark border"><i class="fas fa-door-open me-1 text-primary"></i><span th:text="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}">Room</span></span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fas fa-door-open me-1 text-primary"></i>
+                                    <span th:text="${req.devices?.rooms?.room_name ?: (req.update_payload != null ? req.update_payload['room_name'] : 'N/A')}">Room</span>
+                                    <th:block th:if="${req.request_type == 'UPDATE' and req.update_payload != null and req.update_payload['room_name'] != null and req.devices?.rooms?.room_name != req.update_payload['room_name']}">
+                                        <i class="fas fa-arrow-right mx-1 text-muted" style="font-size: 0.7rem;"></i>
+                                        <span class="text-primary" th:text="${req.update_payload['room_name']}"></span>
+                                    </th:block>
+                                </span>
                                 <span class="dev-status-badge"
-                                      th:with="sd=${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
-                                      th:classappend="${sd == 'Tốt' ? 'bg-status-tot' : (sd == 'Hỏng' || sd == 'Mất' ? 'bg-status-hong' : (sd == 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'))}"
-                                      th:text="${sd ?: 'Chưa rõ'}"></span>
+                                      th:with="oldStatus=${req.devices?.status ?: (req.update_payload != null ? req.update_payload['old_status'] : 'N/A')}"
+                                      th:classappend="${oldStatus == 'Tốt' ? 'bg-status-tot' : (oldStatus == 'Hỏng' || oldStatus == 'Mất' ? 'bg-status-hong' : (oldStatus == 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'))}"
+                                      th:text="${oldStatus ?: 'Chưa rõ'}"></span>
+                                <th:block th:if="${req.request_type == 'REPORT' || req.request_type == null}">
+                                    <i class="fas fa-arrow-right mx-1 text-muted" style="font-size: 0.7rem;"></i>
+                                    <span class="dev-status-badge"
+                                          th:with="sd=${req.status_device ?: (req.update_payload != null ? req.update_payload['status'] : 'N/A')}"
+                                          th:classappend="${sd == 'Tốt' ? 'bg-status-tot' : (sd == 'Hỏng' || sd == 'Mất' ? 'bg-status-hong' : (sd == 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'))}"
+                                          th:text="${sd ?: 'Chưa rõ'}"></span>
+                                </th:block>
                             </div>
                         </td>
                         
@@ -927,7 +949,8 @@
             else if(type === 'UPDATE') typeBadge = '<span class="badge-type type-update">Sửa Đổi</span>';
             else typeBadge = '<span class="badge-type type-delete">Xóa Thiết Bị</span>';
             
-            let devStatusClass = data.statusDevice === 'Tốt' ? 'bg-status-tot' : 'bg-status-hong';
+            let devStatusClass = data.statusDevice === 'Tốt' ? 'bg-status-tot' : (data.statusDevice === 'Hỏng' || data.statusDevice === 'Mất' ? 'bg-status-hong' : (data.statusDevice === 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'));
+            let oldDevStatusClass = data.oldStatusDevice === 'Tốt' ? 'bg-status-tot' : (data.oldStatusDevice === 'Hỏng' || data.oldStatusDevice === 'Mất' ? 'bg-status-hong' : (data.oldStatusDevice === 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'));
 
             let content = `
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
@@ -937,7 +960,214 @@
                     </div>
                     <div>${statusBadge}</div>
                 </div>
+            `;
 
+            if (type === 'UPDATE') {
+                const hlChange = (newVal, oldVal) => {
+                    if (newVal !== undefined && newVal !== null && String(newVal).trim() !== '' && newVal !== oldVal) {
+                        return `<span class="bg-warning text-dark fw-bold px-2 rounded shadow-sm">${newVal}</span>`;
+                    }
+                    return oldVal || 'Không có';
+                };
+
+                const hlPriceChange = (newPrice, oldPrice) => {
+                    if (newPrice !== undefined && newPrice !== null && String(newPrice).trim() !== '' && newPrice !== oldPrice) {
+                        return `<span class="bg-warning text-dark fw-bold px-2 rounded shadow-sm">${Number(newPrice).toLocaleString('vi-VN')} đ</span>`;
+                    }
+                    return oldPrice !== '0' && oldPrice !== 'undefined' ? Number(oldPrice).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật';
+                };
+
+                const hlDateChange = (newDate, oldDate) => {
+                    if (newDate !== undefined && newDate !== null && String(newDate).trim() !== '' && newDate !== oldDate) {
+                        return `<span class="bg-warning text-dark fw-bold px-2 rounded shadow-sm">${formatTime(newDate)}</span>`;
+                    }
+                    return oldDate !== 'N/A' && oldDate !== 'undefined' ? formatTime(oldDate) : 'Chưa cập nhật';
+                };
+
+                const hlStatusChange = (newStatus, oldStatus) => {
+                    if (newStatus !== undefined && newStatus !== null && String(newStatus).trim() !== '' && newStatus !== oldStatus) {
+                        return `<span class="bg-warning text-dark fw-bold px-2 rounded shadow-sm">${newStatus}</span>`;
+                    }
+                    return `<span class="dev-status-badge ${devStatusClass}">${oldStatus || 'N/A'}</span>`;
+                };
+
+                content += `
+                <div class="mb-4 position-relative rounded-4 overflow-hidden shadow-sm" style="border: 1px dashed #cbd5e1; background: #fff;">
+                    <!-- Nền chia 2 nửa -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex" style="z-index: 0;">
+                        <div class="w-50 h-100" style="background: #f8fafc; border-right: 1px dashed #cbd5e1;"></div>
+                        <div class="w-50 h-100" style="background: #f0fdf4;"></div>
+                    </div>
+                    
+                    <!-- Mũi tên giữa -->
+                    <div class="d-none d-md-flex position-absolute top-50 start-50 translate-middle align-items-center justify-content-center bg-white rounded-circle shadow" style="width: 40px; height: 40px; z-index: 10;">
+                        <i class="fas fa-arrow-right text-primary"></i>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="position-relative p-4" style="z-index: 1;">
+                        
+                        <!-- Header Badges -->
+                        <div class="row gx-4 mb-4">
+                            <div class="col-6 text-center">
+                                <span class="badge bg-secondary text-white px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.75rem; letter-spacing: 0.5px;"><i class="fas fa-history me-1"></i> DỮ LIỆU HIỆN TẠI</span>
+                            </div>
+                            <div class="col-6 text-center">
+                                <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.75rem; letter-spacing: 0.5px;"><i class="fas fa-magic me-1"></i> DỮ LIỆU ĐỀ XUẤT</span>
+                            </div>
+                        </div>
+
+                        <!-- Image & Name -->
+                        <div class="row gx-4 mb-3 pb-3 border-bottom align-items-center" style="border-color: #e2e8f0 !important;">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    ${data.deviceImage && data.deviceImage !== 'null' && data.deviceImage !== '' ? `<div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; flex-shrink: 0;"><img src="${data.deviceImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 50px; height: 50px; border-radius: 10px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem; flex-shrink: 0;"><i class="fas fa-laptop"></i></div>`}
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1" style="line-height: 1.4;">${data.deviceName}</h6>
+                                        <div class="device-code-chip d-inline-block">Mã: ${data.deviceCode}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    ${data.deviceImage && data.deviceImage !== 'null' && data.deviceImage !== '' ? `<div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; flex-shrink: 0;"><img src="${data.deviceImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 50px; height: 50px; border-radius: 10px; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #22c55e; font-size: 1.5rem; flex-shrink: 0;"><i class="fas fa-laptop"></i></div>`}
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1" style="line-height: 1.4;">${hlChange(payload.device_name, data.deviceName)}</h6>
+                                        <div class="device-code-chip d-inline-block">Mã: ${data.deviceCode}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vị trí -->
+                        <div class="row gx-4 mb-3 align-items-center">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-map-marker-alt text-secondary me-2"></i>Vị trí:</span>
+                                    <span class="fw-bold text-dark small text-end">${data.roomName}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-map-marker-alt text-secondary me-2"></i>Vị trí:</span>
+                                    <span class="fw-bold text-dark small text-end">${hlChange(payload.room_name, data.roomName)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Danh mục -->
+                        <div class="row gx-4 mb-3 align-items-center">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-tags text-secondary me-2"></i>Danh mục:</span>
+                                    <span class="fw-bold text-dark small text-end">${data.deviceCategory !== 'N/A' && data.deviceCategory !== 'undefined' ? data.deviceCategory : 'Không có'}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-tags text-secondary me-2"></i>Danh mục:</span>
+                                    <span class="fw-bold text-dark small text-end">${hlChange(payload.category, data.deviceCategory !== 'N/A' && data.deviceCategory !== 'undefined' ? data.deviceCategory : null)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày nhập -->
+                        <div class="row gx-4 mb-3 align-items-center">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-calendar-alt text-secondary me-2"></i>Ngày nhập:</span>
+                                    <span class="fw-bold text-dark small text-end">${data.devicePurchase !== 'N/A' && data.devicePurchase !== 'undefined' ? formatTime(data.devicePurchase) : 'Chưa cập nhật'}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-calendar-alt text-secondary me-2"></i>Ngày nhập:</span>
+                                    <span class="fw-bold text-dark small text-end">${hlDateChange(payload.purchase_date, data.devicePurchase)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị -->
+                        <div class="row gx-4 mb-3 align-items-center">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-money-bill-wave text-secondary me-2"></i>Giá trị:</span>
+                                    <span class="fw-bold text-dark small text-end">${data.devicePrice !== '0' && data.devicePrice !== 'undefined' ? Number(data.devicePrice).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật'}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-money-bill-wave text-secondary me-2"></i>Giá trị:</span>
+                                    <span class="fw-bold text-dark small text-end">${hlPriceChange(payload.device_price, data.devicePrice)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trạng thái -->
+                        <div class="row gx-4 mb-3 align-items-center">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-heartbeat text-secondary me-2"></i>Trạng thái:</span>
+                                    <span class="dev-status-badge ${oldDevStatusClass} text-end">${data.oldStatusDevice || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap"><i class="fas fa-heartbeat text-secondary me-2"></i>Trạng thái:</span>
+                                    <span class="text-end">${hlStatusChange(payload.status, data.oldStatusDevice)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mô tả -->
+                        <div class="row gx-4 align-items-stretch">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap mt-1"><i class="fas fa-info-circle text-secondary me-2"></i>Mô tả:</span>
+                                    <span class="fw-bold text-dark small text-end" style="word-break: break-word;">${data.deviceDesc || 'Không có'}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex justify-content-between h-100">
+                                    <span class="text-muted small text-nowrap mt-1"><i class="fas fa-info-circle text-secondary me-2"></i>Mô tả:</span>
+                                    <span class="fw-bold text-dark small text-end" style="word-break: break-word;">${hlChange(payload.description, data.deviceDesc)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                `;
+            } else if (type === 'DELETE') {
+                content += `
+                <div class="alert alert-danger border-danger border-opacity-25 rounded-4 p-4 mb-4 d-flex align-items-start gap-3">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1 shadow-sm" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-danger fw-bold mb-1">Yêu cầu xóa thiết bị vĩnh viễn</h5>
+                        <p class="text-danger mb-0 opacity-75 small" style="line-height: 1.5;">Thiết bị này đang được đề xuất xóa hoàn toàn khỏi kho. Mọi dữ liệu liên quan sẽ không thể khôi phục nếu được duyệt.</p>
+                    </div>
+                </div>
+                <div class="info-card mb-4" style="border: 1px solid #e2e8f0; background: #ffffff;">
+                    <div class="d-flex gap-3 align-items-center">
+                        ${data.deviceImage && data.deviceImage !== 'null' && data.deviceImage !== '' ? `<div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; flex-shrink: 0;"><img src="${data.deviceImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 70px; height: 70px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem; border: 1px solid #e2e8f0;"><i class="fas fa-laptop"></i></div>`}
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold text-dark mb-1">${data.deviceName}</h5>
+                            <div class="d-flex gap-2 flex-wrap mt-1">
+                                <div class="device-code-chip">Mã: ${data.deviceCode}</div>
+                                <span class="badge bg-light text-dark border"><i class="fas fa-door-open text-primary me-1"></i> ${data.roomName}</span>
+                                <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                            </div>
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-info-circle me-1"></i> ${data.deviceDesc || 'Không có mô tả'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            } else {
+                content += `
                 <div class="row g-4 mb-4">
                     <!-- Column 1: Device Info -->
                     <div class="col-md-6">
@@ -966,7 +1196,15 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-1">
                                     <span class="text-muted small">Trạng thái TB:</span>
-                                    <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                                    <div>
+                                        <span class="dev-status-badge ${oldDevStatusClass}">${data.oldStatusDevice || 'N/A'}</span>
+                                        <i class="fas fa-arrow-right mx-1 text-muted" style="font-size: 0.7rem;"></i>
+                                        <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-muted small">Mô tả:</span>
+                                    <span class="fw-bold text-dark small text-truncate" style="max-width: 150px;" title="${data.deviceDesc || 'Không có'}">${data.deviceDesc || 'Không có'}</span>
                                 </div>
                             </div>
                         </div>
@@ -974,13 +1212,13 @@
                     
                     <!-- Column 2: Context Info -->
                     <div class="col-md-6">
-                        <div class="info-card">
+                        <div class="info-card h-100">
                             <div class="info-card-label"><i class="fas fa-map-marker-alt me-1"></i> NGUỒN GỬI</div>
                             <div class="fw-bold text-primary mb-3 mt-2"><i class="fas fa-door-open me-2 text-muted"></i>${data.roomName}</div>
                             
                             <div class="d-flex justify-content-between border-top pt-2 mb-2">
                                 <span class="text-muted small">Người báo cáo:</span>
-                                <span class="fw-bold text-dark small">${data.userName}</span>
+                                <span class="fw-bold text-dark small">${data.userName && data.userName !== 'undefined' ? data.userName : 'Hệ thống'}</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted small">Thời gian:</span>
@@ -989,7 +1227,27 @@
                         </div>
                     </div>
                 </div>
-            `;
+                `;
+            }
+
+            // After that, Context info for UPDATE and DELETE
+            if (type === 'UPDATE' || type === 'DELETE') {
+                content += `
+                <div class="info-card mb-4" style="background: rgba(248, 250, 252, 0.5); border: 1px solid #e2e8f0;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-1">Người yêu cầu:</div>
+                            <div class="fw-bold text-dark"><i class="fas fa-user-circle text-primary me-2"></i>${data.userName && data.userName !== 'undefined' ? data.userName : 'Hệ thống'}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small mb-1">Thời gian tạo:</div>
+                            <div class="fw-bold text-dark"><i class="far fa-clock text-primary me-2"></i>${formatTime(data.createdAt)}</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
 
             // Description Box
             content += `

@@ -467,6 +467,7 @@
                     
                     const price = device.device_price ? parseInt(device.device_price.toString().replace(/\D/g, '')).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật';
                     const date = device.purchase_date ? new Date(device.purchase_date).toLocaleDateString('vi-VN') : 'Chưa cập nhật';
+                    const lastCheck = device.last_check ? new Date(device.last_check).toLocaleString('vi-VN', {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'}) : 'Chưa có dữ liệu';
                     const roomName = device.rooms?.room_name || 'Chưa xác định';
                     const categoryName = device.categories?.category_name || 'Chưa xác định';
                     const creator = device.users?.full_name || 'Chưa xác định';
@@ -488,6 +489,7 @@
                                     </span>
                                 </div>
                                 <div class="mb-2"><strong>Người bàn giao:</strong> <span>${creator}</span></div>
+                                <div class="mb-2"><strong>Ngày kiểm kê gần nhất:</strong> <span class="badge bg-info text-dark shadow-sm">${lastCheck}</span></div>
                                 <div class="mb-2"><strong>Mô tả:</strong> <p class="text-muted bg-light p-2 rounded mt-1 mb-0">${device.description || 'Không có mô tả.'}</p></div>
                             </div>
                         `,
