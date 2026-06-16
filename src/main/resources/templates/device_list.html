@@ -1218,9 +1218,6 @@
             </div>
         </div>
 
-        <script id="deviceJsonData" type="application/json" th:inline="javascript">
-            /*[[${devices}]]*/ []
-        </script>
     </div>
 
 
@@ -1230,10 +1227,9 @@
     <script src="/js/device/device-view.js"></script>
     <script src="/js/device/device-actions.js"></script>
 
-    <!-- Thymeleaf JS Inline: serialize device data an toàn, tránh HTML escape -->
+    <!-- Khôi phục lại variables cho skeleton -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        window.deviceDataStore = /*[[${devices}]]*/ [];
         window.initialCategoryName = /*[[${initialCategoryName}]]*/ null;
         window.initialRoomName = /*[[${initialRoomName}]]*/ null;
         window.initialSearch = /*[[${initialSearch}]]*/ null;
@@ -1321,22 +1317,18 @@
                         if (typeof filterDevices === 'function') {
                             filterDevices();
                         }
-                        
-                        // Extract device data store from the embedded script tag to avoid duplicate API calls
-                        const jsonElement = document.getElementById('deviceJsonData');
-                        if (jsonElement) {
-                            try {
-                                window.deviceDataStore = JSON.parse(jsonElement.textContent);
-                            } catch(e) { 
-                                console.error("Lỗi parse device data:", e); 
-                            }
-                        }
+                        // Load real data behind the scenes for modal details
+                        fetch('/api/devices/summary')
+                            .then(res => res.json())
+                            .then(data => {
+                                window.deviceDataStore = data;
+                            })
+                            .catch(err => console.error("Error loading device summary:", err));
                     }
                 })
                 .catch(err => console.error("Error loading devices fragment:", err));
 
         });
-        /*]]>*/
     </script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </div>
