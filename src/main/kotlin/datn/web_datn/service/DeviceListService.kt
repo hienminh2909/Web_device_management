@@ -197,19 +197,42 @@ class DeviceService(private val restTemplate: RestTemplate) {
                 val qrUrl = item["qr_url"]?.toString()
                 if (!qrUrl.isNullOrBlank()) {
                     try {
-                        val url = java.net.URI(qrUrl).toURL()
-                        url.openStream().use { stream ->
-                            val bytes = IOUtils.toByteArray(stream)
-                            val pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG)
-                            val helper = workbook.creationHelper
-                            val anchor = helper.createClientAnchor().apply {
-                                setCol1(1); row1 = rowIdx
-                                setCol2(2); row2 = rowIdx + 1
+                        val baseUrl = System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000"
+                        // Cần đổi "/api/web/devices" thành "/api/devices" vì Spring Boot gọi trực tiếp sang FastAPI
+                        val adjustedQrUrl = qrUrl.replace("/api/web/devices/", "/api/devices/")
+                        val fullUrl = if (adjustedQrUrl.startsWith("http")) adjustedQrUrl else baseUrl + adjustedQrUrl
+                        val encodedUrl = fullUrl.replace(" ", "%20")
+                        val url = java.net.URI(encodedUrl).toURL()
+                        val connection = url.openConnection() as java.net.HttpURLConnection
+                        connection.setRequestProperty("User-Agent", "Mozilla/5.0")
+                        connection.connectTimeout = 5000
+                        connection.readTimeout = 5000
+                        
+                        if (connection.responseCode == 200) {
+                            connection.inputStream.use { stream ->
+                                val bytes = IOUtils.toByteArray(stream)
+                                val pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG)
+                                val helper = workbook.creationHelper
+                                val anchor = helper.createClientAnchor().apply {
+                                    setCol1(1)
+                                    row1 = rowIdx
+                                    setCol2(2)
+                                    row2 = rowIdx + 1
+                                    
+                                    // Thêm padding khoảng 5 pixels (1 pixel = 9525 EMUs)
+                                    dx1 = 5 * 9525
+                                    dy1 = 5 * 9525
+                                    dx2 = -5 * 9525
+                                    dy2 = -5 * 9525
+                                }
+                                drawing.createPicture(anchor, pictureIdx)
+                                // Không dùng resize() để hình ảnh vừa khít với ô lưới
                             }
-                            drawing.createPicture(anchor, pictureIdx)
+                        } else {
+                            row.createCell(1).setCellValue("Lỗi HTTP ${connection.responseCode}")
                         }
                     } catch (e: Exception) {
-                        row.createCell(1).setCellValue("Lỗi ảnh")
+                        row.createCell(1).setCellValue("Lỗi tải ảnh: ${e.message}")
                     }
                 }
                 rowIdx++ // Tăng STT cho máy lẻ tiếp theo
@@ -219,7 +242,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
         for (i in 0..11) {
             if (i != 1) sheet.autoSizeColumn(i)
         }
-        sheet.setColumnWidth(1, 4000) // Cột QR cho rộng ra chút
+        sheet.setColumnWidth(1, 4400) // Đặt kích thước cột 1 vuông vức với chiều cao dòng (90f)
 
         // 1. Ghi workbook ra một mảng Byte trước để tính kích thước
         val bos = java.io.ByteArrayOutputStream()
