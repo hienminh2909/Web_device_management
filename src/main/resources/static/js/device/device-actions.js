@@ -277,7 +277,10 @@ async function confirmDelete() {
                 room_name: document.getElementById('vRoom')?.innerText || 'N/A',
                 status: document.getElementById('vStatus')?.innerText || 'N/A',
                 category: document.getElementById('vCategory')?.innerText || 'N/A',
-                description: document.getElementById('vDes')?.innerText || ''
+                description: document.getElementById('vDes')?.innerText || '',
+                device_price: document.getElementById('vPrice')?.innerText.replace(/\D/g,'') || '0',
+                purchase_date: document.getElementById('vDate_purchase')?.innerText || 'N/A',
+                image_url: document.getElementById('sdRealImage')?.src || ''
             };
 
             const apiUrl = window.location.origin + '/requests/api/advanced';
@@ -785,7 +788,10 @@ async function handleBulkDelete() {
                     room_name: currentGroupData.room || 'N/A',
                     status: currentGroupData.status || 'N/A',
                     category: currentGroupData.category || 'N/A',
-                    description: currentGroupData.desc || ''
+                    description: currentGroupData.desc || '',
+                    device_price: currentGroupData.price || '0',
+                    purchase_date: currentGroupData.date_purchase || 'N/A',
+                    image_url: currentGroupData.image_url || ''
                 };
 
                 const res = await fetch(apiUrl, {

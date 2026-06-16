@@ -1217,6 +1217,10 @@
                 </div>
             </div>
         </div>
+
+        <script id="deviceJsonData" type="application/json" th:inline="javascript">
+            /*[[${devices}]]*/ []
+        </script>
     </div>
 
 
@@ -1318,11 +1322,15 @@
                             filterDevices();
                         }
                         
-                        // Extract device data store from the new script tag if possible, 
-                        // or better yet, fetch /api/devices/summary if needed for JS logic
-                        fetch('/api/devices/summary').then(res => res.json()).then(data => {
-                            window.deviceDataStore = data;
-                        });
+                        // Extract device data store from the embedded script tag to avoid duplicate API calls
+                        const jsonElement = document.getElementById('deviceJsonData');
+                        if (jsonElement) {
+                            try {
+                                window.deviceDataStore = JSON.parse(jsonElement.textContent);
+                            } catch(e) { 
+                                console.error("Lỗi parse device data:", e); 
+                            }
+                        }
                     }
                 })
                 .catch(err => console.error("Error loading devices fragment:", err));

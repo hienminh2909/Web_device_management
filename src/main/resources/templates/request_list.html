@@ -416,11 +416,14 @@
             <table class="table-vip">
                 <thead>
                     <tr>
+                        <th style="width: 40px;" class="text-center border-end">
+                            <input th:if="${#strings.toLowerCase(session.role) == 'admin'}" type="checkbox" class="form-check-input shadow-none" id="selectAllRequests" onclick="toggleAllRequests(this)" style="cursor: pointer;">
+                        </th>
                         <th style="width: 10%;">Loại</th>
-                        <th style="width: 25%;">Thiết bị / Vị trí</th>
+                        <th style="width: 22%;">Thiết bị / Vị trí</th>
                         <th style="width: 15%;">Người gửi</th>
                         <th style="width: 15%;">Trạng thái</th>
-                        <th style="width: 20%;">Xử lý bởi</th>
+                        <th style="width: 18%;">Xử lý bởi</th>
                         <th style="width: 15%;" class="text-end">Thao tác</th>
                     </tr>
                 </thead>
@@ -447,6 +450,11 @@
                         th:data-payload="${req.json_payload}"
                         onclick="showDetailVip(this)">
                         
+                        <!-- Checkbox -->
+                        <td class="text-center border-end" onclick="event.stopPropagation()">
+                            <input th:if="${(req.status_resolve == null or req.status_resolve == 'pending') and #strings.toLowerCase(session.role) == 'admin'}" type="checkbox" class="form-check-input request-checkbox shadow-none" th:value="${req.id}" onclick="updateBulkActionUI()" style="cursor: pointer;">
+                        </td>
+
                         <!-- Loại Yêu cầu -->
                         <td>
                             <span th:if="${req.request_type == 'REPORT' || req.request_type == null}" class="badge-type type-report"><i class="fas fa-tools me-1"></i>Tình trạng thiết bị</span>
@@ -728,6 +736,7 @@
             currentPage = 1;
             renderPagination();
             showPage(currentPage);
+            if (typeof updateBulkActionUI === 'function') updateBulkActionUI();
         }
 
         function showPage(page) {
@@ -930,6 +939,81 @@
                     Swal.fire('Lỗi', e.message || 'Không thể dọn dẹp báo cáo.', 'error');
                 }
             }
+        }
+
+        async function handleBulkProcess(action) {
+            const visibleChecked = Array.from(document.querySelectorAll('.request-checkbox:checked')).filter(cb => cb.closest('tr').style.display !== 'none');
+            const ids = visibleChecked.map(cb => cb.value);
+            
+            if (ids.length === 0) return;
+
+            const actionText = action === 'approved' ? 'Phê duyệt' : 'Từ chối';
+            const actionColor = action === 'approved' ? '#059669' : '#e11d48';
+
+            const result = await Swal.fire({
+                title: `${actionText} ${ids.length} yêu cầu?`,
+                text: "Thao tác này sẽ ghi nhận vào lịch sử hệ thống.",
+                icon: action === 'approved' ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: actionColor,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+                customClass: { popup: 'rounded-4' }
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                try {
+                    const promises = ids.map(id => fetch(`/requests/${id}/resolve?status=${action}`, { method: 'POST' }));
+                    const results = await Promise.all(promises);
+                    
+                    const allOk = results.every(res => res.ok);
+                    if (allOk) {
+                        Swal.fire({ title: 'Thành công!', text: `Đã ${actionText.toLowerCase()} ${ids.length} yêu cầu.`, icon: 'success', customClass: { popup: 'rounded-4' } }).then(() => location.reload());
+                    } else {
+                        throw new Error('Một số yêu cầu bị lỗi.');
+                    }
+                } catch (e) {
+                    Swal.fire('Lỗi', 'Không thể hoàn tất thao tác.', 'error');
+                }
+            }
+        }
+
+        function updateBulkActionUI() {
+            const bulkActionBar = document.getElementById('bulkActionBar');
+            const selectedCount = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAllRequests');
+            
+            const visibleCheckboxes = Array.from(document.querySelectorAll('.request-checkbox')).filter(cb => cb.closest('tr').style.display !== 'none');
+            const visibleChecked = visibleCheckboxes.filter(cb => cb.checked);
+
+            if (visibleChecked.length > 0) {
+                selectedCount.textContent = visibleChecked.length;
+                bulkActionBar.style.setProperty('display', 'flex', 'important');
+                setTimeout(() => {
+                    bulkActionBar.style.transform = 'translateY(0) translateX(-50%)';
+                    bulkActionBar.style.opacity = '1';
+                }, 10);
+            } else {
+                bulkActionBar.style.transform = 'translateY(100px) translateX(-50%)';
+                bulkActionBar.style.opacity = '0';
+                setTimeout(() => {
+                    bulkActionBar.style.setProperty('display', 'none', 'important');
+                }, 300);
+            }
+            
+            if (selectAll) {
+                selectAll.checked = visibleChecked.length > 0 && visibleChecked.length === visibleCheckboxes.length;
+                selectAll.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visibleCheckboxes.length;
+            }
+        }
+
+        function toggleAllRequests(source) {
+            const visibleCheckboxes = Array.from(document.querySelectorAll('.request-checkbox')).filter(cb => cb.closest('tr').style.display !== 'none');
+            visibleCheckboxes.forEach(cb => {
+                cb.checked = source.checked;
+            });
+            updateBulkActionUI();
         }
 
         function showDetailVip(el) {
@@ -1139,6 +1223,17 @@
                 </div>
                 `;
             } else if (type === 'DELETE') {
+                let dispName = payload.device_name || data.deviceName || 'N/A';
+                let dispCode = payload.device_code || data.deviceCode || 'N/A';
+                let dispRoom = payload.room_name || data.roomName || 'N/A';
+                let dispStatus = payload.status || data.statusDevice || 'N/A';
+                let dispCategory = payload.category || (data.deviceCategory !== 'N/A' && data.deviceCategory !== 'undefined' ? data.deviceCategory : 'Không có');
+                let dispPrice = payload.device_price || data.devicePrice;
+                let dispDate = payload.purchase_date || data.devicePurchase;
+                let dispDesc = payload.description || data.deviceDesc || 'Không có mô tả';
+                let dispImage = payload.image_url || data.deviceImage;
+                let finalDevStatusClass = dispStatus === 'Tốt' ? 'bg-status-tot' : (dispStatus === 'Hỏng' || dispStatus === 'Mất' ? 'bg-status-hong' : (dispStatus === 'Đang bảo trì' ? 'bg-status-dangbaotri' : 'bg-status-baotri'));
+
                 content += `
                 <div class="alert alert-danger border-danger border-opacity-25 rounded-4 p-4 mb-4 d-flex align-items-start gap-3">
                     <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1 shadow-sm" style="width: 48px; height: 48px; font-size: 1.25rem;">
@@ -1149,18 +1244,56 @@
                         <p class="text-danger mb-0 opacity-75 small" style="line-height: 1.5;">Thiết bị này đang được đề xuất xóa hoàn toàn khỏi kho. Mọi dữ liệu liên quan sẽ không thể khôi phục nếu được duyệt.</p>
                     </div>
                 </div>
-                <div class="info-card mb-4" style="border: 1px solid #e2e8f0; background: #ffffff;">
-                    <div class="d-flex gap-3 align-items-center">
-                        ${data.deviceImage && data.deviceImage !== 'null' && data.deviceImage !== '' ? `<div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; flex-shrink: 0;"><img src="${data.deviceImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 70px; height: 70px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem; border: 1px solid #e2e8f0;"><i class="fas fa-laptop"></i></div>`}
-                        <div class="flex-grow-1">
-                            <h5 class="fw-bold text-dark mb-1">${data.deviceName}</h5>
-                            <div class="d-flex gap-2 flex-wrap mt-1">
-                                <div class="device-code-chip">Mã: ${data.deviceCode}</div>
-                                <span class="badge bg-light text-dark border"><i class="fas fa-door-open text-primary me-1"></i> ${data.roomName}</span>
-                                <span class="dev-status-badge ${devStatusClass}">${data.statusDevice || 'N/A'}</span>
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="info-card h-100">
+                            <div class="info-card-label"><i class="fas fa-microchip me-1"></i> THÔNG TIN THIẾT BỊ BỊ XÓA</div>
+                            <div class="d-flex gap-3 mt-2">
+                                ${dispImage && dispImage !== 'null' && dispImage !== '' ? `<div style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; flex-shrink: 0;"><img src="${dispImage}" alt="Device" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 80px; height: 80px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem; border: 1px solid #e2e8f0;"><i class="fas fa-laptop"></i></div>`}
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">${dispName}</h5>
+                                    <div class="device-code-chip d-inline-block mb-2">Mã: ${dispCode}</div>
+                                </div>
                             </div>
-                            <div class="mt-2 text-muted small">
-                                <i class="fas fa-info-circle me-1"></i> ${data.deviceDesc || 'Không có mô tả'}
+                            
+                            <div class="d-flex flex-column gap-2 border-top pt-3 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Danh mục:</span>
+                                    <span class="fw-bold text-dark small">${dispCategory}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Giá trị:</span>
+                                    <span class="fw-bold text-success small">${dispPrice !== '0' && dispPrice !== 'undefined' && dispPrice ? Number(dispPrice).toLocaleString('vi-VN') + ' đ' : 'Chưa cập nhật'}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small">Ngày nhập:</span>
+                                    <span class="fw-bold text-dark small">${dispDate !== 'N/A' && dispDate !== 'undefined' && dispDate ? formatTime(dispDate) : 'Chưa cập nhật'}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-muted small">Trạng thái:</span>
+                                    <span class="dev-status-badge ${finalDevStatusClass}">${dispStatus}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-muted small">Mô tả:</span>
+                                    <span class="fw-bold text-dark small text-truncate" style="max-width: 150px;" title="${dispDesc}">${dispDesc}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="info-card h-100">
+                            <div class="info-card-label"><i class="fas fa-map-marker-alt me-1"></i> VỊ TRÍ & NGUỒN GỬI</div>
+                            <div class="fw-bold text-primary mb-3 mt-2"><i class="fas fa-door-open me-2 text-muted"></i>${dispRoom}</div>
+                            
+                            <div class="d-flex justify-content-between border-top pt-2 mb-2">
+                                <span class="text-muted small">Người báo cáo:</span>
+                                <span class="fw-bold text-dark small">${data.userName && data.userName !== 'undefined' ? data.userName : 'Hệ thống'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Thời gian:</span>
+                                <span class="text-muted small fw-bold"><i class="far fa-clock me-1"></i>${formatTime(data.createdAt)}</span>
                             </div>
                         </div>
                     </div>
@@ -1347,4 +1480,22 @@
             }, 300);
         });
     </script>
+
+    <!-- Floating Bulk Action Bar -->
+    <div id="bulkActionBar" class="position-fixed bottom-0 start-50 translate-middle-x mb-4 bg-white rounded-pill shadow-lg align-items-center px-4 py-3" style="z-index: 1050; display: none !important; border: 1px solid #e2e8f0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100px) translateX(-50%); opacity: 0; transform-origin: left center;">
+        <div class="d-flex align-items-center me-4 border-end pe-4">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px;">
+                <span id="selectedCount" class="fw-bold">0</span>
+            </div>
+            <span class="fw-bold text-dark">yêu cầu đã chọn</span>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="handleBulkProcess('approved')" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <i class="fas fa-check-circle"></i> Duyệt hàng loạt
+            </button>
+            <button class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="handleBulkProcess('rejected')" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <i class="fas fa-times-circle"></i> Từ chối hàng loạt
+            </button>
+        </div>
+    </div>
 </div>

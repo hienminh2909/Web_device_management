@@ -30,17 +30,10 @@ class DeviceService(private val restTemplate: RestTemplate) {
         val headers = HttpHeaders()
         headers.setBearerAuth(token)
         val entity = HttpEntity<Unit>(headers)
-        val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
 
         return try {
             val response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Array<DeviceResponse>::class.java)
-            val devices = response.body?.toList() ?: emptyList()
-
-            // TỰ ĐỘNG XỬ LÝ JSON TẠI ĐÂY
-            devices.forEach { device ->
-                device.detailsJson = mapper.writeValueAsString(device.all_devices_detail ?: emptyList<Any>())
-            }
-            devices
+            response.body?.toList() ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
