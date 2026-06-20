@@ -88,7 +88,12 @@ function filterDevices() {
             totalQty += qty;
             
             // Tính giá trị
-            const priceStr = item.dataset.price || "0";
+            let priceStr = (item.dataset.price || "0").trim();
+            if (priceStr.endsWith(".0")) {
+                priceStr = priceStr.slice(0, -2);
+            } else if (priceStr.endsWith(".00")) {
+                priceStr = priceStr.slice(0, -3);
+            }
             const price = parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
             totalValue += (price * qty);
         }
@@ -305,7 +310,7 @@ function showSingleDeviceInfo(item) {
     document.getElementById('vRoom').innerText = currentGroupData.room;
     document.getElementById('vDes').innerText = currentGroupData.desc || 'Không có mô tả.';
     document.getElementById('vCategory').innerText = currentGroupData.category;
-    document.getElementById('vPrice').innerText = currentGroupData.price || 'Chưa cập nhật';
+    document.getElementById('vPrice').innerText = currentGroupData.price ? AppHelpers.formatVND(currentGroupData.price) : 'Chưa cập nhật';
     document.getElementById('vCreatedBy').innerText = currentGroupData.createdBy || 'Hệ thống';
     document.getElementById('vCreatedAt').innerText = currentGroupData.createdAt ? currentGroupData.createdAt.substring(0, 19).replace('T', ' ') : 'N/A';
     document.getElementById('vUpdatedAt').innerText = currentGroupData.updatedAt ? currentGroupData.updatedAt.substring(0, 19).replace('T', ' ') : 'Chưa cập nhật';

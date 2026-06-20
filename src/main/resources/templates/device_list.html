@@ -516,7 +516,7 @@
                         </div>
                         <div class="info-item full-width">
                             <span class="info-label"><i class="fas fa-coins me-1 text-warning"></i>Giá trị</span>
-                            <span class="info-value" th:style="${device.device_price != null ? 'color:#059669' : 'color:#94a3b8'}" th:text="${device.device_price != null ? device.device_price + ' ₫' : 'Chưa cập nhật'}"></span>
+                            <span class="info-value format-vnd" th:style="${device.device_price != null ? 'color:#059669' : 'color:#94a3b8'}" th:text="${device.device_price != null ? device.device_price + ' ₫' : 'Chưa cập nhật'}"></span>
                         </div>
                     </div>
                 </div>
@@ -568,7 +568,7 @@
                                     th:text="${device.status}">
                                 </span>
                             </td>
-                            <td class="fw-bold text-success" th:text="${device.device_price ?: '---'}"></td>
+                            <td class="fw-bold text-success format-vnd" th:text="${device.device_price ?: '---'}"></td>
                             <td class="text-center fw-bold" th:text="${device.quantity}"></td>
                         </tr>
                     </tbody>
@@ -1313,6 +1313,10 @@
                     const newContent = tempDiv.querySelector('#dynamicDeviceContainer');
                     if (newContent) {
                         document.getElementById('dynamicDeviceContainer').replaceWith(newContent);
+                        // Định dạng lại giá trị tiền tệ VND cho các phần tử vừa tải
+                        if (typeof AppHelpers !== 'undefined' && typeof AppHelpers.autoFormatVND === 'function') {
+                            AppHelpers.autoFormatVND();
+                        }
                         // Kích hoạt tính toán lại số lượng và giá trị (chạy hàm filterDevices)
                         if (typeof filterDevices === 'function') {
                             filterDevices();

@@ -122,6 +122,26 @@ const AppHelpers = {
         } catch (e) { console.error("Error loading request count", e); }
     },
 
+    formatVND: function(priceStr) {
+        if (!priceStr || priceStr === '---' || priceStr === 'Chưa cập nhật' || priceStr === 'null') return 'Chưa cập nhật';
+        let s = priceStr.toString().trim();
+        if (s.endsWith('.0')) s = s.slice(0, -2);
+        else if (s.endsWith('.00')) s = s.slice(0, -3);
+        const num = parseInt(s.replace(/[^0-9]/g, ''));
+        if (isNaN(num) || num === 0) return 'Chưa cập nhật';
+        return num.toLocaleString('vi-VN') + ' ₫';
+    },
+
+    autoFormatVND: function() {
+        document.querySelectorAll('.format-vnd').forEach(el => {
+            let txt = el.textContent.replace(' ₫', '').trim();
+            if (txt && txt !== 'Chưa cập nhật' && txt !== '---' && txt !== 'null') {
+                const formatted = AppHelpers.formatVND(txt);
+                el.textContent = formatted;
+            }
+        });
+    },
+
     loadQuickNotifs: async function() {
         const list = document.getElementById('quickNotifList');
         if (!list) return;
@@ -159,6 +179,7 @@ const AppHelpers = {
 document.addEventListener('DOMContentLoaded', () => {
     AppHelpers.loadNotificationBadges();
     AppHelpers.loadRequestBadges();
+    AppHelpers.autoFormatVND();
     // Định kỳ 30s check 1 lần
     setInterval(() => {
         AppHelpers.loadNotificationBadges();

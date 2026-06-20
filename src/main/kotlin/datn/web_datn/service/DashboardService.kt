@@ -51,7 +51,12 @@ class DashboardService(
             // Tính tổng tiền
             var totalAssetValue = 0L
             groups.forEach { group ->
-                val priceStr = group.device_price ?: "0"
+                var priceStr = group.device_price?.trim() ?: "0"
+                if (priceStr.endsWith(".0")) {
+                    priceStr = priceStr.dropLast(2)
+                } else if (priceStr.endsWith(".00")) {
+                    priceStr = priceStr.dropLast(3)
+                }
                 val cleanedPrice = priceStr.replace(Regex("[^0-9]"), "")
                 val price = cleanedPrice.toLongOrNull() ?: 0L
                 totalAssetValue += price * group.quantity
