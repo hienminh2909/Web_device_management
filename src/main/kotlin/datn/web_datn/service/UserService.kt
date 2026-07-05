@@ -66,14 +66,42 @@ class UserService(private val restTemplate: RestTemplate) {
         }
     }
 
-    fun exportUsersToExcel(token: String?, response: jakarta.servlet.http.HttpServletResponse) {
-        val users = getAllUsers(token)
+    fun exportUsersToExcel(
+        token: String?, 
+        response: jakarta.servlet.http.HttpServletResponse,
+        search: String? = null,
+        role: String? = null,
+        room: String? = null,
+        showDeleted: Boolean = false
+    ) {
+        val allUsers = getAllUsers(token)
+        val searchLower = search?.lowercase()?.trim()
+        val roleLower = role?.lowercase()?.trim()
+        val roomLower = room?.lowercase()?.trim()
+
+        val users = allUsers.filter { u ->
+            val name = (u.full_name ?: "").lowercase()
+            val username = (u.username ?: "").lowercase()
+            val phone = (u.phone ?: "").lowercase()
+            val email = (u.email ?: "").lowercase()
+            val uRole = (u.role ?: "").lowercase()
+            val uRoom = (u.room_name ?: "toàn bộ hệ thống").lowercase()
+
+            val isDeleted = username.contains("_deleted_")
+            if (!showDeleted && isDeleted) return@filter false
+
+            val matchesSearch = searchLower.isNullOrBlank() || name.contains(searchLower) || username.contains(searchLower) || phone.contains(searchLower) || email.contains(searchLower)
+            val matchesRole = roleLower.isNullOrBlank() || uRole == roleLower
+            val matchesRoom = roomLower.isNullOrBlank() || uRoom == roomLower
+
+            matchesSearch && matchesRole && matchesRoom
+        }
         
         try {
             val workbook = org.apache.poi.xssf.usermodel.XSSFWorkbook()
             val sheet = workbook.createSheet("Danh_Sach_Nguoi_Dung")
             
-            // Header
+
             val headerRow = sheet.createRow(0)
             val columns = arrayOf("ID", "Họ và Tên", "Tên đăng nhập", "Chức vụ", "Điện thoại", "Email", "Phòng phụ trách", "Ngày tạo")
             for (i in columns.indices) {
@@ -86,7 +114,7 @@ class UserService(private val restTemplate: RestTemplate) {
                 cell.setCellStyle(style)
             }
             
-            // Data
+
             var rowIdx = 1
             for (u in users) {
                 val row = sheet.createRow(rowIdx++)

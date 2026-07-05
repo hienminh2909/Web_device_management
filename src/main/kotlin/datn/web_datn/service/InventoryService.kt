@@ -54,44 +54,57 @@ class InventoryService(private val restTemplate: RestTemplate) {
         }
     }
 
-    fun exportRoomInventory(roomId: Int, roomName: String, month: Int, year: Int, token: String?, response: jakarta.servlet.http.HttpServletResponse) {
-        val details = getRoomDetails(roomId, month, year, token)
+    fun exportInventory(roomId: Int?, roomName: String?, month: Int, year: Int, token: String?, response: jakarta.servlet.http.HttpServletResponse) {
+        val detailsMap = mutableMapOf<String, List<InventoryDetailModel>>()
+        if (roomId != null) {
+            detailsMap[roomName ?: ""] = getRoomDetails(roomId, month, year, token)
+        } else {
+            val progress = getRoomsProgress(month, year, token)
+            progress.forEach { p ->
+                detailsMap[p.room_name] = getRoomDetails(p.room_id, month, year, token)
+            }
+        }
         
         try {
             val workbook = org.apache.poi.xssf.usermodel.XSSFWorkbook()
-            val sheet = workbook.createSheet("Kiem_Ke_$roomName")
+            val sheetName = if (roomId != null) "Kiem_Ke_$roomName" else "Kiem_Ke_Tong_Hop"
+            val sheet = workbook.createSheet(sheetName)
             
-            // Header
+
             val headerRow = sheet.createRow(0)
-            val columns = arrayOf("ID", "Tên thiết bị", "Mã QR", "Trạng thái", "Kết quả kiểm kê", "Lần quét cuối")
+            val columns = arrayOf("ID", "Tên thiết bị", "Mã QR", "Phòng", "Đợt kiểm kê", "Trạng thái", "Kết quả kiểm kê", "Lần quét cuối")
             for (i in columns.indices) {
                 val cell = headerRow.createCell(i)
                 cell.setCellValue(columns[i])
                 val style = workbook.createCellStyle()
-                val font = workbook.createFont()
-                font.setBold(true)
+                val font = workbook.createFont().apply { bold = true }
                 style.setFont(font)
                 cell.setCellStyle(style)
             }
             
-            // Data
+
             var rowIdx = 1
-            for (d in details) {
-                val row = sheet.createRow(rowIdx++)
-                row.createCell(0).setCellValue(d.id.toDouble())
-                row.createCell(1).setCellValue(d.device_name)
-                row.createCell(2).setCellValue(d.device_code ?: "N/A")
-                row.createCell(3).setCellValue(d.status)
-                row.createCell(4).setCellValue(if (d.is_checked) "Đã kiểm kê" else "Chưa kiểm kê")
-                row.createCell(5).setCellValue(d.last_check?.replace("T", " ") ?: "Chưa từng quét")
+            detailsMap.forEach { (rName, details) ->
+                for (d in details) {
+                    val row = sheet.createRow(rowIdx++)
+                    row.createCell(0).setCellValue(d.id.toDouble())
+                    row.createCell(1).setCellValue(d.device_name)
+                    row.createCell(2).setCellValue(d.device_code ?: "N/A")
+                    row.createCell(3).setCellValue(rName)
+                    row.createCell(4).setCellValue("Tháng $month/$year")
+                    row.createCell(5).setCellValue(d.status)
+                    row.createCell(6).setCellValue(if (d.is_checked) "Đã kiểm kê" else "Chưa kiểm kê")
+                    row.createCell(7).setCellValue(d.last_check?.replace("T", " ") ?: "Chưa từng quét")
+                }
             }
             
             for (i in columns.indices) {
                 sheet.autoSizeColumn(i)
             }
             
+            val filename = if (roomId != null) "Kiem_Ke_${roomName}_T${month}_${year}.xlsx" else "Kiem_Ke_Toan_Truong_T${month}_${year}.xlsx"
             response.contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            response.setHeader("Content-Disposition", "attachment; filename=Kiem_Ke_${roomName}_T${month}_${year}.xlsx")
+            response.setHeader("Content-Disposition", "attachment; filename=$filename")
             
             workbook.write(response.outputStream)
             workbook.close()

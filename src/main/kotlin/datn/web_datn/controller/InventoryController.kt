@@ -48,10 +48,10 @@ class InventoryController(
         
         val lastDayOfMonth = java.time.YearMonth.of(currentYear, currentMonth).atEndOfMonth()
 
-        // 1. Lấy dữ liệu cơ bản từ API Kiểm kê (Chứa số lượng Checked)
+
         val rawProgress = inventoryService.getRoomsProgress(currentMonth, currentYear, token)
         
-        // 2. Lấy toàn bộ thiết bị để tính toán Tổng thiết bị lịch sử (Historical Total)
+
         val allDevices = try {
             deviceService.getAllDevices(token)
         } catch (e: Exception) {
@@ -61,7 +61,7 @@ class InventoryController(
         // TỐI ƯU: Nhóm thiết bị theo phòng trước khi lặp
         val devicesByRoom = allDevices.groupBy { it.rooms.room_name }
 
-        // 3. Cập nhật lại trường 'total' cho từng phòng dựa trên ngày mua
+
         val progress = rawProgress.map { p ->
             val roomDevices = devicesByRoom[p.room_name] ?: emptyList()
             val historicalTotal = roomDevices.filter { device ->
@@ -133,7 +133,20 @@ class InventoryController(
     ) {
         val token = session.getAttribute("token") as String?
         if (token != null) {
-            inventoryService.exportRoomInventory(id, roomName, month, year, token, response)
+            inventoryService.exportInventory(id, roomName, month, year, token, response)
+        }
+    }
+
+    @GetMapping("/export-all")
+    fun exportAllRooms(
+        @RequestParam month: Int,
+        @RequestParam year: Int,
+        session: HttpSession,
+        response: jakarta.servlet.http.HttpServletResponse
+    ) {
+        val token = session.getAttribute("token") as String?
+        if (token != null) {
+            inventoryService.exportInventory(null, null, month, year, token, response)
         }
     }
 

@@ -11,6 +11,7 @@ data class RequestModel(
     val created_at: String? = null,
     val resolved_at: String? = null,
     val request_type: String? = "REPORT",
+    val note: String? = null,
     val update_payload: Map<String, Any>? = null,
     val json_payload: String? = "",
     val devices: DeviceInfo? = null,

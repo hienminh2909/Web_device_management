@@ -10,7 +10,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.util.IOUtils
-// Xóa các dòng import javax.servlet.* nếu có
+
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 @Service
@@ -25,7 +25,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
             .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
     }
 
-    // Trong DeviceService.kt
+
     fun getAllDevices(token: String): List<DeviceResponse> {
         val headers = HttpHeaders()
         headers.setBearerAuth(token)
@@ -144,7 +144,7 @@ class DeviceService(private val restTemplate: RestTemplate) {
 
 // --- BẮT ĐẦU ĐOẠN SỬA TIÊU ĐỀ ---
         val headerRow = sheet.createRow(0)
-        val cols = arrayOf("STT", "Mã QR", "Mã máy lẻ", "Tên thiết bị", "Loại thiết bị", "Mô tả", "Phòng", "Trạng thái", "Giá tiền", "Ngày mua", "Ngày kiểm kê", "Người tạo")
+        val cols = arrayOf("STT", "Mã QR", "Mã máy lẻ", "Tên thiết bị", "Loại thiết bị", "Mô tả", "Phòng", "Trạng thái", "Giá tiền", "Ngày mua", "Ngày kiểm kê", "Người tạo", "Ngày tạo", "Ngày cập nhật")
 
         // Tạo Style cho Header (Chữ đậm, nền xám nhẹ)
         val headerStyle = workbook.createCellStyle()
@@ -165,6 +165,11 @@ class DeviceService(private val restTemplate: RestTemplate) {
         // Cố định dòng tiêu đề để khi cuộn xuống không bị mất
         sheet.createFreezePane(0, 1)
         // --- KẾT THÚC ĐOẠN SỬA TIÊU ĐỀ ---
+        
+        val wrapStyle = workbook.createCellStyle()
+        wrapStyle.wrapText = true
+        wrapStyle.verticalAlignment = VerticalAlignment.CENTER
+
         var rowIdx = 1
 
         // DUYỆT TỪNG NHÓM (CARD)
@@ -182,18 +187,19 @@ class DeviceService(private val restTemplate: RestTemplate) {
                 row.createCell(2).setCellValue(item["device_code"]?.toString() ?: "N/A")
                 row.createCell(3).setCellValue(group.device_name)
                 row.createCell(4).setCellValue(group.categories.category_name)
-                row.createCell(5).setCellValue(group.description)
+                
+                val descCell = row.createCell(5)
+                descCell.setCellValue(group.description)
+                descCell.cellStyle = wrapStyle
+                
                 row.createCell(6).setCellValue(group.rooms.room_name)
                 row.createCell(7).setCellValue(group.status)
                 row.createCell(8).setCellValue(group.device_price ?: "N/A")
                 row.createCell(9).setCellValue(group.purchase_date)
                 row.createCell(10).setCellValue(group.last_inventory_at ?: "N/A")
                 row.createCell(11).setCellValue(group.users?.full_name ?: "N/A")
-
-
-
-
-                // Xử lý chèn ảnh QR cho máy lẻ
+                row.createCell(12).setCellValue(item["created_at"]?.toString() ?: "N/A")
+                row.createCell(13).setCellValue(item["updated_at"]?.toString() ?: "N/A")                // Xử lý chèn ảnh QR cho máy lẻ
                 val qrUrl = item["qr_url"]?.toString()
                 if (!qrUrl.isNullOrBlank()) {
                     try {
@@ -239,10 +245,11 @@ class DeviceService(private val restTemplate: RestTemplate) {
             }
         }
         // Tự động giãn cột cho đẹp
-        for (i in 0..11) {
-            if (i != 1) sheet.autoSizeColumn(i)
+        for (i in 0..13) {
+            if (i != 1 && i != 5) sheet.autoSizeColumn(i)
         }
         sheet.setColumnWidth(1, 4400) // Đặt kích thước cột 1 vuông vức với chiều cao dòng (90f)
+        sheet.setColumnWidth(5, 12000) // Cố định chiều rộng cột Mô tả để tự xuống dòng
 
         // 1. Ghi workbook ra một mảng Byte trước để tính kích thước
         val bos = java.io.ByteArrayOutputStream()

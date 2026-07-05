@@ -175,7 +175,9 @@
                  th:data-name="${r.room_name}" 
                  th:data-desc="${r.description}"
                  th:data-created="${r.created_at}"
-                 th:data-updated="${r.updated_at}">
+                 th:data-updated="${r.updated_at}"
+                 th:data-managers="${r.managers}"
+                 th:data-device-count="${r.device_count}">
                 <div class="room-card-vip">
                     <!-- Card Top: Icon & Actions -->
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -183,6 +185,7 @@
                             <i class="fas fa-school"></i>
                         </div>
                         <div class="room-action-group">
+                            <button class="btn-room-action btn-detail-room" title="Xem chi tiết"><i class="fas fa-eye"></i></button>
                             <button class="btn-room-action btn-edit-room" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
                             <button class="btn-room-action btn-room-delete btn-delete-room" title="Xóa"><i class="fas fa-trash"></i></button>
                         </div>
@@ -281,6 +284,48 @@
         </div>
     </div>
 
+    <!-- ROOM DETAIL MODAL -->
+    <div class="modal fade" id="roomDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-vip shadow-floating">
+                <div class="modal-body p-0">
+                    <div class="p-5 text-center" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff;">
+                        <div class="room-icon-container mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2.5rem; border-radius: 25px; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <h3 id="detailRoomName" class="fw-bold mb-1">Tên Phòng</h3>
+                        <div class="badge rounded-pill bg-white text-primary px-3 py-2 fw-bold shadow-sm mt-2" style="font-size: 0.75rem;">
+                            <i class="fas fa-desktop me-1"></i> <span id="detailDeviceCount">0</span> THIẾT BỊ
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="x-small text-muted fw-bold d-block mb-1">NGƯỜI QUẢN LÝ</label>
+                                <div id="detailManagers" class="fw-bold text-dark" style="font-size: 1.1rem; color: #0f766e !important;">Nguyễn Văn A</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="x-small text-muted fw-bold d-block mb-1">GHI CHÚ / MÔ TẢ</label>
+                                <div id="detailRoomDesc" class="text-dark">Không có ghi chú</div>
+                            </div>
+                            <div class="col-6 border-top pt-4">
+                                <label class="x-small text-muted fw-bold d-block mb-1">NGÀY TẠO</label>
+                                <div id="detailRoomCreated" class="small fw-bold">--</div>
+                            </div>
+                            <div class="col-6 border-top pt-4 text-end">
+                                <label class="x-small text-muted fw-bold d-block mb-1">CẬP NHẬT GẦN NHẤT</label>
+                                <div id="detailRoomUpdated" class="small fw-bold">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÓNG CHI TIẾT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             window.saveRoom = async function() {
@@ -369,8 +414,19 @@
                 document.getElementById('roomGrid')?.addEventListener('click', (e) => {
                     const editBtn = e.target.closest('.btn-edit-room');
                     const deleteBtn = e.target.closest('.btn-delete-room');
+                    const detailBtn = e.target.closest('.btn-detail-room');
                     const row = e.target.closest('.room-item');
-                    if (editBtn && row) window.openEditRoomModal({
+                    
+                    if (detailBtn && row) {
+                        document.getElementById('detailRoomName').innerText = row.getAttribute('data-name');
+                        document.getElementById('detailRoomDesc').innerText = row.getAttribute('data-desc') || 'Không có ghi chú';
+                        document.getElementById('detailRoomCreated').innerText = row.getAttribute('data-created') ? row.getAttribute('data-created').substring(0, 16).replace('T', ' ') : 'Chưa rõ';
+                        document.getElementById('detailRoomUpdated').innerText = row.getAttribute('data-updated') ? row.getAttribute('data-updated').substring(0, 16).replace('T', ' ') : 'Chưa rõ';
+                        document.getElementById('detailManagers').innerText = row.getAttribute('data-managers') || 'Chưa phân công';
+                        document.getElementById('detailDeviceCount').innerText = row.getAttribute('data-device-count') || '0';
+                        new bootstrap.Modal(document.getElementById('roomDetailModal')).show();
+                    }
+                    else if (editBtn && row) window.openEditRoomModal({
                         id: row.getAttribute('data-id'),
                         name: row.getAttribute('data-name'),
                         desc: row.getAttribute('data-desc'),

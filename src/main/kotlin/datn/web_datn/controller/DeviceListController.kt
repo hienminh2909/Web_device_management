@@ -37,13 +37,13 @@ class DeviceController(
         val rooms = roomService.getAllRooms(token)
         val categories = categoryService.getAllCategories(token)
 
-        model.addAttribute("devices", emptyList<Any>()) // Empty for Skeleton Load
+        model.addAttribute("devices", emptyList<Any>())
         model.addAttribute("rooms", rooms.map { it.room_name }.sorted())
         model.addAttribute("categories", categories.map { it.category_name }.sorted())
         model.addAttribute("view", "device_list")
         model.addAttribute("status", listOf("Tốt", "Hỏng", "Cần bảo trì", "Đang bảo trì", "Mất"))
         
-        // Truyền các bộ lọc ban đầu
+
         model.addAttribute("initialCategoryId", categoryId)
         model.addAttribute("initialCategoryName", categoryName)
         model.addAttribute("initialRoomId", roomId)
@@ -85,7 +85,7 @@ class DeviceController(
     }
 
     @PutMapping("/update/{id}")
-    @ResponseBody // Thêm cái này để Spring biết đây là API trả về JSON, không phải tìm file HTML
+    @ResponseBody
     fun updateDevice(
         @PathVariable id: Int,
         @RequestBody request: DeviceUpdateRequest,
@@ -123,7 +123,7 @@ class DeviceController(
         val ids = payload["ids"] ?: return ResponseEntity.badRequest().body(mapOf("error" to "Danh sách ID trống"))
 
         return try {
-            // Gọi service xử lý xóa hàng loạt
+
             val result = deviceService.deleteMultipleDevices(ids, token)
             ResponseEntity.ok(result)
         } catch (e: Exception) {
@@ -161,16 +161,16 @@ class DeviceController(
         @RequestParam(required = false) room: String?,
         @RequestParam(required = false) category: String?,
         @RequestParam(required = false) search: String?,
-        @RequestParam(required = false) status: String?, // Nhận thêm status
+        @RequestParam(required = false) status: String?,
         session: HttpSession,
         response: HttpServletResponse
     ) {
         val token = session.getAttribute("token") as? String ?: ""
 
-        // 1. Lấy toàn bộ danh sách từ Service
+
         var devices = deviceService.getAllDevices(token)
 
-        // 2. Thực hiện lọc dữ liệu ngay tại Controller
+
         if (!room.isNullOrBlank()) {
             devices = devices.filter { it.rooms.room_name.equals(room, ignoreCase = true) }
         }
@@ -190,7 +190,7 @@ class DeviceController(
             }
         }
 
-        // 3. Truyền danh sách ĐÃ LỌC vào Service để xuất file
+
         deviceService.exportToExcel(devices, response)
     }
 

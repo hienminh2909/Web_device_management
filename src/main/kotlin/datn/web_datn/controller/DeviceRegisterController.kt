@@ -12,7 +12,7 @@ import org.springframework.util.MultiValueMap
 @RequestMapping("/api/web/devices")
 class DeviceRegisterController(private val registerService: DeviceRegisterService) {
 
-    // API Đăng ký lẻ
+
     @PostMapping("/register")
     fun register(@RequestBody request: DeviceRegisterRequest, session: HttpSession): ResponseEntity<Any> {
         val token = session.getAttribute("token") as? String
@@ -25,7 +25,7 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
     }
 
 
-    // API Nhập Excel (Execute)
+
     @PostMapping("/import-excel")
     fun importExcel(
         @RequestParam("file") file: MultipartFile,
@@ -36,7 +36,7 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
         return ResponseEntity.ok(result ?: mapOf("message" to "Nhập kho thành công"))
     }
 
-    // API Kiểm tra Excel (Validate)
+
     @PostMapping("/import-check")
     fun importCheck(@RequestParam("file") file: MultipartFile, session: HttpSession): ResponseEntity<Any> {
         val token = session.getAttribute("token") as? String
@@ -60,7 +60,7 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
         }
     }
 
-    // Proxy get QR code
+
     @GetMapping("/qr/{code}")
     fun getQrCode(@PathVariable code: String): ResponseEntity<ByteArray> {
         return try {
@@ -71,7 +71,7 @@ class DeviceRegisterController(private val registerService: DeviceRegisterServic
         }
     }
 
-    // Proxy get Barcode
+
     @GetMapping("/barcode/{code}")
     fun getBarcode(@PathVariable code: String): ResponseEntity<ByteArray> {
         return try {

@@ -46,25 +46,25 @@ class DeviceRegisterService(
             println(">>> DEVICE REGISTER SERVICE: Success - HTTP ${response.statusCode}")
             val body = response.body
             
-            // --- GỬI EMAIL THÔNG BÁO ---
+
             if (response.statusCode.is2xxSuccessful) {
                 try {
-                    // 1. Lấy thông tin người đăng ký
+
                     val myProfile = userService.getMyProfile(token)
                     val registrantEmail = myProfile?.get("email") as? String
                     
-                    // 2. Lấy thông tin Admin
+
                     val allUsers = userService.getAllUsers(token)
                     val adminEmails = allUsers.filter { it.role?.lowercase() == "admin" }.mapNotNull { it.email }
 
-                    // 3. Gửi cho người đăng ký
+
                     if (!registrantEmail.isNullOrBlank()) {
                         emailService.sendDeviceRegistrationEmail(registrantEmail, request.device_name, request.room_name, request.quantity)
                     }
 
-                    // 4. Gửi cho các Admin
+
                     adminEmails.forEach { adminEmail ->
-                        if (adminEmail != registrantEmail) { // Tránh gửi trùng nếu registrant là admin
+                        if (adminEmail != registrantEmail) {
                             emailService.sendDeviceRegistrationEmail(adminEmail, request.device_name, request.room_name, request.quantity)
                         }
                     }
@@ -85,13 +85,13 @@ class DeviceRegisterService(
     }
 
     // --- CHỨC NĂNG 2: NHẬP EXCEL (Gộp chung) ---
-    // Hàm phụ trợ để đọc dữ liệu an toàn (Cho vào trong Class Service)
+
     private fun getCellValueAsString(cell: org.apache.poi.ss.usermodel.Cell?): String {
         if (cell == null) return ""
         return when (cell.cellType) {
             org.apache.poi.ss.usermodel.CellType.STRING -> cell.stringCellValue
             org.apache.poi.ss.usermodel.CellType.NUMERIC -> {
-                // Nếu là số, chuyển về String (xử lý cả trường hợp số nguyên)
+
                 val value = cell.numericCellValue
                 if (value == value.toLong().toDouble()) value.toLong().toString() else value.toString()
             }
@@ -101,7 +101,7 @@ class DeviceRegisterService(
         }
     }
 
-    // Sửa lại đoạn đọc hàng trong hàm importFromExcel
+
     fun importFromExcel(file: MultipartFile, token: String?): Map<String, Any> {
         val workbook = XSSFWorkbook(file.inputStream)
         val sheet = workbook.getSheetAt(0)
@@ -111,7 +111,7 @@ class DeviceRegisterService(
             for (i in 1..sheet.lastRowNum) {
                 val row = sheet.getRow(i) ?: continue
 
-                // SỬ DỤNG HÀM getCellValueAsString Ở ĐÂY
+
                 val deviceRequest = DeviceRegisterRequest(
                     device_name = normalizeName(getCellValueAsString(row.getCell(0))),
                     room_name = getCellValueAsString(row.getCell(1)),
@@ -133,14 +133,14 @@ class DeviceRegisterService(
         return mapOf("message" to "Đã nhập thành công $successCount thiết bị")
     }
 
-    // Giai đoạn 1: Kiểm tra dữ liệu (Validate)
+
     fun validateExcel(file: MultipartFile, token: String?): Any? {
         val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/validate"
         val normalizedFile = normalizeExcelFile(file)
         return forwardMultipartRequest(url, normalizedFile, token, null)
     }
 
-    // Giai đoạn 2: Thực thi nhập kho (Execute)
+
     fun executeImportExcel(file: MultipartFile, token: String?): Any? {
         val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/import"
         val normalizedFile = normalizeExcelFile(file)
@@ -152,7 +152,7 @@ class DeviceRegisterService(
             val workbook = XSSFWorkbook(file.inputStream)
             val sheet = workbook.getSheetAt(0)
             
-            // Normalize column 0 (Device Name) for all data rows
+
             for (i in 1..sheet.lastRowNum) {
                 val row = sheet.getRow(i) ?: continue
                 val cell = row.getCell(0) ?: continue
@@ -167,7 +167,7 @@ class DeviceRegisterService(
             val bytes = bos.toByteArray()
             workbook.close()
             
-            // Return a wrapper that acts like a MultipartFile
+
             object : MultipartFile {
                 override fun getName(): String = file.name
                 override fun getOriginalFilename(): String? = file.originalFilename
@@ -180,11 +180,11 @@ class DeviceRegisterService(
             }
         } catch (e: Exception) {
             println(">>> ERROR normalizing Excel: ${e.message}")
-            file // Fallback to original if error
+            file
         }
     }
 
-    // Hàm dùng chung để forward file tới FastAPI
+
     private fun forwardMultipartRequest(url: String, file: MultipartFile, token: String?, additionalParams: Map<String, String>?): Any? {
         val headers = HttpHeaders()
         token?.let {
@@ -194,7 +194,7 @@ class DeviceRegisterService(
 
         val body: MultiValueMap<String, Any> = LinkedMultiValueMap()
         
-        // Gửi file dưới dạng Resource để RestTemplate xử lý Stream/Multipart đúng chuẩn
+
         val fileHeaders = HttpHeaders()
         fileHeaders.setContentDispositionFormData("file", file.originalFilename)
         val fileEntity = HttpEntity(file.bytes, fileHeaders)
@@ -218,7 +218,7 @@ class DeviceRegisterService(
         val url = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/devices/upload-image"
 
         val headers = HttpHeaders()
-        // Để RestTemplate tự động thiết lập Content-Type với Boundary
+
         token?.let {
             val formattedToken = if (it.startsWith("Bearer ")) it else "Bearer $it"
             headers.set("Authorization", formattedToken)
@@ -226,7 +226,7 @@ class DeviceRegisterService(
 
         val body: MultiValueMap<String, Any> = LinkedMultiValueMap()
         
-        // Tạo HttpHeaders cho file part
+
         val fileHeaders = HttpHeaders()
         fileHeaders.contentType = MediaType.parseMediaType(file.contentType ?: "image/png")
         fileHeaders.setContentDispositionFormData("file", file.originalFilename)

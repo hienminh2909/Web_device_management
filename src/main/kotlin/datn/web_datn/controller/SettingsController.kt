@@ -17,7 +17,7 @@ class SettingsController(private val userService: UserService) {
         if (token == null) return "redirect:/login"
 
         println(">>> DEBUG: Accessing Settings Page")
-        // Lấy thông tin cá nhân hiện tại
+
         val profile = userService.getMyProfile(token) ?: mapOf(
             "full_name" to "N/A",
             "username" to "N/A",

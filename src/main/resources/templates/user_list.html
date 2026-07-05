@@ -141,9 +141,9 @@
                 <p class="text-muted fw-semibold small m-0">Đội ngũ cán bộ, giảng viên vận hành hệ thống.</p>
             </div>
             <div class="d-flex flex-wrap gap-3">
-                <a href="/users/export" class="btn btn-light rounded-pill px-4 fw-bold border shadow-sm">
+                <button onclick="window.exportFilteredUsers()" class="btn btn-light rounded-pill px-4 fw-bold border shadow-sm">
                     <i class="fas fa-file-excel me-2 text-success"></i> XUẤT DỮ LIỆU
-                </a>
+                </button>
                 <button class="btn btn-add-main" data-bs-toggle="modal" data-bs-target="#userModal" id="btnAddUser">
                     <i class="fas fa-user-plus me-2"></i> THÊM THÀNH VIÊN
                 </button>
@@ -157,6 +157,15 @@
                 <input type="text" id="userSearchInput" class="form-control search-input-vip" placeholder="Tìm kiếm theo tên, email, số điện thoại hoặc tài khoản...">
             </div>
             <div class="d-flex gap-3 align-items-center">
+                <div class="form-check form-switch d-flex align-items-center gap-2 m-0" style="margin-right: 15px !important;">
+                    <input class="form-check-input m-0" type="checkbox" id="showDeletedUsers" style="cursor:pointer;">
+                    <label class="form-check-label small fw-bold text-muted mb-0" for="showDeletedUsers" style="white-space: nowrap; cursor:pointer; font-size:0.8rem;">HIỆN ĐÃ XÓA</label>
+                </div>
+                <select id="roomFilter" class="form-select filter-select-vip">
+                    <option value="">Tất cả phòng</option>
+                    <option value="toàn bộ hệ thống">Hệ thống (Chưa gán)</option>
+                    <option th:each="r : ${rooms}" th:value="${r.room_name}" th:text="${r.room_name}"></option>
+                </select>
                 <select id="roleFilter" class="form-select filter-select-vip">
                     <option value="">Tất cả vai trò</option>
                     <option value="admin">Quản trị viên</option>
@@ -206,7 +215,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-light text-slate-600 border fw-bold px-2 py-1 rounded-pill" style="font-size: 0.7rem;">
+                                <span class="badge bg-light text-dark border fw-bold px-2 py-1 rounded-pill" style="font-size: 0.7rem;">
                                     @<span th:text="${u.username}">username</span>
                                 </span>
                             </td>

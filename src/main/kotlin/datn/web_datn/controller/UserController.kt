@@ -107,10 +107,17 @@ class UserController(
     }
 
     @GetMapping("/export")
-    fun exportUsers(session: HttpSession, response: jakarta.servlet.http.HttpServletResponse) {
+    fun exportUsers(
+        @RequestParam(required = false) search: String?,
+        @RequestParam(required = false) role: String?,
+        @RequestParam(required = false) room: String?,
+        @RequestParam(required = false, defaultValue = "false") showDeleted: Boolean,
+        session: HttpSession, 
+        response: jakarta.servlet.http.HttpServletResponse
+    ) {
         val token = session.getAttribute("token") as String?
         if (token != null) {
-            userService.exportUsersToExcel(token, response)
+            userService.exportUsersToExcel(token, response, search, role, room, showDeleted)
         }
     }
 }

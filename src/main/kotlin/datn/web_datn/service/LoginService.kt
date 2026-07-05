@@ -25,7 +25,7 @@ class AuthService {
         } catch (e: HttpStatusCodeException) {
             println("Lỗi HTTP login (${e.statusCode}): ${e.responseBodyAsString}")
             if (e.statusCode.value() == 401 || e.statusCode.value() == 403) {
-                null // Đúng định dạng là sai tài khoản/mật khẩu
+                null
             } else {
                 throw ServerWakingUpException("Hệ thống máy chủ đang kết nối lại (FastAPI đang thức giấc trên Render), vui lòng thử lại sau 10-15 giây!")
             }

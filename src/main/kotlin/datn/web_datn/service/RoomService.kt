@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate
 class RoomService(private val restTemplate: RestTemplate) {
     private val apiUrl = (System.getenv("API_BASE_URL") ?: "http://127.0.0.1:8000") + "/api/rooms"
 
-    @Cacheable(value = ["rooms"])
+    @Cacheable(value = ["rooms"], unless = "#result.isEmpty()")
     fun getAllRooms(token: String?): List<RoomModel> {
         val headers = HttpHeaders()
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
@@ -19,7 +19,9 @@ class RoomService(private val restTemplate: RestTemplate) {
         println(">>> ROOM SERVICE: [GET] $apiUrl")
         return try {
             val response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Array<RoomModel>::class.java)
-            response.body?.toList() ?: emptyList()
+            val roomsList = response.body?.toList() ?: emptyList()
+            println(">>> ROOM SERVICE: Lấy thành công ${roomsList.size} phòng")
+            roomsList
         } catch (e: Exception) {
             println(">>> ROOM SERVICE: GET ERROR - ${e.message}")
             emptyList()
@@ -32,7 +34,7 @@ class RoomService(private val restTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
-        // VALIDATION: Check for duplicate name
+
         val newName = payload["room_name"]?.toString()?.trim() ?: ""
         if (newName.isNotEmpty()) {
             val allRooms = getAllRooms(token)
@@ -64,7 +66,7 @@ class RoomService(private val restTemplate: RestTemplate) {
         headers.contentType = MediaType.APPLICATION_JSON
         if (!token.isNullOrBlank()) headers.setBearerAuth(token)
         
-        // VALIDATION: Check for duplicate name (excluding itself)
+
         val newName = payload["room_name"]?.toString()?.trim() ?: ""
         if (newName.isNotEmpty()) {
             val allRooms = getAllRooms(token)

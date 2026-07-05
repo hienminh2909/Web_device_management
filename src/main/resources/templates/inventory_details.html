@@ -97,11 +97,16 @@
             </div>
         </div>
 
-        <div class="search-container-vip">
-            <div class="position-relative">
+        <div class="search-container-vip d-flex flex-wrap gap-3 align-items-center">
+            <div class="position-relative flex-grow-1">
                 <i class="fas fa-search position-absolute top-50 translate-middle-y ms-4 text-muted"></i>
                 <input type="text" class="input-vip ps-5" id="deviceSearch" placeholder="Tìm tên thiết bị, mã QR hoặc ID...">
             </div>
+            <select class="form-select fw-bold text-muted px-4 shadow-sm" id="statusFilter" style="width: auto; border-radius: 16px; height: 56px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; transition: all 0.3s;">
+                <option value="all">Hiển thị: Tất cả thiết bị</option>
+                <option value="checked">Hiển thị: Đã kiểm kê</option>
+                <option value="unchecked">Hiển thị: Chưa kiểm kê</option>
+            </select>
         </div>
 
         <div class="table-container-vip">
@@ -228,18 +233,32 @@
             filterInventoryDetails();
         });
 
+        document.getElementById('statusFilter')?.addEventListener('change', function(e) {
+            filterInventoryDetails();
+        });
+
         function filterInventoryDetails() {
             const searchInput = document.getElementById('deviceSearch');
             const val = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const statusFilter = document.getElementById('statusFilter');
+            const filterVal = statusFilter ? statusFilter.value : 'all';
+            
             const rows = document.querySelectorAll('#inventoryDetailTable tr');
             
             matchingItems = [];
 
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
+                const isChecked = row.getAttribute('data-checked') === 'true';
                 row.style.display = 'none';
 
-                if (text.includes(val)) {
+                let matchSearch = text.includes(val);
+                let matchStatus = true;
+
+                if (filterVal === 'checked' && !isChecked) matchStatus = false;
+                if (filterVal === 'unchecked' && isChecked) matchStatus = false;
+
+                if (matchSearch && matchStatus) {
                     matchingItems.push(row);
                 }
             });

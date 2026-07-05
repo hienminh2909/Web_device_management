@@ -181,7 +181,10 @@
                  th:data-id="${c.id}" 
                  th:data-name="${c.category_name}" 
                  th:data-code="${c.category_code}"
-                 th:data-desc="${c.description}">
+                 th:data-desc="${c.description}"
+                 th:data-created="${c.created_at}"
+                 th:data-updated="${c.updated_at}"
+                 th:data-device-count="${c.device_count}">
                 <div class="category-card-vip">
                     <!-- Card Top: Icon & Actions -->
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -189,6 +192,7 @@
                             <i class="fas fa-cubes"></i>
                         </div>
                         <div class="cat-action-group">
+                            <button class="btn-cat-action btn-detail-category" title="Xem chi tiết"><i class="fas fa-eye"></i></button>
                             <button class="btn-cat-action btn-edit-category" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
                             <button class="btn-cat-action btn-cat-delete btn-delete-category" title="Xóa"><i class="fas fa-trash"></i></button>
                         </div>
@@ -274,6 +278,48 @@
                 <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">ĐÓNG</button>
                     <button type="button" id="btnSaveCategory" class="btn btn-add-main px-5" onclick="window.saveCategory()">LƯU DỮ LIỆU</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORY DETAIL MODAL -->
+    <div class="modal fade" id="categoryDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-vip shadow-floating">
+                <div class="modal-body p-0">
+                    <div class="p-5 text-center" style="background: var(--primary-gradient); color: #fff;">
+                        <div class="cat-icon-container mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2.5rem; border-radius: 25px; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <h3 id="detailCategoryName" class="fw-bold mb-1">Tên Danh Mục</h3>
+                        <div class="badge rounded-pill bg-white text-primary px-3 py-2 fw-bold shadow-sm mt-2" style="font-size: 0.75rem;">
+                            <span id="detailCategoryCode">CODE</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="x-small text-muted fw-bold d-block mb-1">MÔ TẢ CHI TIẾT</label>
+                                <div id="detailCategoryDesc" class="text-dark">Không có ghi chú</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="x-small text-muted fw-bold d-block mb-1">SỐ LƯỢNG THIẾT BỊ</label>
+                                <div id="detailCategoryDeviceCount" class="fw-bold text-dark" style="font-size: 1.2rem; color: #0f766e !important;">0</div>
+                            </div>
+                            <div class="col-6 border-top pt-4">
+                                <label class="x-small text-muted fw-bold d-block mb-1">NGÀY TẠO</label>
+                                <div id="detailCategoryCreated" class="small fw-bold">--</div>
+                            </div>
+                            <div class="col-6 border-top pt-4 text-end">
+                                <label class="x-small text-muted fw-bold d-block mb-1">CẬP NHẬT GẦN NHẤT</label>
+                                <div id="detailCategoryUpdated" class="small fw-bold">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÓNG CHI TIẾT</button>
                 </div>
             </div>
         </div>
@@ -383,7 +429,16 @@
                     const deleteBtn = e.target.closest('.btn-delete-category');
                     const row = e.target.closest('.category-item');
                     
-                    if (editBtn && row) {
+                    const detailBtn = e.target.closest('.btn-detail-category');
+                    if (detailBtn && row) {
+                        document.getElementById('detailCategoryName').innerText = row.getAttribute('data-name');
+                        document.getElementById('detailCategoryCode').innerText = row.getAttribute('data-code');
+                        document.getElementById('detailCategoryDesc').innerText = row.getAttribute('data-desc') || 'Không có ghi chú';
+                        document.getElementById('detailCategoryDeviceCount').innerText = row.getAttribute('data-device-count') || '0';
+                        document.getElementById('detailCategoryCreated').innerText = row.getAttribute('data-created') ? row.getAttribute('data-created').substring(0, 16).replace('T', ' ') : 'Chưa rõ';
+                        document.getElementById('detailCategoryUpdated').innerText = row.getAttribute('data-updated') ? row.getAttribute('data-updated').substring(0, 16).replace('T', ' ') : 'Chưa rõ';
+                        new bootstrap.Modal(document.getElementById('categoryDetailModal')).show();
+                    } else if (editBtn && row) {
                         window.openEditCategoryModal({
                             id: row.getAttribute('data-id'),
                             name: row.getAttribute('data-name'),

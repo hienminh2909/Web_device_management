@@ -34,7 +34,7 @@ class CategoryController(private val categoryService: CategoryService) {
             
             println(">>> CATEGORY CONTROLLER: [POST] /add - Raw Payload: $payload")
             
-            // Chuyển đổi sang Model hoặc truyền trực tiếp map
+
             val result = categoryService.createCategoryFromMap(payload, token)
             
             if (result?.containsKey("error") == true) {

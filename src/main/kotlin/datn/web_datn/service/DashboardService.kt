@@ -72,6 +72,13 @@ class DashboardService(
                 finalRoomStats[room.room_name] = activeRoomStats[room.room_name] ?: 0
             }
 
+            // Đảm bảo các phòng có thiết bị (nhưng có thể không có trong allRooms do lỗi filter/API) vẫn được hiển thị
+            activeRoomStats.forEach { (roomName, count) ->
+                if (!finalRoomStats.containsKey(roomName) && roomName != "N/A") {
+                    finalRoomStats[roomName] = count
+                }
+            }
+
             mapOf(
                 "total" to totalQuantity,
                 "available" to goodCount,

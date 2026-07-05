@@ -12,6 +12,8 @@ let allRows = [];
 function initUserManagement() {
     const searchInput = document.getElementById('userSearchInput');
     const roleFilter = document.getElementById('roleFilter');
+    const roomFilter = document.getElementById('roomFilter');
+    const showDeletedCheckbox = document.getElementById('showDeletedUsers');
     const userTableBody = document.getElementById('userTableBody');
     
     if (!userTableBody) return;
@@ -22,6 +24,8 @@ function initUserManagement() {
     function applyLogic() {
         const searchTerm = (searchInput?.value || "").toLowerCase().trim();
         const roleTerm = (roleFilter?.value || "").toLowerCase();
+        const roomTerm = (roomFilter?.value || "").toLowerCase();
+        const showDeleted = showDeletedCheckbox?.checked || false;
         
         filteredRows = allRows.filter(row => {
             const name = (row.getAttribute('data-fullname') || "").toLowerCase();
@@ -29,9 +33,17 @@ function initUserManagement() {
             const phone = (row.getAttribute('data-phone') || "").toLowerCase();
             const email = (row.getAttribute('data-email') || "").toLowerCase();
             const role = (row.getAttribute('data-role') || "").toLowerCase();
+            const room = (row.getAttribute('data-room') || "").toLowerCase();
             
+            // Xử lý ẩn/hiện người dùng đã xóa
+            const isDeleted = username.includes('_deleted_');
+            if (!showDeleted && isDeleted) {
+                return false;
+            }
+
             return (!searchTerm || name.includes(searchTerm) || username.includes(searchTerm) || phone.includes(searchTerm) || email.includes(searchTerm)) &&
-                   (!roleTerm || role === roleTerm);
+                   (!roleTerm || role === roleTerm) &&
+                   (!roomTerm || room === roomTerm);
         });
 
         const total = filteredRows.length;
@@ -71,6 +83,8 @@ function initUserManagement() {
 
     searchInput?.addEventListener('input', () => { currentPage = 1; applyLogic(); });
     roleFilter?.addEventListener('change', () => { currentPage = 1; applyLogic(); });
+    roomFilter?.addEventListener('change', () => { currentPage = 1; applyLogic(); });
+    showDeletedCheckbox?.addEventListener('change', () => { currentPage = 1; applyLogic(); });
 
     // Initial run
     applyLogic();
@@ -174,7 +188,8 @@ function openDetailModal(data) {
     document.getElementById('detailPhone').innerText = data.phone || 'Chưa cập nhật';
     document.getElementById('detailEmail').innerText = data.email || 'Chưa cập nhật';
     document.getElementById('detailRoom').innerText = data.roomName;
-    document.getElementById('detailId').innerText = '#' + data.id;
+    const detailIdElem = document.getElementById('detailId');
+    if (detailIdElem) detailIdElem.innerText = '#' + data.id;
     
     // Format creation date
     const dateStr = data.created ? data.created.replace('T', ' ').substring(0, 16) : 'Chưa rõ';
@@ -183,7 +198,7 @@ function openDetailModal(data) {
     
     const badge = document.getElementById('detailRoleBadge');
     badge.innerText = data.role.toUpperCase();
-    badge.className = 'role-badge ' + (data.role === 'admin' ? 'role-admin' : (data.role === 'teacher' ? 'role-teacher' : 'role-staff'));
+    badge.className = 'badge rounded-pill px-4 py-2 bg-white fw-bold shadow-sm ' + (data.role === 'admin' ? 'text-danger' : (data.role === 'teacher' ? 'text-success' : 'text-primary'));
     
     const avatar = document.getElementById('detailAvatar');
     avatar.innerText = data.fullname.charAt(0);
@@ -358,3 +373,17 @@ document.getElementById('userModal')?.addEventListener('show.bs.modal', function
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initUserManagement);
+
+window.exportFilteredUsers = function() {
+    const searchInput = document.getElementById('userSearchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const roomFilter = document.getElementById('roomFilter');
+    const showDeletedCheckbox = document.getElementById('showDeletedUsers');
+
+    const search = encodeURIComponent(searchInput?.value || "");
+    const role = encodeURIComponent(roleFilter?.value || "");
+    const room = encodeURIComponent(roomFilter?.value || "");
+    const showDeleted = showDeletedCheckbox?.checked || false;
+
+    window.location.href = `/users/export?search=${search}&role=${role}&room=${room}&showDeleted=${showDeleted}`;
+};
